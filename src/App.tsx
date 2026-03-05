@@ -14,7 +14,8 @@ import Financial from "./pages/Financial";
 import Profile from "./pages/Profile";
 import Receipt from "./pages/Receipt";
 import Statistics from "./pages/Statistics";
-import Install from "./pages/Install";
+import ClientDetails from "./pages/ClientDetails";
+import Plans from "./pages/Plans";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "./components/layout/AppLayout";
 
@@ -73,8 +74,6 @@ const App = () => (
             {/* Rotas públicas */}
             <Route path="/" element={<PublicRoute><Index /></PublicRoute>} />
             <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
-            <Route path="/install" element={<Install />} />
-
             {/* Rotas protegidas com layout do app */}
             <Route path="/dashboard" element={
               <ProtectedRoute>
@@ -114,6 +113,16 @@ const App = () => (
             <Route path="/statistics" element={
               <ProtectedRoute>
                 <AppLayout><Statistics /></AppLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/clients/:clientName" element={
+              <ProtectedRoute>
+                <AppLayout><ClientDetails /></AppLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/plans" element={
+              <ProtectedRoute>
+                <AppLayout><Plans /></AppLayout>
               </ProtectedRoute>
             } />
 

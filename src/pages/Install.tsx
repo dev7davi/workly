@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Briefcase, Download, Smartphone, Check, ArrowLeft } from "lucide-react";
+import { Briefcase, Download, Smartphone, Check, ArrowLeft, Share, PlusSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -41,73 +41,86 @@ export default function Install() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="border-b border-border bg-card px-4 py-4">
-        <div className="mx-auto flex max-w-lg items-center gap-4">
-          <Link to="/">
-            <Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button>
-          </Link>
-          <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-hero">
-              <Briefcase className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="text-lg font-bold">WORKLY</span>
-          </div>
-        </div>
+    <div className="flex min-h-screen flex-col bg-background p-6">
+      <header className="flex items-center gap-4 mb-8">
+        <Link to="/">
+          <Button variant="ghost" size="icon" className="rounded-full">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        </Link>
+        <span className="text-xl font-black tracking-tighter uppercase">WORKLY</span>
       </header>
 
-      <main className="flex flex-1 flex-col items-center justify-center gap-6 px-4 py-8">
-        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-hero">
-          <Smartphone className="h-10 w-10 text-primary-foreground" />
+      <main className="flex flex-1 flex-col items-center justify-center gap-10 max-w-md mx-auto">
+        <div className="relative">
+          <div className="flex h-24 w-24 items-center justify-center rounded-[2.5rem] bg-gradient-to-br from-primary to-blue-600 shadow-2xl shadow-primary/40 relative z-10">
+            <Smartphone className="h-12 w-12 text-white" />
+          </div>
+          <div className="absolute -inset-4 bg-primary/20 rounded-full blur-2xl animate-pulse" />
         </div>
 
-        <div className="text-center">
-          <h1 className="mb-2 text-2xl font-bold">Instalar WORKLY</h1>
-          <p className="text-muted-foreground">Tenha acesso rápido direto da tela inicial</p>
+        <div className="text-center space-y-2">
+          <h1 className="text-3xl font-black tracking-tight">Instalar WORKLY</h1>
+          <p className="text-muted-foreground font-medium">Use como um aplicativo real, direto da sua tela inicial e sem ocupar espaço.</p>
         </div>
 
-        {isInstalled ? (
-          <Card className="w-full max-w-md">
-            <CardContent className="flex items-center gap-4 p-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-success/10">
-                <Check className="h-6 w-6 text-success" />
-              </div>
-              <div>
-                <p className="font-semibold">App instalado!</p>
-                <p className="text-sm text-muted-foreground">Abra pela tela inicial</p>
-              </div>
-            </CardContent>
-          </Card>
-        ) : isIOS ? (
-          <Card className="w-full max-w-md">
-            <CardContent className="space-y-4 p-6">
-              <p className="font-semibold">No iPhone/iPad:</p>
-              <ol className="space-y-2 text-sm text-muted-foreground">
-                <li>1. Toque no botão <strong>Compartilhar</strong> (ícone de quadrado com seta)</li>
-                <li>2. Role e toque em <strong>"Adicionar à Tela de Início"</strong></li>
-                <li>3. Toque em <strong>Adicionar</strong></li>
-              </ol>
-            </CardContent>
-          </Card>
-        ) : deferredPrompt ? (
-          <Button className="w-full max-w-md bg-gradient-hero py-6" onClick={handleInstall}>
-            <Download className="mr-2 h-5 w-5" />Instalar agora
-          </Button>
-        ) : (
-          <Card className="w-full max-w-md">
-            <CardContent className="space-y-4 p-6">
-              <p className="font-semibold">No seu navegador:</p>
-              <ol className="space-y-2 text-sm text-muted-foreground">
-                <li>1. Toque no menu (três pontinhos)</li>
-                <li>2. Selecione <strong>"Instalar app"</strong> ou <strong>"Adicionar à tela inicial"</strong></li>
-              </ol>
-            </CardContent>
-          </Card>
-        )}
+        <div className="w-full space-y-4">
+          {isInstalled ? (
+            <Card className="border-none shadow-xl rounded-[2rem] bg-emerald-500/10 border-emerald-500/20">
+              <CardContent className="flex items-center gap-4 p-6">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500 text-white">
+                  <Check className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="font-black text-emerald-600 uppercase text-xs">Sucesso!</p>
+                  <p className="font-bold">App instalado com sucesso.</p>
+                </div>
+              </CardContent>
+            </Card>
+          ) : isIOS ? (
+            <Card className="border-none shadow-xl rounded-[2rem] bg-card overflow-hidden">
+              <CardContent className="p-6 space-y-6">
+                <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Instruções para iPhone:</p>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 flex items-center justify-center bg-muted rounded-xl">
+                      <Share className="h-5 w-5 text-primary" />
+                    </div>
+                    <p className="text-sm font-bold">1. Toque no ícone de <span className="text-primary font-black">Compartilhar</span> na barra do navegador.</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 flex items-center justify-center bg-muted rounded-xl">
+                      <PlusSquare className="h-5 w-5 text-primary" />
+                    </div>
+                    <p className="text-sm font-bold">2. Procure pela opção <span className="text-primary font-black">"Adicionar à Tela de Início"</span>.</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : deferredPrompt ? (
+            <Button
+              className="w-full h-16 rounded-2xl text-lg font-black bg-gradient-to-br from-primary to-blue-600 shadow-xl shadow-primary/30 transition-all hover:scale-[1.02] active:scale-95"
+              onClick={handleInstall}
+            >
+              <Download className="mr-2 h-6 w-6" /> INSTALAR AGORA
+            </Button>
+          ) : (
+            <Card className="border-none shadow-xl rounded-[2rem] bg-card overflow-hidden">
+              <CardContent className="p-6 space-y-6 text-center">
+                <p className="text-sm font-bold text-muted-foreground">Seu navegador não suporta instalação automática, mas você pode adicionar manualmente pelo menu do navegador.</p>
+                <div className="p-4 bg-muted/40 rounded-2xl">
+                  <p className="text-xs font-black uppercase text-primary">Menu {">"} Adicionar à tela inicial</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-        <Link to="/auth" className="text-sm text-primary hover:underline">
-          Continuar no navegador
-        </Link>
+          <div className="text-center pt-4">
+            <Link to="/auth" className="text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+              Continuar no navegador
+            </Link>
+          </div>
+        </div>
       </main>
     </div>
   );

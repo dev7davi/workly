@@ -41,48 +41,45 @@ export default function Services() {
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-6 p-6 pb-24 max-w-4xl mx-auto">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">Serviços</h1>
+        <div>
+          <h1 className="text-3xl font-black tracking-tight">Serviços</h1>
+          <p className="text-sm text-muted-foreground font-medium">
+            {services.length} serviço{services.length !== 1 ? "s" : ""} registrado{services.length !== 1 ? "s" : ""}
+          </p>
+        </div>
         <Link to="/services/new">
-          <Button className="bg-gradient-hero">
-            <Plus className="mr-2 h-4 w-4" />
+          <Button className="rounded-2xl h-12 px-6 font-black bg-primary shadow-lg shadow-primary/20">
+            <Plus className="mr-2 h-5 w-5" />
             Novo
           </Button>
         </Link>
       </header>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           placeholder="Buscar por cliente ou serviço..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-10"
+          className="pl-11 h-12 rounded-2xl bg-muted/40 border-none focus-visible:ring-primary"
         />
       </div>
 
       <Tabs value={statusFilter} onValueChange={handleStatusChange}>
-        <TabsList className="w-full">
-          <TabsTrigger value="all" className="flex-1">
-            Todos
-          </TabsTrigger>
-          <TabsTrigger value="pending" className="flex-1">
-            Pendentes
-          </TabsTrigger>
-          <TabsTrigger value="paid" className="flex-1">
-            Pagos
-          </TabsTrigger>
-          <TabsTrigger value="cancelled" className="flex-1">
-            Cancelados
-          </TabsTrigger>
+        <TabsList className="w-full h-12 rounded-2xl bg-muted/50 p-1">
+          <TabsTrigger value="all" className="flex-1 rounded-xl font-bold text-xs uppercase">Todos</TabsTrigger>
+          <TabsTrigger value="pending" className="flex-1 rounded-xl font-bold text-xs uppercase">Pendentes</TabsTrigger>
+          <TabsTrigger value="paid" className="flex-1 rounded-xl font-bold text-xs uppercase">Pagos</TabsTrigger>
+          <TabsTrigger value="cancelled" className="flex-1 rounded-xl font-bold text-xs uppercase">Cancelados</TabsTrigger>
         </TabsList>
       </Tabs>
 
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+            <Skeleton key={i} className="h-24 w-full rounded-2xl" />
           ))}
         </div>
       ) : filteredServices.length > 0 ? (
@@ -92,13 +89,15 @@ export default function Services() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
-          <Filter className="h-12 w-12 text-muted-foreground" />
+        <div className="flex flex-col items-center justify-center gap-6 py-16 text-center">
+          <div className="h-16 w-16 bg-muted/30 rounded-full flex items-center justify-center">
+            <Filter className="h-8 w-8 text-muted-foreground/40" />
+          </div>
           <div>
-            <p className="font-medium text-foreground">
-              Nenhum serviço encontrado
+            <p className="font-black text-foreground uppercase tracking-tight text-lg">
+              Nenhum resultado
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground font-medium">
               {search
                 ? "Tente outro termo de busca"
                 : "Cadastre seu primeiro serviço"}
@@ -106,8 +105,8 @@ export default function Services() {
           </div>
           {!search && (
             <Link to="/services/new">
-              <Button className="bg-gradient-hero">
-                <Plus className="mr-2 h-4 w-4" />
+              <Button className="rounded-2xl h-12 px-8 font-black bg-primary shadow-lg shadow-primary/20">
+                <Plus className="mr-2 h-5 w-5" />
                 Novo Serviço
               </Button>
             </Link>

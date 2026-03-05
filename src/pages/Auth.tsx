@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -36,6 +36,7 @@ type AuthMode = "login" | "signup" | "reset";
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [mode, setMode] = useState<AuthMode>(() => {
     const modeParam = searchParams.get("mode");
     if (modeParam === "signup") return "signup";
@@ -84,6 +85,7 @@ export default function Auth() {
           description: message,
         });
       }
+      // If no error, the AuthContext listener will update user and PublicRoute will redirect
     } finally {
       setIsLoading(false);
     }
@@ -103,11 +105,24 @@ export default function Auth() {
           title: "Erro no cadastro",
           description: message,
         });
+        return;
+      }
+
+      // Auto-login after successful signup
+      const { error: loginError } = await signIn(data.email, data.password);
+      if (!loginError) {
+        toast({
+          title: "Bem-vindo ao WORKLY! 🎉",
+          description: "Sua conta foi criada com sucesso.",
+        });
+        navigate("/dashboard");
       } else {
+        // If auto-login fails, show success and ask to login manually
         toast({
           title: "Conta criada!",
-          description: "Bem-vindo ao WORKLY!",
+          description: "Faça login para continuar.",
         });
+        setMode("login");
       }
     } finally {
       setIsLoading(false);

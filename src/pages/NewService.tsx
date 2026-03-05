@@ -2,13 +2,17 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowLeft, Loader2, Check } from "lucide-react";
+import { ArrowLeft, Loader2, Check, User, Briefcase, Calendar, Clock, DollarSign, FileText, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useServices } from "@/hooks/useServices";
+import { Card, CardContent } from "@/components/ui/card";
+import { useServices, ServiceStatus } from "@/hooks/useServices";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState, useEffect } from "react";
+import { usePlan } from "@/hooks/usePlan";
+import { UpgradeModal } from "@/components/UpgradeModal";
 
 const serviceSchema = z.object({
   client_name: z.string().min(2, "Digite o nome do cliente"),
@@ -18,8 +22,8 @@ const serviceSchema = z.object({
     .min(1, "Digite o valor")
     .refine(
       (v) =>
-        !isNaN(parseFloat(v.replace(",", "."))) &&
-        parseFloat(v.replace(",", ".")) > 0,
+        !isNaN(parseFloat(v.replace(".", "").replace(",", "."))) &&
+        parseFloat(v.replace(".", "").replace(",", ".")) > 0,
       "Valor inválido"
     ),
   service_date: z.string().min(1, "Selecione a data do serviço"),
@@ -32,157 +36,261 @@ type ServiceForm = z.infer<typeof serviceSchema>;
 export default function NewService() {
   const navigate = useNavigate();
   const { createService } = useServices();
+  const { canAddService, isAtLimit, plan, limits, serviceCount } = usePlan();
+  const [status, setStatus] = useState<ServiceStatus>("pending");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  // Show modal immediately if already at limit
+  useEffect(() => {
+    if (isAtLimit) {
+      setShowUpgradeModal(true);
+    }
+  }, [isAtLimit]);
+
+  const today = new Date().toISOString().slice(0, 10);
 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<ServiceForm>({
     resolver: zodResolver(serviceSchema),
     defaultValues: {
-      service_date: new Date().toISOString().slice(0, 10),
-      payment_date: new Date().toISOString().slice(0, 10),
+      service_date: today,
+      payment_date: today,
     },
   });
 
   const onSubmit = async (data: ServiceForm) => {
+    if (!canAddService) {
+      setShowUpgradeModal(true);
+      return;
+    }
+
     await createService({
       client_name: data.client_name,
       service_type: data.service_type,
       value: Number(data.value.replace(/\./g, "").replace(",", ".")),
       service_date: data.service_date,
       payment_date: data.payment_date,
-      status: "pending",
+      status: status,
       notes: data.notes || undefined,
     });
 
     navigate("/services");
   };
 
+  const setToday = (field: "service_date" | "payment_date") => {
+    setValue(field, today);
+  };
+
   return (
-    <div className="flex flex-col gap-4 p-4">
-      <header className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="text-xl font-bold text-foreground">
-          Novo Serviço
-        </h1>
-      </header>
+    <>
+      {/* Upgrade Modal */}
+      {showUpgradeModal && <UpgradeModal onClose={() => setShowUpgradeModal(false)} />}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              Dados do Cliente
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="client_name">
-                Nome do cliente *
-              </Label>
-              <Input
-                id="client_name"
-                placeholder="Ex: João Silva"
-                {...register("client_name")}
-              />
-              {errors.client_name && (
-                <p className="text-sm text-destructive">
-                  {errors.client_name.message}
+      <div className="flex flex-col gap-6 p-4 max-w-2xl mx-auto pb-24">
+        <header className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate(-1)}
+            className="rounded-full"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-black tracking-tight">Novo Serviço</h1>
+            <p className="text-sm text-muted-foreground">Registre seu trabalho rapidamente.</p>
+          </div>
+        </header>
+
+        {/* Plan limit banner */}
+        {plan === "free" && (
+          <div
+            className="flex items-center justify-between p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl cursor-pointer"
+            onClick={() => setShowUpgradeModal(true)}
+          >
+            <div className="flex items-center gap-3">
+              <Lock className="h-5 w-5 text-amber-500" />
+              <div>
+                <p className="text-xs font-black uppercase text-amber-600">Plano Free</p>
+                <p className="text-xs font-medium text-muted-foreground">
+                  {serviceCount}/{limits.maxServices} serviços utilizados
                 </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              Detalhes do Serviço
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="service_type">
-                Tipo de serviço *
-              </Label>
-              <Input
-                id="service_type"
-                placeholder="Ex: Manutenção elétrica"
-                {...register("service_type")}
-              />
-              {errors.service_type && (
-                <p className="text-sm text-destructive">
-                  {errors.service_type.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="value">Valor (R$) *</Label>
-              <Input
-                id="value"
-                placeholder="0,00"
-                inputMode="decimal"
-                {...register("value")}
-              />
-              {errors.value && (
-                <p className="text-sm text-destructive">
-                  {errors.value.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="service_date">
-                  Data do serviço *
-                </Label>
-                <Input
-                  id="service_date"
-                  type="date"
-                  {...register("service_date")}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="payment_date">
-                  Data pagamento *
-                </Label>
-                <Input
-                  id="payment_date"
-                  type="date"
-                  {...register("payment_date")}
-                />
               </div>
             </div>
+            <span className="text-[10px] font-black uppercase text-amber-500 bg-amber-500/10 px-3 py-1 rounded-full">
+              Upgrade →
+            </span>
+          </div>
+        )}
 
-            <div className="space-y-2">
-              <Label htmlFor="notes">Observações</Label>
-              <Textarea
-                id="notes"
-                placeholder="Anotações sobre o serviço..."
-                {...register("notes")}
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Status Toggle - High Visibility */}
+          <Tabs value={status} onValueChange={(v) => setStatus(v as ServiceStatus)} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 h-14 p-1 bg-muted/50 rounded-2xl">
+              <TabsTrigger
+                value="pending"
+                className="rounded-xl font-bold data-[state=active]:bg-warning data-[state=active]:text-warning-foreground"
+              >
+                Em Aberto
+              </TabsTrigger>
+              <TabsTrigger
+                value="paid"
+                className="rounded-xl font-bold data-[state=active]:bg-success data-[state=active]:text-success-foreground"
+              >
+                Já Pago
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-        <Button
-          type="submit"
-          className="w-full bg-gradient-hero py-6"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : (
-            <>
-              <Check className="mr-2 h-5 w-5" />
-              Cadastrar Serviço
-            </>
-          )}
-        </Button>
-      </form>
-    </div>
+          <div className="grid gap-6">
+            {/* Client & Service Info */}
+            <Card className="border-none shadow-lg rounded-2xl overflow-hidden">
+              <CardContent className="p-6 space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="client_name" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    <User className="h-3 w-3" /> Nome do Cliente
+                  </Label>
+                  <Input
+                    id="client_name"
+                    placeholder="Ex: Maria Oliveira"
+                    className="h-12 rounded-xl bg-muted/30 border-none focus-visible:ring-primary"
+                    {...register("client_name")}
+                  />
+                  {errors.client_name && (
+                    <p className="text-xs font-medium text-destructive">{errors.client_name.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="service_type" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    <Briefcase className="h-3 w-3" /> Descrição do Serviço
+                  </Label>
+                  <Input
+                    id="service_type"
+                    placeholder="O que você fez?"
+                    className="h-12 rounded-xl bg-muted/30 border-none focus-visible:ring-primary"
+                    {...register("service_type")}
+                  />
+                  {errors.service_type && (
+                    <p className="text-xs font-medium text-destructive">{errors.service_type.message}</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Finance & Dates */}
+            <Card className="border-none shadow-lg rounded-2xl overflow-hidden">
+              <CardContent className="p-6 space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="value" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    <DollarSign className="h-3 w-3" /> Valor Cobrado (R$)
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="value"
+                      placeholder="0,00"
+                      inputMode="decimal"
+                      className="h-14 text-2xl font-black rounded-xl bg-muted/30 border-none px-4 text-primary"
+                      {...register("value")}
+                    />
+                  </div>
+                  {errors.value && (
+                    <p className="text-xs font-medium text-destructive">{errors.value.message}</p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="service_date" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      <Calendar className="h-3 w-3" /> Data do Serviço
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="service_date"
+                        type="date"
+                        className="h-12 rounded-xl bg-muted/30 border-none"
+                        {...register("service_date")}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-12 rounded-xl px-4 text-xs font-bold"
+                        onClick={() => setToday("service_date")}
+                      >
+                        Hoje
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="payment_date" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      <Clock className="h-3 w-3" /> Expectativa de Pagamento
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="payment_date"
+                        type="date"
+                        className="h-12 rounded-xl bg-muted/30 border-none"
+                        {...register("payment_date")}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-12 rounded-xl px-4 text-xs font-bold"
+                        onClick={() => setToday("payment_date")}
+                      >
+                        Hoje
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Notes */}
+            <Card className="border-none shadow-lg rounded-2xl overflow-hidden">
+              <CardContent className="p-6">
+                <div className="space-y-2">
+                  <Label htmlFor="notes" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    <FileText className="h-3 w-3" /> Observações (Opcional)
+                  </Label>
+                  <Textarea
+                    id="notes"
+                    placeholder="Mais detalhes..."
+                    className="rounded-xl bg-muted/30 border-none min-h-[100px] focus-visible:ring-primary"
+                    {...register("notes")}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="pt-4">
+            <Button
+              type="submit"
+              className="w-full h-16 rounded-2xl text-lg font-black bg-gradient-to-br from-primary to-blue-600 shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+              ) : (
+                <>
+                  <Check className="mr-2 h-6 w-6" />
+                  SALVAR SERVIÇO
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </>
   );
 }
+

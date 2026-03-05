@@ -2,9 +2,11 @@ import { Link } from "react-router-dom";
 import {
   Plus,
   Clock,
-  DollarSign,
-  CheckCircle,
+  CheckCircle2,
   ArrowRight,
+  TrendingUp,
+  Briefcase,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +18,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useServices } from "@/hooks/useServices";
 import { formatCurrency } from "@/lib/format";
 import { ServiceCard } from "@/components/services/ServiceCard";
+import { useMemo } from "react";
 
 export default function Dashboard() {
   const { data: profile, isLoading: profileLoading } = useProfile();
@@ -23,181 +26,163 @@ export default function Dashboard() {
 
   const isLoading = profileLoading || loading;
 
-  const pendingServices = services.filter(
-    (s) => s.status === "pending"
-  );
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Bom dia";
+    if (hour < 18) return "Boa tarde";
+    return "Boa noite";
+  }, []);
 
-  const paidThisMonth = services.filter((s) => {
-    if (s.status !== "paid") return false;
-    const paidDate = new Date(s.payment_date);
+  const stats = useMemo(() => {
+    const pending = services.filter((s) => s.status === "pending");
+    const paid = services.filter((s) => s.status === "paid");
+
+    // Paid this month calculation
     const now = new Date();
+    const paidThisMonth = paid.filter((s) => {
+      const pDate = new Date(s.payment_date);
+      return pDate.getMonth() === now.getMonth() && pDate.getFullYear() === now.getFullYear();
+    });
+
+    return {
+      pending,
+      totalPending: pending.reduce((acc, s) => acc + s.value, 0),
+      totalPaidThisMonth: paidThisMonth.reduce((acc, s) => acc + s.value, 0),
+      paidCount: paidThisMonth.length,
+    };
+  }, [services]);
+
+  const recentPending = stats.pending.slice(0, 3);
+
+  if (isLoading) {
     return (
-      paidDate.getMonth() === now.getMonth() &&
-      paidDate.getFullYear() === now.getFullYear()
+      <div className="flex flex-col gap-8 p-6 animate-pulse">
+        <div className="space-y-4">
+          <Skeleton className="h-10 w-48 rounded-xl" />
+          <Skeleton className="h-4 w-64 rounded-lg" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Skeleton className="h-40 w-full rounded-3xl" />
+          <Skeleton className="h-40 w-full rounded-3xl" />
+        </div>
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-40" />
+          <Skeleton className="h-28 w-full rounded-2xl" />
+          <Skeleton className="h-28 w-full rounded-2xl" />
+        </div>
+      </div>
     );
-  });
-
-  const pendingCount = pendingServices.length;
-  const paidThisMonthCount = paidThisMonth.length;
-
-  const totalPending = pendingServices.reduce(
-    (acc, s) => acc + s.value,
-    0
-  );
-
-  const totalPaidThisMonth = paidThisMonth.reduce(
-    (acc, s) => acc + s.value,
-    0
-  );
-
-  const recentPending = pendingServices.slice(0, 3);
+  }
 
   return (
-    <div className="flex flex-col gap-6 p-4">
-      {/* Header */}
+    <div className="flex flex-col gap-8 p-6 pb-24 max-w-lg mx-auto lg:max-w-4xl">
+      {/* Header with Greeting */}
       <header className="flex items-center justify-between">
         <div>
-          {isLoading ? (
-            <div className="space-y-2">
-              <Skeleton className="h-6 w-32" />
-              <Skeleton className="h-4 w-48" />
-            </div>
-          ) : (
-            <>
-              <h1 className="text-2xl font-bold text-foreground">
-                Olá, {profile?.name?.split(" ")[0] || "Usuário"}! 👋
-              </h1>
-              <p className="text-muted-foreground">
-                Seu trabalho, organizado.
-              </p>
-            </>
-          )}
+          <h1 className="text-3xl font-black tracking-tight text-foreground">
+            {greeting}, <span className="text-primary">{profile?.name?.split(" ")[0] || "Usuário"}</span>! 👋
+          </h1>
+          <p className="text-muted-foreground font-medium">
+            Você tem {stats.pending.length} serviços para receber hoje.
+          </p>
         </div>
-
-        <Link to="/services/new">
-          <Button
-            size="icon"
-            className="h-12 w-12 rounded-full bg-gradient-hero shadow-lg"
-          >
-            <Plus className="h-6 w-6" />
-          </Button>
-        </Link>
+        <div className="hidden lg:block">
+          <Link to="/services/new">
+            <Button className="rounded-2xl h-14 px-8 font-black bg-primary shadow-xl shadow-primary/20">
+              NOVO SERVIÇO
+            </Button>
+          </Link>
+        </div>
       </header>
 
-      {/* Stats */}
-      <div className="grid gap-4">
-        {/* Pendentes */}
-        <Card className="border-l-4 border-l-warning">
-          <CardContent className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-warning/10">
-                <Clock className="h-6 w-6 text-warning" />
+      {/* Hero Stats Section */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        {/* Total a Receber */}
+        <Card className="relative overflow-hidden border-none shadow-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white group translate-y-0 hover:-translate-y-1 transition-all duration-300">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-md">
+                <Clock className="h-6 w-6 text-white" />
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Serviços em aberto
-                </p>
-                {isLoading ? (
-                  <Skeleton className="h-7 w-20" />
-                ) : (
-                  <p className="text-2xl font-bold text-foreground">
-                    {pendingCount}
-                  </p>
-                )}
+              <div className="text-right">
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-80 leading-none mb-1">Total em Aberto</p>
+                <div className="h-1 w-12 bg-white/30 rounded-full ml-auto" />
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-xs text-muted-foreground">A receber</p>
-              {isLoading ? (
-                <Skeleton className="h-5 w-24" />
-              ) : (
-                <p className="text-lg font-semibold text-warning">
-                  {formatCurrency(totalPending)}
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Pagos no mês */}
-        <Card className="border-l-4 border-l-success">
-          <CardContent className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-success/10">
-                <CheckCircle className="h-6 w-6 text-success" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Pagos este mês
-                </p>
-                {isLoading ? (
-                  <Skeleton className="h-7 w-20" />
-                ) : (
-                  <p className="text-2xl font-bold text-foreground">
-                    {paidThisMonthCount}
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-muted-foreground">
-                Total recebido
+            <div>
+              <h3 className="text-3xl font-black tracking-tighter mb-1">
+                {formatCurrency(stats.totalPending)}
+              </h3>
+              <p className="text-xs font-bold opacity-80 uppercase tracking-tighter">
+                {stats.pending.length} serviços pendentes
               </p>
-              {isLoading ? (
-                <Skeleton className="h-5 w-24" />
-              ) : (
-                <p className="text-lg font-semibold text-success">
-                  {formatCurrency(totalPaidThisMonth)}
-                </p>
-              )}
             </div>
           </CardContent>
+          <div className="absolute -bottom-6 -right-6 h-32 w-32 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
+        </Card>
+
+        {/* Recebido no Mês */}
+        <Card className="relative overflow-hidden border-none shadow-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white group translate-y-0 hover:-translate-y-1 transition-all duration-300">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-md">
+                <TrendingUp className="h-6 w-6 text-white" />
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-80 leading-none mb-1">Recebido no Mês</p>
+                <div className="h-1 w-12 bg-white/30 rounded-full ml-auto" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-3xl font-black tracking-tighter mb-1">
+                {formatCurrency(stats.totalPaidThisMonth)}
+              </h3>
+              <p className="text-xs font-bold opacity-80 uppercase tracking-tighter">
+                {stats.paidCount} serviços pagos
+              </p>
+            </div>
+          </CardContent>
+          <div className="absolute -bottom-6 -right-6 h-32 w-32 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
         </Card>
       </div>
 
-      {/* Ações rápidas */}
-      <div className="grid grid-cols-2 gap-3">
-        <Link to="/services/new">
-          <Card className="cursor-pointer transition-colors hover:bg-accent">
-            <CardContent className="flex flex-col items-center justify-center gap-2 p-4">
-              <Plus className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium">Novo Serviço</span>
-            </CardContent>
-          </Card>
+      {/* Quick Access Actions */}
+      <div className="grid grid-cols-2 gap-4">
+        <Link to="/services/new" className="group">
+          <div className="flex items-center gap-3 p-4 bg-muted/40 rounded-2xl border border-transparent group-hover:border-primary/20 group-hover:bg-primary/5 transition-all">
+            <div className="h-10 w-10 flex items-center justify-center bg-primary/10 rounded-xl text-primary font-bold">
+              <Plus className="h-5 w-5" />
+            </div>
+            <span className="text-xs font-black uppercase tracking-tighter text-muted-foreground group-hover:text-primary transition-colors">Novo Serviço</span>
+          </div>
         </Link>
-
-        <Link to="/financial">
-          <Card className="cursor-pointer transition-colors hover:bg-accent">
-            <CardContent className="flex flex-col items-center justify-center gap-2 p-4">
-              <DollarSign className="h-5 w-5 text-secondary" />
-              <span className="text-sm font-medium">Ver Financeiro</span>
-            </CardContent>
-          </Card>
+        <Link to="/statistics" className="group">
+          <div className="flex items-center gap-3 p-4 bg-muted/40 rounded-2xl border border-transparent group-hover:border-indigo-500/20 group-hover:bg-indigo-500/5 transition-all">
+            <div className="h-10 w-10 flex items-center justify-center bg-indigo-500/10 rounded-xl text-indigo-500 font-bold">
+              <TrendingUp className="h-5 w-5" />
+            </div>
+            <span className="text-xs font-black uppercase tracking-tighter text-muted-foreground group-hover:text-indigo-500 transition-colors">Relatórios</span>
+          </div>
         </Link>
       </div>
 
-      {/* Próximos a receber */}
-      <div>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-foreground">
+      {/* Upcoming Payments Section */}
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 text-amber-500" />
             Próximos a Receber
           </h2>
           <Link to="/services?status=pending">
-            <Button variant="ghost" size="sm" className="gap-1">
-              Ver todos
-              <ArrowRight className="h-4 w-4" />
+            <Button variant="ghost" size="sm" className="text-[10px] font-black uppercase tracking-tighter hover:bg-muted/50">
+              Ver Tudo
+              <ArrowRight className="h-3 w-3 ml-1" />
             </Button>
           </Link>
         </div>
 
-        {isLoading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-24 w-full rounded-xl" />
-            ))}
-          </div>
-        ) : recentPending.length > 0 ? (
-          <div className="space-y-3">
+        {recentPending.length > 0 ? (
+          <div className="grid gap-3">
             {recentPending.map((service) => (
               <ServiceCard
                 key={service.id}
@@ -207,16 +192,18 @@ export default function Dashboard() {
             ))}
           </div>
         ) : (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center gap-4 py-8">
-              <Clock className="h-8 w-8 text-muted-foreground" />
-              <p className="font-medium">
-                Nenhum serviço pendente
-              </p>
+          <Card className="border-2 border-dashed border-muted rounded-[2rem] bg-transparent">
+            <CardContent className="flex flex-col items-center gap-4 py-12 text-center">
+              <div className="h-16 w-16 bg-muted/30 rounded-full flex items-center justify-center">
+                <Briefcase className="h-8 w-8 text-muted-foreground/40" />
+              </div>
+              <div>
+                <p className="font-black text-foreground uppercase tracking-tight">Tudo em dia!</p>
+                <p className="text-xs text-muted-foreground font-medium px-8">Você não tem serviços pendentes no momento.</p>
+              </div>
               <Link to="/services/new">
-                <Button className="bg-gradient-hero">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Novo Serviço
+                <Button className="rounded-xl font-black bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors">
+                  CADASTRAR SERVIÇO
                 </Button>
               </Link>
             </CardContent>

@@ -1,140 +1,410 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Briefcase, CheckCircle, FileText, TrendingUp, Shield, Smartphone } from "lucide-react";
+import {
+  Briefcase,
+  CheckCircle,
+  TrendingUp,
+  ArrowRight,
+  ShieldCheck,
+  Zap,
+  DollarSign,
+  Star,
+  Crown,
+  Check,
+  Package,
+  BarChart3,
+  FileText,
+  Users,
+} from "lucide-react";
 
-const features = [
+// ⚠️ Substitua pelas URLs reais do Stripe ao ativar os planos
+const STRIPE_LINKS = {
+  pro: "https://buy.stripe.com/SEU_LINK_PRO_AQUI",
+  plus: "https://buy.stripe.com/SEU_LINK_PLUS_AQUI",
+};
+
+const plans = [
   {
-    icon: FileText,
-    title: "Cadastro de Serviços",
-    description: "Registre todos os seus trabalhos de forma simples e organizada.",
+    key: "free",
+    name: "Free",
+    icon: Star,
+    iconColor: "text-slate-400",
+    iconBg: "bg-slate-400/10",
+    price: "Grátis",
+    priceSub: "para sempre",
+    highlight: false,
+    badge: null,
+    features: [
+      "Até 5 serviços cadastrados",
+      "Dashboard financeiro básico",
+      "Comprovante com marca d'água Workly",
+      "Histórico de clientes",
+      "Acesso via web (sem app)",
+    ],
+    cta: "Começar Grátis",
+    ctaHref: "/auth?mode=signup",
+    external: false,
+    ctaStyle: "bg-muted/60 text-foreground hover:bg-muted",
   },
   {
-    icon: TrendingUp,
-    title: "Controle Financeiro",
-    description: "Acompanhe o que você tem a receber e o que já foi pago.",
+    key: "pro",
+    name: "Pro",
+    icon: Zap,
+    iconColor: "text-primary",
+    iconBg: "bg-primary/10",
+    price: "R$19,90",
+    priceSub: "/mês · ou R$179/ano",
+    highlight: true,
+    badge: "Mais Popular",
+    features: [
+      "Serviços ilimitados",
+      "PDF sem marca d'água",
+      "Exportação de dados em CSV",
+      "Materiais e custos por serviço",
+      "Relatório de lucro real",
+      "Histórico completo por cliente",
+      "Dashboard de previsão de receita",
+      "Lembretes de cobrança por e-mail",
+    ],
+    cta: "Assinar Pro",
+    ctaHref: STRIPE_LINKS.pro,
+    external: true,
+    ctaStyle:
+      "bg-gradient-to-r from-primary to-blue-600 text-white shadow-xl shadow-primary/20",
   },
   {
-    icon: CheckCircle,
-    title: "Comprovantes",
-    description: "Gere comprovantes profissionais e compartilhe com seus clientes.",
-  },
-  {
-    icon: Shield,
-    title: "Dados Seguros",
-    description: "Suas informações protegidas e acessíveis apenas para você.",
+    key: "plus",
+    name: "Plus",
+    icon: Crown,
+    iconColor: "text-amber-500",
+    iconBg: "bg-amber-500/10",
+    price: "R$39,90",
+    priceSub: "/mês · ou R$349/ano",
+    highlight: false,
+    badge: "Completo",
+    features: [
+      "Tudo do Pro",
+      "Logo personalizada no comprovante",
+      "QR Code PIX automático para cobrança",
+      "Catálogo de serviços com preços fixos",
+      "Relatórios financeiros avançados",
+      "Múltiplos usuários (até 3)",
+      "Suporte prioritário",
+    ],
+    cta: "Assinar Plus",
+    ctaHref: STRIPE_LINKS.plus,
+    external: true,
+    ctaStyle:
+      "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-xl shadow-amber-500/20",
   },
 ];
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card px-4 py-4">
-        <div className="mx-auto flex max-w-lg items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-hero">
-              <Briefcase className="h-5 w-5 text-primary-foreground" />
+    <div className="flex min-h-screen flex-col bg-background selection:bg-primary selection:text-primary-foreground">
+      {/* Navbar */}
+      <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-background/80 backdrop-blur-md px-6 py-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue-600 shadow-lg shadow-primary/20">
+              <Briefcase className="h-5 w-5 text-white" />
             </div>
-            <div>
-              <h1 className="text-lg font-bold text-foreground">WORKLY</h1>
-              <p className="text-xs text-muted-foreground">Seu trabalho, organizado.</p>
-            </div>
+            <span className="text-xl font-black tracking-tighter">WORKLY</span>
           </div>
-          <Link to="/auth">
-            <Button variant="outline" size="sm">
+          <div className="flex items-center gap-6">
+            <a href="#planos" className="text-sm font-semibold hover:text-primary transition-colors hidden sm:block">
+              Planos
+            </a>
+            <Link to="/auth" className="text-sm font-semibold hover:text-primary transition-colors hidden sm:block">
               Entrar
-            </Button>
-          </Link>
+            </Link>
+            <Link to="/auth?mode=signup">
+              <Button size="sm" className="rounded-full px-6 font-bold shadow-md shadow-primary/10">
+                Criar Conta Grátis
+              </Button>
+            </Link>
+          </div>
         </div>
-      </header>
+      </nav>
 
-      {/* Hero */}
-      <section className="flex flex-1 flex-col items-center justify-center px-4 py-12 text-center">
-        <div className="mx-auto max-w-lg animate-fade-in">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2">
-            <Smartphone className="h-4 w-4 text-accent-foreground" />
-            <span className="text-sm font-medium text-accent-foreground">
-              Instale no seu celular
+      {/* Hero Section */}
+      <section className="relative overflow-hidden px-6 pt-20 pb-24 md:pt-36 md:pb-44">
+        <div className="absolute top-0 right-0 -z-10 h-[600px] w-[600px] rounded-full bg-primary/5 blur-[140px]" />
+        <div className="absolute bottom-0 left-0 -z-10 h-[400px] w-[400px] rounded-full bg-blue-500/5 blur-[120px]" />
+
+        <div className="mx-auto max-w-4xl text-center">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 animate-in fade-in slide-in-from-top-4 duration-1000">
+            <Zap className="h-4 w-4 text-primary" />
+            <span className="text-xs font-bold uppercase tracking-widest text-primary">
+              Sistema Online para Autônomos
             </span>
           </div>
-          
-          <h2 className="mb-4 text-3xl font-bold leading-tight text-foreground">
-            Organize seus serviços.{" "}
-            <span className="text-gradient">Receba sem dor de cabeça.</span>
-          </h2>
-          
-          <p className="mb-8 text-lg text-muted-foreground">
-            Chega de anotações perdidas e cobranças esquecidas. 
-            O WORKLY te ajuda a gerenciar seus trabalhos de forma profissional.
+
+          <h1 className="mb-8 text-4xl font-black leading-[1.1] tracking-tight text-foreground sm:text-6xl md:text-7xl">
+            Organize seus serviços{" "}
+            <span className="bg-gradient-to-r from-primary via-blue-500 to-indigo-600 bg-clip-text text-transparent">
+              e seus recebimentos
+            </span>{" "}
+            em um lugar só.
+          </h1>
+
+          <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground md:text-xl">
+            A ferramenta definitiva para autônomos que querem parar de perder dinheiro com anotações manuais e cobranças esquecidas. Acesse de qualquer dispositivo, pelo navegador.
           </p>
 
-          <div className="flex flex-col gap-3">
-            <Link to="/auth?mode=signup" className="w-full">
-              <Button className="w-full bg-gradient-hero py-6 text-lg font-semibold" size="lg">
-                Começar grátis
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link to="/auth?mode=signup" className="w-full sm:w-auto">
+              <Button size="lg" className="h-16 w-full rounded-2xl px-10 text-lg font-black shadow-xl shadow-primary/20 transition-all hover:scale-105 sm:w-auto">
+                Começar agora — é grátis
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link to="/auth" className="w-full">
-              <Button variant="outline" className="w-full py-6" size="lg">
-                Já tenho conta
-              </Button>
-            </Link>
+            <a href="#planos" className="text-sm font-bold text-muted-foreground hover:text-primary transition-colors underline underline-offset-4">
+              Ver planos e preços
+            </a>
+          </div>
+          <p className="mt-4 text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
+            Sem instalação · Funciona no navegador · Qualquer dispositivo
+          </p>
+        </div>
+      </section>
+
+      {/* Social Proof */}
+      <section className="bg-muted/30 py-12">
+        <div className="mx-auto max-w-5xl px-6 text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground mb-8">
+            Ideal para profissionais como você
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-6 opacity-60 md:gap-12">
+            {["Eletricistas", "Estética", "Designers", "Personal Trainers", "Diaristas", "Freelas"].map((item) => (
+              <span key={item} className="text-sm font-bold md:text-lg">{item}</span>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="border-t border-border bg-card px-4 py-12">
-        <div className="mx-auto max-w-lg">
-          <h3 className="mb-8 text-center text-xl font-bold text-foreground">
-            Tudo que você precisa
-          </h3>
-          
-          <div className="grid gap-4">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="flex items-start gap-4 rounded-xl border border-border bg-background p-4 animate-slide-up"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent">
-                  <feature.icon className="h-6 w-6 text-primary" />
+      {/* The 3 Main Promises */}
+      <section className="px-6 py-24 md:py-32">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-black md:text-5xl tracking-tight mb-4">
+              3 problemas resolvidos de vez
+            </h2>
+            <p className="text-muted-foreground text-lg">Sem planilha. Sem caderninho. Sem WhatsApp desorganizado.</p>
+          </div>
+          <div className="grid gap-8 md:grid-cols-3">
+            {[
+              {
+                icon: Zap,
+                color: "text-amber-500",
+                bg: "bg-amber-500/10",
+                title: "Pare de esquecer cobranças",
+                desc: "Transforme cada serviço em uma pendência rastreável. Você nunca mais vai deixar dinheiro na mesa por esquecimento.",
+              },
+              {
+                icon: DollarSign,
+                color: "text-emerald-500",
+                bg: "bg-emerald-500/10",
+                title: "Saiba exatamente seu lucro",
+                desc: "Registre materiais e custos por serviço. Veja seu lucro real — não só quanto faturou, mas quanto sobrou de verdade.",
+              },
+              {
+                icon: ShieldCheck,
+                color: "text-primary",
+                bg: "bg-primary/10",
+                title: "Credibilidade imediata",
+                desc: "Envie comprovantes profissionais via WhatsApp. Mostre ao cliente que você leva seu negócio a sério.",
+              },
+            ].map((item) => (
+              <div key={item.title} className="group flex flex-col p-8 rounded-3xl border bg-card transition-all hover:-translate-y-2 hover:shadow-xl hover:border-primary/20">
+                <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-2xl ${item.bg} transition-transform group-hover:scale-110`}>
+                  <item.icon className={`h-7 w-7 ${item.color}`} />
                 </div>
-                <div>
-                  <h4 className="font-semibold text-foreground">{feature.title}</h4>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
-                </div>
+                <h3 className="mb-3 text-xl font-black">{item.title}</h3>
+                <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="px-4 py-12">
-        <div className="mx-auto max-w-lg rounded-2xl bg-gradient-hero p-6 text-center">
-          <h3 className="mb-2 text-xl font-bold text-primary-foreground">
-            Pronto para organizar seu trabalho?
-          </h3>
-          <p className="mb-6 text-primary-foreground/80">
-            Comece agora, é grátis!
+      {/* Features grid */}
+      <section className="bg-muted/20 px-6 py-24">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-black md:text-4xl tracking-tight mb-4">
+              Tudo que você precisa para gerir seu trabalho
+            </h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+            {[
+              { icon: FileText, label: "Comprovantes via WhatsApp" },
+              { icon: BarChart3, label: "Dashboard financeiro" },
+              { icon: Package, label: "Controle de custos" },
+              { icon: Users, label: "Histórico por cliente" },
+              { icon: TrendingUp, label: "Projeção de receita" },
+              { icon: DollarSign, label: "Lucro real por serviço" },
+              { icon: CheckCircle, label: "Status de pagamentos" },
+              { icon: ShieldCheck, label: "Dados 100% seguros" },
+            ].map((feat) => (
+              <div key={feat.label} className="flex items-center gap-3 p-4 rounded-2xl bg-card border border-border/50 hover:border-primary/20 transition-colors">
+                <feat.icon className="h-5 w-5 text-primary shrink-0" />
+                <span className="text-sm font-bold">{feat.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pain / ICP Section */}
+      <section className="relative overflow-hidden bg-foreground py-24 px-6 text-background">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="mb-8 text-3xl font-black md:text-5xl tracking-tight">
+            Você ainda anota tudo no caderninho ou no WhatsApp?
+          </h2>
+          <p className="mb-12 text-lg text-background/70 md:text-xl">
+            O Workly foi feito para o autônomo que já tem demanda, mas sente o caos da desorganização financeira batendo na porta. É hora de subir de nível.
           </p>
-          <Link to="/auth?mode=signup">
-            <Button
-              size="lg"
-              className="bg-background text-foreground hover:bg-background/90"
-            >
-              Criar minha conta
-            </Button>
-          </Link>
+          <div className="grid gap-4 text-left md:grid-cols-2">
+            {[
+              "Chega de dúvidas sobre quem já pagou",
+              "Chega de confusão entre dinheiro pessoal e do trabalho",
+              "Gere comprovantes em segundos pelo computador ou celular",
+              "Substitua planilhas complexas por algo simples e eficiente",
+            ].map((point) => (
+              <div key={point} className="flex items-center gap-3 bg-white/5 rounded-2xl px-5 py-4">
+                <CheckCircle className="h-5 w-5 text-primary shrink-0" />
+                <span className="font-semibold">{point}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="planos" className="px-6 py-24 md:py-36">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-primary mb-4">Planos & Preços</p>
+            <h2 className="text-3xl font-black md:text-5xl tracking-tight mb-4">
+              Comece grátis. Cresça no ritmo certo.
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+              Sem surpresas, sem letras miúdas. Cancele quando quiser.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3 items-start">
+            {plans.map((plan) => {
+              const PlanIcon = plan.icon;
+              return (
+                <div
+                  key={plan.key}
+                  className={`relative flex flex-col rounded-3xl border-2 overflow-hidden transition-all duration-300 ${plan.highlight
+                      ? "border-primary shadow-2xl shadow-primary/20 scale-[1.03]"
+                      : "border-border bg-card shadow-lg"
+                    }`}
+                >
+                  {plan.badge && (
+                    <div className="absolute top-4 right-4">
+                      <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full ${plan.highlight ? "bg-primary text-white" : "bg-amber-500 text-white"}`}>
+                        {plan.badge}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className={`p-8 ${plan.highlight ? "bg-card" : "bg-card"}`}>
+                    <div className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl mb-5 ${plan.iconBg}`}>
+                      <PlanIcon className={`h-7 w-7 ${plan.iconColor}`} />
+                    </div>
+                    <h3 className="text-2xl font-black mb-1">{plan.name}</h3>
+                    <div className="flex items-baseline gap-1 mb-1">
+                      <span className="text-3xl font-black">{plan.price}</span>
+                    </div>
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{plan.priceSub}</p>
+                  </div>
+
+                  <div className="px-8 pb-4 flex-1 space-y-3">
+                    {plan.features.map((f) => (
+                      <div key={f} className="flex items-start gap-3">
+                        <Check className={`h-4 w-4 shrink-0 mt-0.5 ${plan.highlight ? "text-primary" : plan.key === "plus" ? "text-amber-500" : "text-muted-foreground"}`} />
+                        <span className="text-sm font-medium">{f}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="p-8 pt-6">
+                    {plan.external ? (
+                      <a href={plan.ctaHref} target="_blank" rel="noopener noreferrer" className="block">
+                        <Button className={`w-full h-14 rounded-2xl font-black text-base transition-all hover:scale-[1.02] active:scale-95 ${plan.ctaStyle}`}>
+                          {plan.cta}
+                          <ArrowRight className="ml-2 h-5 w-5" />
+                        </Button>
+                      </a>
+                    ) : (
+                      <Link to={plan.ctaHref}>
+                        <Button className={`w-full h-14 rounded-2xl font-black text-base transition-all hover:scale-[1.02] active:scale-95 ${plan.ctaStyle}`}>
+                          {plan.cta}
+                          <ArrowRight className="ml-2 h-5 w-5" />
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-12 text-center flex flex-wrap items-center justify-center gap-8 text-xs font-black uppercase tracking-widest text-muted-foreground">
+            <span>✓ Cancele quando quiser</span>
+            <span>✓ Pagamento por Stripe (seguro)</span>
+            <span>✓ Sem fidelidade</span>
+            <span>✓ Suporte incluso</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-24 px-6 md:py-36">
+        <div className="mx-auto max-w-4xl overflow-hidden rounded-[3rem] bg-gradient-to-br from-primary to-blue-700 p-8 text-center text-white md:p-20 relative">
+          <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "40px 40px" }} />
+          <h2 className="relative mb-6 text-3xl font-black md:text-6xl tracking-tight">
+            Recupere o controle da sua rotina.
+          </h2>
+          <p className="relative mb-10 text-lg opacity-90 md:text-xl">
+            Se você recuperar UMA cobrança esquecida, o Workly já valeu — e no plano gratuito, ele é totalmente sem custo.
+          </p>
+          <div className="relative flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link to="/auth?mode=signup">
+              <Button size="lg" className="h-16 rounded-2xl bg-white text-primary hover:bg-white/90 text-xl font-black px-12 transition-all hover:scale-105 active:scale-95">
+                Criar minha conta agora
+              </Button>
+            </Link>
+            <a href="#planos" className="text-white/70 font-bold underline underline-offset-4 hover:text-white transition-colors text-sm">
+              Ver planos
+            </a>
+          </div>
+          <p className="mt-6 text-xs font-bold uppercase tracking-widest opacity-50">
+            Acesse pelo navegador · Sem instalação
+          </p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-card px-4 py-6 text-center">
-        <p className="text-sm text-muted-foreground">
-          © 2024 WORKLY. Feito para trabalhadores brasileiros.
-        </p>
+      <footer className="border-t border-border bg-card px-6 py-12">
+        <div className="mx-auto max-w-5xl flex flex-col items-center justify-between gap-6 md:flex-row">
+          <div className="flex items-center gap-2">
+            <Briefcase className="h-5 w-5 text-primary" />
+            <span className="font-black tracking-tighter">WORKLY</span>
+          </div>
+          <p className="text-xs text-muted-foreground uppercase font-bold tracking-[0.2em]">
+            © 2026 WORKLY — Feito para o autônomo brasileiro.
+          </p>
+          <div className="flex gap-6">
+            <a href="#planos" className="text-xs font-bold hover:text-primary transition-colors">Planos</a>
+            <Link to="/auth" className="text-xs font-bold hover:text-primary transition-colors">Entrar</Link>
+          </div>
+        </div>
       </footer>
     </div>
   );
