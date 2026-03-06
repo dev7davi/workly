@@ -13,9 +13,6 @@ import {
     AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
     AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { useServiceCatalog, CatalogItem } from "@/hooks/useServiceCatalog";
 import { formatCurrency } from "@/lib/format";
 
@@ -137,17 +134,12 @@ function ItemForm({
                 </div>
                 <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase text-muted-foreground">Unidade</Label>
-                    <Select
-                        value={undefined}
-                        onValueChange={(v) => { }}
-                    >
-                        <Input
-                            placeholder="un, m², h..."
-                            className="h-11 rounded-xl bg-background border-none"
-                            {...register("unit")}
-                            defaultValue={existing?.unit || "un"}
-                        />
-                    </Select>
+                    <Input
+                        placeholder="un, m², h..."
+                        className="h-11 rounded-xl bg-background border-none"
+                        {...register("unit")}
+                        defaultValue={existing?.unit || "un"}
+                    />
                 </div>
             </div>
 

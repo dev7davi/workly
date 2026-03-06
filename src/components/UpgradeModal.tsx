@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { Crown, X, Check, Zap, ArrowRight } from "lucide-react";
+import { Crown, X, Check, Zap, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PLAN_LIMITS } from "@/hooks/usePlan";
+import { PLANS } from "@/hooks/usePlan";
 
 interface UpgradeModalProps {
     onClose: () => void;
@@ -34,12 +34,30 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
                         Você atingiu o limite de <strong>5 serviços</strong> do plano gratuito.
                         Faça upgrade para registrar serviços ilimitados e desbloquear recursos premium.
                     </p>
-                    {/* Decorative */}
                     <div className="absolute -bottom-8 -right-8 h-32 w-32 bg-white/10 rounded-full blur-2xl" />
                 </div>
 
                 {/* Plans Preview */}
                 <div className="p-6 space-y-4">
+                    {/* Start Plan */}
+                    <div className="border border-border rounded-2xl p-4">
+                        <div className="flex items-center justify-between mb-3">
+                            <div>
+                                <p className="font-black text-lg">Start</p>
+                                <p className="text-xs font-bold text-muted-foreground uppercase">R$14,90/mês</p>
+                            </div>
+                            <Zap className="h-6 w-6 text-indigo-500" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-1">
+                            {PLANS.start.features.slice(0, 4).map((f) => (
+                                <div key={f} className="flex items-center gap-1">
+                                    <Check className="h-3 w-3 shrink-0 text-indigo-500" />
+                                    <span className="text-[10px] font-bold text-muted-foreground">{f}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* Pro Plan */}
                     <div className="relative border-2 border-primary rounded-2xl p-4 bg-primary/5">
                         <div className="absolute -top-3 left-4">
@@ -50,33 +68,14 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
                         <div className="flex items-center justify-between mb-3 mt-1">
                             <div>
                                 <p className="font-black text-lg">Pro</p>
-                                <p className="text-xs font-bold text-muted-foreground uppercase">R$19,90/mês</p>
+                                <p className="text-xs font-bold text-muted-foreground uppercase">R$27,90/mês</p>
                             </div>
-                            <Zap className="h-6 w-6 text-primary" />
+                            <Crown className="h-6 w-6 text-primary" />
                         </div>
                         <div className="grid grid-cols-2 gap-1">
-                            {PLAN_LIMITS.pro.features.slice(0, 4).map((f) => (
+                            {PLANS.pro.features.slice(0, 4).map((f) => (
                                 <div key={f} className="flex items-center gap-1">
                                     <Check className="h-3 w-3 shrink-0 text-primary" />
-                                    <span className="text-[10px] font-bold text-muted-foreground">{f}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Plus Plan */}
-                    <div className="border border-border rounded-2xl p-4">
-                        <div className="flex items-center justify-between mb-3">
-                            <div>
-                                <p className="font-black text-lg">Plus</p>
-                                <p className="text-xs font-bold text-muted-foreground uppercase">R$39,90/mês</p>
-                            </div>
-                            <Crown className="h-6 w-6 text-amber-500" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-1">
-                            {PLAN_LIMITS.plus.features.slice(0, 4).map((f) => (
-                                <div key={f} className="flex items-center gap-1">
-                                    <Check className="h-3 w-3 shrink-0 text-amber-500" />
                                     <span className="text-[10px] font-bold text-muted-foreground">{f}</span>
                                 </div>
                             ))}
