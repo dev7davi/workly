@@ -1,4 +1,10 @@
--- Create service_costs table
+-- Drop policies if they already exist (safe re-run)
+drop policy if exists "Users can view their service costs" on public.service_costs;
+drop policy if exists "Users can insert their service costs" on public.service_costs;
+drop policy if exists "Users can update their service costs" on public.service_costs;
+drop policy if exists "Users can delete their service costs" on public.service_costs;
+
+-- Create service_costs table (safe)
 create table if not exists public.service_costs (
   id uuid primary key default gen_random_uuid(),
   service_id uuid not null references public.services(id) on delete cascade,
@@ -15,7 +21,7 @@ create table if not exists public.service_costs (
 -- Enable RLS
 alter table public.service_costs enable row level security;
 
--- Policy: users can only access costs linked to their own services
+-- Recreate policies
 create policy "Users can view their service costs"
   on public.service_costs for select
   using (
