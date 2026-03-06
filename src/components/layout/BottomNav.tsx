@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Home, FileText, Plus, Users, BarChart3 } from "lucide-react";
+import { Home, FileText, Plus, Users, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -7,7 +7,7 @@ const navItems = [
   { to: "/services", icon: FileText, label: "Serviços" },
   { to: "/services/new", icon: Plus, label: "Novo", isAction: true },
   { to: "/clients", icon: Users, label: "Clientes" },
-  { to: "/statistics", icon: BarChart3, label: "Relatórios" },
+  { to: "/agenda", icon: CalendarDays, label: "Agenda" },
 ];
 
 export function BottomNav() {
@@ -23,7 +23,8 @@ export function BottomNav() {
             (to === "/services" &&
               location.pathname.startsWith("/services") &&
               location.pathname !== "/services/new") ||
-            (to === "/clients" && location.pathname.startsWith("/clients"));
+            (to === "/clients" && location.pathname.startsWith("/clients")) ||
+            (to === "/agenda" && location.pathname.startsWith("/agenda"));
 
           if (isAction) {
             return (

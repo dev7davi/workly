@@ -19,6 +19,7 @@ import Clients from "./pages/Clients";
 import ClientForm from "./pages/ClientForm";
 import Plans from "./pages/Plans";
 import Catalog from "./pages/Catalog";
+import Agenda from "./pages/Agenda";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "./components/layout/AppLayout";
 
@@ -99,6 +100,9 @@ const App = () => (
 
             {/* Catálogo */}
             <Route path="/catalog" element={<P><Catalog /></P>} />
+
+            {/* Agenda */}
+            <Route path="/agenda" element={<P><Agenda /></P>} />
 
             {/* Resto */}
             <Route path="/financial" element={<P><Financial /></P>} />

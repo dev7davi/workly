@@ -170,7 +170,8 @@ export default function Profile() {
             {[
               { icon: FileText, label: "Atividade Total", sub: `${profile?.services_count || 0} serviços registrados`, href: "/services", color: "text-emerald-500", bg: "bg-emerald-500/10" },
               { icon: User, label: "Clientes", sub: "Gerenciar seus clientes", href: "/clients", color: "text-indigo-500", bg: "bg-indigo-500/10" },
-              { icon: Settings, label: "Catálogo de Serviços", sub: "Preços e serviços padrão", href: "/catalog", color: "text-primary", bg: "bg-primary/10" },
+              { icon: Calendar, label: "Agenda", sub: "Compromissos e visitas", href: "/agenda", color: "text-blue-500", bg: "bg-blue-500/10" },
+              { icon: Settings, label: "Catálogo", sub: "Serviços e materiais padrão", href: "/catalog", color: "text-primary", bg: "bg-primary/10" },
               { icon: FileText, label: "Relatórios", sub: "Financeiro, previsões e análises", href: "/statistics", color: "text-purple-500", bg: "bg-purple-500/10" },
               { icon: Crown, label: "Planos & Assinatura", sub: "Veja os planos disponíveis", href: "/plans", color: "text-amber-500", bg: "bg-amber-500/10" },
             ].map(item => (
