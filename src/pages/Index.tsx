@@ -15,12 +15,16 @@ import {
   BarChart3,
   FileText,
   Users,
+  Sparkles,
+  ChevronDown,
 } from "lucide-react";
+import { useState } from "react";
 
-// ⚠️ Substitua pelas URLs reais do Stripe ao ativar os planos
+// ⚠️ Substitua pelas URLs reais do Stripe
 const STRIPE_LINKS = {
+  start: "https://buy.stripe.com/SEU_LINK_START_AQUI",
   pro: "https://buy.stripe.com/SEU_LINK_PRO_AQUI",
-  plus: "https://buy.stripe.com/SEU_LINK_PLUS_AQUI",
+  pro_plus: "https://buy.stripe.com/SEU_LINK_PLUS_AQUI",
 };
 
 const plans = [
@@ -35,11 +39,9 @@ const plans = [
     highlight: false,
     badge: null,
     features: [
-      "Até 5 serviços cadastrados",
+      "5 serviços e 5 clientes",
       "Dashboard financeiro básico",
-      "Comprovante com marca d'água Workly",
-      "Histórico de clientes",
-      "Acesso via web (sem app)",
+      "Comprovante com marca Workly",
     ],
     cta: "Começar Grátis",
     ctaHref: "/auth?mode=signup",
@@ -47,35 +49,54 @@ const plans = [
     ctaStyle: "bg-muted/60 text-foreground hover:bg-muted",
   },
   {
+    key: "start",
+    name: "Start",
+    icon: Zap,
+    iconColor: "text-indigo-500",
+    iconBg: "bg-indigo-500/10",
+    price: "R$14,90",
+    priceSub: "/mês · ou R$149,90/ano",
+    highlight: false,
+    badge: null,
+    features: [
+      "Clientes e serviços ilimitados",
+      "Financeiro completo",
+      "Catálogo de serviços",
+      "Histórico completo por cliente",
+      "Comprovante e recibo",
+    ],
+    cta: "Assinar Start",
+    ctaHref: STRIPE_LINKS.start,
+    external: true,
+    ctaStyle: "bg-indigo-600 text-white hover:bg-indigo-700",
+  },
+  {
     key: "pro",
     name: "Pro",
-    icon: Zap,
+    icon: Crown,
     iconColor: "text-primary",
     iconBg: "bg-primary/10",
-    price: "R$19,90",
-    priceSub: "/mês · ou R$179/ano",
+    price: "R$27,90",
+    priceSub: "/mês · ou R$279,90/ano",
     highlight: true,
     badge: "Mais Popular",
     features: [
-      "Serviços ilimitados",
-      "PDF sem marca d'água",
-      "Exportação de dados em CSV",
-      "Materiais e custos por serviço",
-      "Relatório de lucro real",
-      "Histórico completo por cliente",
-      "Dashboard de previsão de receita",
-      "Lembretes de cobrança por e-mail",
+      "Tudo do Start",
+      "Custos e despesas por serviço",
+      "Lucro real por serviço",
+      "Gráficos e relatórios",
+      "Documentos personalizados com logo",
+      "Lembretes de cobrança",
     ],
     cta: "Assinar Pro",
     ctaHref: STRIPE_LINKS.pro,
     external: true,
-    ctaStyle:
-      "bg-gradient-to-r from-primary to-blue-600 text-white shadow-xl shadow-primary/20",
+    ctaStyle: "bg-gradient-to-r from-primary to-blue-600 text-white shadow-xl shadow-primary/20",
   },
   {
-    key: "plus",
-    name: "Plus",
-    icon: Crown,
+    key: "pro_plus",
+    name: "Pro+",
+    icon: Sparkles,
     iconColor: "text-amber-500",
     iconBg: "bg-amber-500/10",
     price: "R$39,90",
@@ -88,18 +109,29 @@ const plans = [
       "QR Code PIX automático para cobrança",
       "Catálogo de serviços com preços fixos",
       "Relatórios financeiros avançados",
-      "Múltiplos usuários (até 3)",
+      "Módulos premium antecipados",
       "Suporte prioritário",
     ],
-    cta: "Assinar Plus",
-    ctaHref: STRIPE_LINKS.plus,
+    cta: "Assinar Pro+",
+    ctaHref: STRIPE_LINKS.pro_plus,
     external: true,
     ctaStyle:
       "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-xl shadow-amber-500/20",
   },
 ];
 
+const faqs = [
+  { q: "Tem aplicativo para baixar?", a: "Não. O Workly é um sistema 100% online — você acessa pelo navegador do celular, tablet ou computador. Nenhuma instalação necessária." },
+  { q: "Funciona bem no celular?", a: "Sim! O Workly foi desenvolvido com design mobile-first. A experiência no celular é tão boa quanto no computador." },
+  { q: "Meus dados ficam salvos?", a: "Sim. Todos os dados são salvos na nuvem com segurança. Você pode acessar de qualquer lugar, a qualquer hora." },
+  { q: "Posso gerar recibo e comprovante?", a: "Sim! Comprovante simples no plano Free. Com o Pro você pode personalizar com sua logo." },
+  { q: "Posso cancelar quando quiser?", a: "Sim, sem fidelidade. Cancele quando quiser pela plataforma de pagamento, sem burocracia." },
+  { q: "O plano Free é realmente gratuito?", a: "Sim, sem cartão de crédito. O Free tem limite de 5 serviços e 5 clientes para você experimentar antes de escolher um plano pago." },
+];
+
 const Index = () => {
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
   return (
     <div className="flex min-h-screen flex-col bg-background selection:bg-primary selection:text-primary-foreground">
       {/* Navbar */}
@@ -301,8 +333,8 @@ const Index = () => {
                 <div
                   key={plan.key}
                   className={`relative flex flex-col rounded-3xl border-2 overflow-hidden transition-all duration-300 ${plan.highlight
-                      ? "border-primary shadow-2xl shadow-primary/20 scale-[1.03]"
-                      : "border-border bg-card shadow-lg"
+                    ? "border-primary shadow-2xl shadow-primary/20 scale-[1.03]"
+                    : "border-border bg-card shadow-lg"
                     }`}
                 >
                   {plan.badge && (
@@ -360,6 +392,34 @@ const Index = () => {
             <span>✓ Pagamento por Stripe (seguro)</span>
             <span>✓ Sem fidelidade</span>
             <span>✓ Suporte incluso</span>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="bg-muted/20 px-6 py-24">
+        <div className="mx-auto max-w-3xl">
+          <div className="text-center mb-12">
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-primary mb-3">Dúvidas</p>
+            <h2 className="text-3xl font-black tracking-tight">Perguntas frequentes</h2>
+          </div>
+          <div className="space-y-3">
+            {faqs.map((faq, i) => (
+              <div key={i} className="rounded-2xl border border-border/50 bg-card overflow-hidden">
+                <button
+                  className="w-full flex items-center justify-between p-6 text-left hover:bg-muted/30 transition-colors"
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                >
+                  <span className="font-black text-base pr-4">{faq.q}</span>
+                  <ChevronDown className={`h-5 w-5 text-muted-foreground shrink-0 transition-transform duration-300 ${openFaq === i ? "rotate-180" : ""}`} />
+                </button>
+                {openFaq === i && (
+                  <div className="px-6 pb-6">
+                    <p className="text-muted-foreground leading-relaxed font-medium">{faq.a}</p>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>

@@ -159,22 +159,48 @@ export default function Profile() {
         </Card>
       </div>
 
-      {/* Settings Section */}
+      {/* Quick Navigation Section */}
       <div className="space-y-4">
         <h2 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 px-2">
-          <Settings className="h-4 w-4" /> Preferências
+          <Settings className="h-4 w-4" /> Navegação Rápida
         </h2>
 
         <Card className="border-none shadow-lg rounded-[2rem] overflow-hidden bg-card/50">
           <CardContent className="p-4 grid gap-1">
+            {[
+              { icon: FileText, label: "Atividade Total", sub: `${profile?.services_count || 0} serviços registrados`, href: "/services", color: "text-emerald-500", bg: "bg-emerald-500/10" },
+              { icon: User, label: "Clientes", sub: "Gerenciar seus clientes", href: "/clients", color: "text-indigo-500", bg: "bg-indigo-500/10" },
+              { icon: Settings, label: "Catálogo de Serviços", sub: "Preços e serviços padrão", href: "/catalog", color: "text-primary", bg: "bg-primary/10" },
+              { icon: FileText, label: "Relatórios", sub: "Financeiro, previsões e análises", href: "/statistics", color: "text-purple-500", bg: "bg-purple-500/10" },
+              { icon: Crown, label: "Planos & Assinatura", sub: "Veja os planos disponíveis", href: "/plans", color: "text-amber-500", bg: "bg-amber-500/10" },
+            ].map(item => (
+              <div
+                key={item.href}
+                className="flex items-center justify-between p-3 rounded-2xl hover:bg-muted/30 transition-colors group cursor-pointer"
+                onClick={() => navigate(item.href)}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`h-10 w-10 flex items-center justify-center ${item.bg} rounded-xl ${item.color}`}>
+                    <item.icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black">{item.label}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase">{item.sub}</p>
+                  </div>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+              </div>
+            ))}
+
+            {/* Dark mode toggle */}
             <div className="flex items-center justify-between p-3 rounded-2xl hover:bg-muted/30 transition-colors group">
               <div className="flex items-center gap-4">
                 <div className="h-10 w-10 flex items-center justify-center bg-slate-500/10 rounded-xl text-slate-500">
                   {theme === "dark" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
                 </div>
                 <div>
-                  <p className="text-sm font-black">Aparência do App</p>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase">{theme === "dark" ? "Modo Escuro Ativo" : "Modo Claro Ativo"}</p>
+                  <p className="text-sm font-black">Aparência</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase">{theme === "dark" ? "Modo Escuro" : "Modo Claro"}</p>
                 </div>
               </div>
               <Switch
@@ -182,22 +208,6 @@ export default function Profile() {
                 onCheckedChange={toggleTheme}
                 className="data-[state=checked]:bg-primary"
               />
-            </div>
-
-            <div
-              className="flex items-center justify-between p-3 rounded-2xl hover:bg-muted/30 transition-colors group cursor-pointer"
-              onClick={() => navigate('/services')}
-            >
-              <div className="flex items-center gap-4">
-                <div className="h-10 w-10 flex items-center justify-center bg-emerald-500/10 rounded-xl text-emerald-500">
-                  <FileText className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-black">Atividade Total</p>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase">{profile?.services_count || 0} Serviços Registrados</p>
-                </div>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-1 transition-all" />
             </div>
           </CardContent>
         </Card>
