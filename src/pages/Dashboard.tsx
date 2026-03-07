@@ -7,6 +7,8 @@ import {
   TrendingUp,
   Briefcase,
   AlertCircle,
+  CalendarDays,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +18,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProfile } from "@/hooks/useProfile";
 import { useServices } from "@/hooks/useServices";
+import { useAppointments } from "@/hooks/useAppointments";
 import { formatCurrency } from "@/lib/format";
 import { ServiceCard } from "@/components/services/ServiceCard";
 import { useMemo } from "react";
@@ -23,6 +26,7 @@ import { useMemo } from "react";
 export default function Dashboard() {
   const { data: profile, isLoading: profileLoading } = useProfile();
   const { services, loading } = useServices();
+  const { appointments } = useAppointments();
 
   const isLoading = profileLoading || loading;
 
@@ -44,13 +48,19 @@ export default function Dashboard() {
       return pDate.getMonth() === now.getMonth() && pDate.getFullYear() === now.getFullYear();
     });
 
+    const today = new Date().toISOString().slice(0, 10);
+    const todayAppts = appointments.filter(a => a.status === "scheduled" && a.date === today);
+    const upcomingAppts = appointments.filter(a => a.status === "scheduled" && a.date >= today).slice(0, 3);
+
     return {
       pending,
       totalPending: pending.reduce((acc, s) => acc + s.value, 0),
       totalPaidThisMonth: paidThisMonth.reduce((acc, s) => acc + s.value, 0),
       paidCount: paidThisMonth.length,
+      todayAppts,
+      upcomingAppts,
     };
-  }, [services]);
+  }, [services, appointments]);
 
   const recentPending = stats.pending.slice(0, 3);
 
@@ -147,7 +157,7 @@ export default function Dashboard() {
       </div>
 
       {/* Quick Access Actions */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3">
         <Link to="/services/new" className="group">
           <div className="flex items-center gap-3 p-4 bg-muted/40 rounded-2xl border border-transparent group-hover:border-primary/20 group-hover:bg-primary/5 transition-all">
             <div className="h-10 w-10 flex items-center justify-center bg-primary/10 rounded-xl text-primary font-bold">
@@ -156,15 +166,67 @@ export default function Dashboard() {
             <span className="text-xs font-black uppercase tracking-tighter text-muted-foreground group-hover:text-primary transition-colors">Novo Serviço</span>
           </div>
         </Link>
-        <Link to="/statistics" className="group">
+        <Link to="/clients" className="group">
           <div className="flex items-center gap-3 p-4 bg-muted/40 rounded-2xl border border-transparent group-hover:border-indigo-500/20 group-hover:bg-indigo-500/5 transition-all">
-            <div className="h-10 w-10 flex items-center justify-center bg-indigo-500/10 rounded-xl text-indigo-500 font-bold">
+            <div className="h-10 w-10 flex items-center justify-center bg-indigo-500/10 rounded-xl text-indigo-500">
+              <Users className="h-5 w-5" />
+            </div>
+            <span className="text-xs font-black uppercase tracking-tighter text-muted-foreground group-hover:text-indigo-500 transition-colors">Clientes</span>
+          </div>
+        </Link>
+        <Link to="/agenda" className="group">
+          <div className="flex items-center gap-3 p-4 bg-muted/40 rounded-2xl border border-transparent group-hover:border-blue-500/20 group-hover:bg-blue-500/5 transition-all">
+            <div className="h-10 w-10 flex items-center justify-center bg-blue-500/10 rounded-xl text-blue-500">
+              <CalendarDays className="h-5 w-5" />
+            </div>
+            <span className="text-xs font-black uppercase tracking-tighter text-muted-foreground group-hover:text-blue-500 transition-colors">
+              Agenda {stats.todayAppts.length > 0 && <span className="text-blue-600 font-black">({stats.todayAppts.length} hoje)</span>}
+            </span>
+          </div>
+        </Link>
+        <Link to="/statistics" className="group">
+          <div className="flex items-center gap-3 p-4 bg-muted/40 rounded-2xl border border-transparent group-hover:border-purple-500/20 group-hover:bg-purple-500/5 transition-all">
+            <div className="h-10 w-10 flex items-center justify-center bg-purple-500/10 rounded-xl text-purple-500">
               <TrendingUp className="h-5 w-5" />
             </div>
-            <span className="text-xs font-black uppercase tracking-tighter text-muted-foreground group-hover:text-indigo-500 transition-colors">Relatórios</span>
+            <span className="text-xs font-black uppercase tracking-tighter text-muted-foreground group-hover:text-purple-500 transition-colors">Relatórios</span>
           </div>
         </Link>
       </div>
+
+      {/* Upcoming Appointments */}
+      {stats.upcomingAppts.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
+              <CalendarDays className="h-4 w-4 text-blue-500" />
+              Próximos Compromissos
+            </h2>
+            <Link to="/agenda">
+              <Button variant="ghost" size="sm" className="text-[10px] font-black uppercase tracking-tighter hover:bg-muted/50">
+                Ver Agenda <ArrowRight className="h-3 w-3 ml-1" />
+              </Button>
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {stats.upcomingAppts.map(appt => (
+              <Link key={appt.id} to="/agenda">
+                <div className="flex items-center gap-3 p-3 bg-blue-500/5 rounded-2xl border border-blue-500/10 hover:border-blue-500/30 transition-colors">
+                  <div className="h-9 w-9 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
+                    <CalendarDays className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-black truncate">{appt.title}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase">
+                      {appt.date === new Date().toISOString().slice(0, 10) ? "Hoje" : appt.date}{appt.time ? ` às ${appt.time}` : ""}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Upcoming Payments Section */}
       <div className="flex flex-col gap-4">

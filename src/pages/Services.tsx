@@ -1,18 +1,24 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Plus, Search, Filter } from "lucide-react";
+import { Plus, Search, Filter, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useServices, ServiceStatus } from "@/hooks/useServices";
 import { ServiceCard } from "@/components/services/ServiceCard";
+import { toast } from "sonner";
 
 export default function Services() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
 
-  const { services, loading } = useServices();
+  const { services, loading, duplicateService } = useServices();
+
+  const handleDuplicate = async (service: any) => {
+    await duplicateService(service);
+    toast.success("Serviço duplicado!", { description: "Uma cópia foi criada como pendente." });
+  };
 
   const statusFilter =
     (searchParams.get("status") as ServiceStatus | "all") || "all";
@@ -85,7 +91,7 @@ export default function Services() {
       ) : filteredServices.length > 0 ? (
         <div className="space-y-3">
           {filteredServices.map((service) => (
-            <ServiceCard key={service.id} service={service} />
+            <ServiceCard key={service.id} service={service} onDuplicate={handleDuplicate} />
           ))}
         </div>
       ) : (
