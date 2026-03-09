@@ -24,12 +24,14 @@ import { useClients } from "@/hooks/useClients";
 import { useServices } from "@/hooks/useServices";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/format";
+import { QuickAddClient } from "@/components/QuickAddClient";
 
 export default function Clients() {
     const { clients, isLoading, deleteClient } = useClients();
     const { services } = useServices();
     const navigate = useNavigate();
     const [search, setSearch] = useState("");
+    const [showQuickAdd, setShowQuickAdd] = useState(false);
 
     const filtered = useMemo(() => {
         if (!search) return clients;
@@ -79,14 +81,22 @@ export default function Clients() {
                         {clients.length} cliente{clients.length !== 1 ? "s" : ""} cadastrado{clients.length !== 1 ? "s" : ""}
                     </p>
                 </div>
-                <Button
-                    onClick={() => navigate("/clients/new")}
-                    className="rounded-2xl h-12 px-6 font-black bg-primary shadow-lg shadow-primary/20"
-                >
-                    <Plus className="mr-2 h-5 w-5" />
-                    Novo
-                </Button>
+                <div className="flex gap-2">
+                    <Button
+                        onClick={() => setShowQuickAdd(true)}
+                        className="rounded-2xl h-12 px-6 font-black bg-primary shadow-lg shadow-primary/20"
+                    >
+                        <Plus className="mr-2 h-5 w-5" />
+                        Novo
+                    </Button>
+                </div>
             </header>
+
+            <QuickAddClient
+                open={showQuickAdd}
+                onOpenChange={setShowQuickAdd}
+                onSuccess={() => setShowQuickAdd(false)}
+            />
 
             {/* Search */}
             <div className="relative">
