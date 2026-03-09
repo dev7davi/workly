@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useAllServiceCosts } from "@/hooks/useAllServiceCosts";
@@ -35,7 +36,7 @@ export default function Costs() {
 
     const data = useMemo(() => {
         const now = new Date();
-        const paidServices = services.filter(s => s.status === "paid" || s.status === "pending" || s.status === "concluido");
+        const paidServices = services.filter(s => s.status === "paid" || s.status === "pending");
 
         // Total Bruto de todos os serviços
         const totalRevenue = paidServices.reduce((acc, s) => acc + Number(s.value), 0);

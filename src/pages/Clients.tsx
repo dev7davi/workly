@@ -66,7 +66,7 @@ export default function Clients() {
                 s.client_name.toLowerCase().trim() === client.name.toLowerCase().trim()
             );
 
-            const paid = clientServices.filter(s => s.status === "paid" || s.status === "concluido");
+            const paid = clientServices.filter(s => s.status === "paid");
             const pending = clientServices.filter(s => s.status === "pending");
             const overdue = pending.filter(s => s.payment_date < TODAY);
 
