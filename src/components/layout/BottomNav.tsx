@@ -2,7 +2,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Home, FileText, Plus, Users, CalendarDays,
   BarChart3, User, BookOpen, MoreHorizontal, X,
-  Wallet, Package
+  Wallet, Package, TrendingDown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -10,6 +10,7 @@ import { useState } from "react";
 const moreItems = [
   { to: "/statistics", icon: BarChart3, label: "Relatórios", color: "text-purple-500", bg: "bg-purple-500/10" },
   { to: "/financial", icon: Wallet, label: "Financeiro", color: "text-emerald-500", bg: "bg-emerald-500/10" },
+  { to: "/costs", icon: TrendingDown, label: "Custos", color: "text-rose-500", bg: "bg-rose-500/10" },
   { to: "/catalog", icon: BookOpen, label: "Catálogo", color: "text-primary", bg: "bg-primary/10" },
   { to: "/plans", icon: Package, label: "Planos", color: "text-amber-500", bg: "bg-amber-500/10" },
   { to: "/profile", icon: User, label: "Perfil", color: "text-slate-500", bg: "bg-slate-500/10" },

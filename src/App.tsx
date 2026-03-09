@@ -11,6 +11,7 @@ import Services from "./pages/Services";
 import NewService from "./pages/NewService";
 import EditService from "./pages/EditService";
 import Financial from "./pages/Financial";
+import Costs from "./pages/Costs";
 import Profile from "./pages/Profile";
 import Receipt from "./pages/Receipt";
 import Statistics from "./pages/Statistics";
@@ -104,8 +105,9 @@ const App = () => (
             {/* Agenda */}
             <Route path="/agenda" element={<P><Agenda /></P>} />
 
-            {/* Resto */}
+            {/* Financeiro e Custos */}
             <Route path="/financial" element={<P><Financial /></P>} />
+            <Route path="/costs" element={<P><Costs /></P>} />
             <Route path="/statistics" element={<P><Statistics /></P>} />
             <Route path="/profile" element={<P><Profile /></P>} />
             <Route path="/plans" element={<P><Plans /></P>} />
