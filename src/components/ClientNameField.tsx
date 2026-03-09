@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
     User, UserPlus, Search, Check, X, Loader2,
-    Phone, CheckCircle2, ChevronRight
+    Phone, CheckCircle2, ChevronRight, AlertCircle, Mail
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,40 +12,53 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useClients } from "@/hooks/useClients";
 
-// ─── Quick Register Form Schema ───────────────────────────────────────────────
+// ─── Quick Register Schema (lenient — only name required) ────────────────────
 const quickClientSchema = z.object({
     name: z.string().min(2, "Nome obrigatório (mín. 2 caracteres)"),
     phone: z.string().optional(),
-    email: z.string().email("E-mail inválido").optional().or(z.literal("")),
+    email: z
+        .string()
+        .optional()
+        .refine(v => !v || v === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), "E-mail inválido"),
 });
 type QuickClientForm = z.infer<typeof quickClientSchema>;
 
-// ─── Success Popup ─────────────────────────────────────────────────────────────
+// ─── Success Popup ───────────────────────────────────────────────────────────
 function SuccessPopup({ name, onClose }: { name: string; onClose: () => void }) {
     useEffect(() => {
-        const t = setTimeout(onClose, 3000);
+        const t = setTimeout(onClose, 3500);
         return () => clearTimeout(t);
     }, [onClose]);
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
-            <div className="bg-card rounded-3xl shadow-2xl border border-border p-8 flex flex-col items-center gap-4 max-w-xs w-full animate-in zoom-in-95 duration-200">
-                <div className="h-20 w-20 bg-emerald-500/10 rounded-full flex items-center justify-center">
-                    <CheckCircle2 className="h-10 w-10 text-emerald-500" />
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <div className="bg-card rounded-3xl shadow-2xl border border-border p-8 flex flex-col items-center gap-5 max-w-xs w-full animate-in zoom-in-90 duration-300">
+                <div className="relative">
+                    <div className="h-24 w-24 bg-emerald-500/10 rounded-full flex items-center justify-center animate-in zoom-in-50 duration-500">
+                        <CheckCircle2 className="h-12 w-12 text-emerald-500" />
+                    </div>
+                    <div className="absolute -top-1 -right-1 h-6 w-6 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+                        <Check className="h-3.5 w-3.5 text-white stroke-[3]" />
+                    </div>
                 </div>
                 <div className="text-center">
-                    <p className="font-black text-xl tracking-tight">Cliente cadastrado!</p>
-                    <p className="text-sm text-muted-foreground font-medium mt-1">
-                        <span className="text-primary font-black">{name}</span> foi adicionado ao sistema
+                    <p className="font-black text-2xl tracking-tight">Cadastrado!</p>
+                    <p className="text-sm text-muted-foreground font-medium mt-1 leading-relaxed">
+                        <span className="text-primary font-black">"{name}"</span><br />
+                        foi adicionado ao sistema com sucesso.
                     </p>
                 </div>
-                <p className="text-xs text-muted-foreground/60">Fechando automaticamente…</p>
+                <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-emerald-500 rounded-full animate-[width_3.5s_linear]" style={{ width: "100%", animation: "shrink 3.5s linear forwards" }} />
+                </div>
+                <p className="text-xs text-muted-foreground/60 font-medium">Fecha automaticamente…</p>
             </div>
+            <style>{`@keyframes shrink { from { width: 100%; } to { width: 0%; } }`}</style>
         </div>
     );
 }
 
-// ─── Quick Register Modal ──────────────────────────────────────────────────────
+// ─── Quick Register Modal ────────────────────────────────────────────────────
 function QuickRegisterModal({
     initialName,
     onClose,
@@ -56,6 +69,7 @@ function QuickRegisterModal({
     onSuccess: (name: string) => void;
 }) {
     const { createClient } = useClients();
+    const [serverError, setServerError] = useState<string | null>(null);
 
     const {
         register,
@@ -67,27 +81,38 @@ function QuickRegisterModal({
     });
 
     const onSubmit = async (data: QuickClientForm) => {
-        await createClient({
-            name: data.name,
-            type: "pf",
-            phone: data.phone || null,
-            email: data.email || null,
-            document: null,
-            phone_secondary: null,
-            street: null,
-            neighborhood: null,
-            city: null,
-            state: null,
-            zip: null,
-            birthday: null,
-            notes: null,
-        });
-        onSuccess(data.name);
+        setServerError(null);
+        try {
+            await createClient({
+                name: data.name.trim(),
+                type: "pf",
+                phone: data.phone?.trim() || null,
+                email: data.email?.trim() || null,
+                document: null,
+                phone_secondary: null,
+                street: null,
+                neighborhood: null,
+                city: null,
+                state: null,
+                zip: null,
+                birthday: null,
+                notes: null,
+            });
+            // Only called if createClient succeeds
+            onSuccess(data.name.trim());
+        } catch (err: any) {
+            console.error("Erro ao cadastrar cliente:", err);
+            setServerError(
+                err?.message?.includes("duplicate")
+                    ? "Já existe um cliente com este nome."
+                    : err?.message || "Erro ao cadastrar. Tente novamente."
+            );
+        }
     };
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
             onClick={(e) => e.target === e.currentTarget && onClose()}
         >
             <div className="bg-card w-full max-w-md rounded-[2rem] shadow-2xl border border-border overflow-hidden animate-in slide-in-from-bottom-6 duration-300">
@@ -99,72 +124,88 @@ function QuickRegisterModal({
                     >
                         <X className="h-4 w-4" />
                     </button>
-                    <div className="flex items-center gap-3 mb-1">
-                        <div className="h-10 w-10 flex items-center justify-center bg-white/20 rounded-xl">
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="h-11 w-11 flex items-center justify-center bg-white/20 rounded-2xl">
                             <UserPlus className="h-5 w-5" />
                         </div>
                         <div>
                             <p className="text-[10px] font-black uppercase tracking-widest opacity-80">Cadastro Rápido</p>
-                            <h2 className="text-xl font-black">Novo Cliente</h2>
+                            <h2 className="text-xl font-black leading-tight">Novo Cliente</h2>
                         </div>
                     </div>
                     <p className="text-sm opacity-80 font-medium">
-                        Preencha o essencial agora. Você pode completar o cadastro depois em Clientes.
+                        Preencha o essencial agora. Complete o cadastro depois em <strong>Clientes →</strong>
                     </p>
                     <div className="absolute -bottom-8 -right-8 h-28 w-28 bg-white/10 rounded-full blur-2xl" />
                 </div>
 
                 {/* Form */}
                 <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
-                    {/* Name */}
+                    {/* Server error */}
+                    {serverError && (
+                        <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-xl text-sm text-destructive font-medium">
+                            <AlertCircle className="h-4 w-4 shrink-0" />
+                            {serverError}
+                        </div>
+                    )}
+
+                    {/* Name — required */}
                     <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1">
-                            <User className="h-3 w-3" /> Nome completo *
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                            <User className="h-3 w-3" /> Nome completo <span className="text-destructive">*</span>
                         </Label>
                         <Input
                             autoFocus
                             placeholder="Ex: Maria Oliveira"
-                            className="h-12 rounded-xl bg-muted/40 border-none focus-visible:ring-primary text-base font-medium"
+                            className={cn(
+                                "h-12 rounded-xl bg-muted/40 border text-base font-medium focus-visible:ring-primary",
+                                errors.name ? "border-destructive" : "border-transparent"
+                            )}
                             {...register("name")}
                         />
                         {errors.name && (
-                            <p className="text-xs text-destructive font-medium">{errors.name.message}</p>
+                            <p className="text-xs text-destructive font-medium flex items-center gap-1">
+                                <AlertCircle className="h-3 w-3" /> {errors.name.message}
+                            </p>
                         )}
                     </div>
 
-                    {/* Phone */}
+                    {/* Phone — optional */}
                     <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
                             <Phone className="h-3 w-3" /> Telefone / WhatsApp
+                            <span className="text-muted-foreground/50 font-medium normal-case tracking-normal">(opcional)</span>
                         </Label>
                         <Input
                             placeholder="(00) 00000-0000"
                             inputMode="tel"
-                            className="h-12 rounded-xl bg-muted/40 border-none focus-visible:ring-primary"
+                            className="h-12 rounded-xl bg-muted/40 border-transparent focus-visible:ring-primary"
                             {...register("phone")}
                         />
                     </div>
 
-                    {/* Email */}
+                    {/* Email — optional */}
                     <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                            E-mail
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                            <Mail className="h-3 w-3" /> E-mail
+                            <span className="text-muted-foreground/50 font-medium normal-case tracking-normal">(opcional)</span>
                         </Label>
                         <Input
                             placeholder="cliente@email.com"
                             inputMode="email"
                             type="email"
-                            className="h-12 rounded-xl bg-muted/40 border-none focus-visible:ring-primary"
+                            className={cn(
+                                "h-12 rounded-xl bg-muted/40 border focus-visible:ring-primary",
+                                errors.email ? "border-destructive" : "border-transparent"
+                            )}
                             {...register("email")}
                         />
                         {errors.email && (
-                            <p className="text-xs text-destructive font-medium">{errors.email.message}</p>
+                            <p className="text-xs text-destructive font-medium flex items-center gap-1">
+                                <AlertCircle className="h-3 w-3" /> {errors.email.message}
+                            </p>
                         )}
                     </div>
-
-                    <p className="text-[10px] text-muted-foreground/60 font-medium">
-                        * Obrigatório. Demais informações podem ser adicionadas depois em <strong>Clientes →</strong>
-                    </p>
 
                     {/* Actions */}
                     <div className="flex gap-3 pt-2">
@@ -173,6 +214,7 @@ function QuickRegisterModal({
                             variant="outline"
                             className="flex-1 h-12 rounded-xl font-bold"
                             onClick={onClose}
+                            disabled={isSubmitting}
                         >
                             Cancelar
                         </Button>
@@ -182,9 +224,14 @@ function QuickRegisterModal({
                             disabled={isSubmitting}
                         >
                             {isSubmitting ? (
-                                <Loader2 className="h-5 w-5 animate-spin" />
+                                <span className="flex items-center gap-2">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    Cadastrando…
+                                </span>
                             ) : (
-                                <><Check className="h-4 w-4 mr-1.5" /> Cadastrar</>
+                                <span className="flex items-center gap-1.5">
+                                    <Check className="h-4 w-4" /> Cadastrar
+                                </span>
                             )}
                         </Button>
                     </div>
@@ -194,7 +241,7 @@ function QuickRegisterModal({
     );
 }
 
-// ─── ClientNameField (main exported component) ─────────────────────────────────
+// ─── ClientNameField ─────────────────────────────────────────────────────────
 interface ClientNameFieldProps {
     value: string;
     onChange: (name: string) => void;
@@ -210,7 +257,12 @@ export function ClientNameField({ value, onChange, error }: ClientNameFieldProps
     const [registeredName, setRegisteredName] = useState("");
     const wrapperRef = useRef<HTMLDivElement>(null);
 
-    // Close suggestions on outside click
+    // Sync external value changes
+    useEffect(() => {
+        setInputValue(value);
+    }, [value]);
+
+    // Close dropdown on outside click
     useEffect(() => {
         function handleClick(e: MouseEvent) {
             if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
@@ -221,10 +273,14 @@ export function ClientNameField({ value, onChange, error }: ClientNameFieldProps
         return () => document.removeEventListener("mousedown", handleClick);
     }, []);
 
-    // Filter clients by input
-    const filtered = clients.filter(c =>
-        c.name.toLowerCase().includes(inputValue.toLowerCase()) && inputValue.length > 0
-    ).slice(0, 6);
+    // Fuzzy filter
+    const filtered = clients
+        .filter(c => c.name.toLowerCase().includes(inputValue.toLowerCase()) && inputValue.length > 0)
+        .slice(0, 6);
+
+    const noExactMatch =
+        inputValue.trim().length >= 2 &&
+        !clients.some(c => c.name.toLowerCase() === inputValue.toLowerCase().trim());
 
     const handleInputChange = (v: string) => {
         setInputValue(v);
@@ -242,18 +298,13 @@ export function ClientNameField({ value, onChange, error }: ClientNameFieldProps
         setRegisteredName(name);
         setShowRegisterModal(false);
         setShowSuccessPopup(true);
-        // Auto-fill the field with the registered client's name
         setInputValue(name);
         onChange(name);
+        setShowSuggestions(false);
     };
-
-    const noExactMatch = inputValue.length >= 2 && !clients.some(
-        c => c.name.toLowerCase() === inputValue.toLowerCase()
-    );
 
     return (
         <>
-            {/* Modals */}
             {showRegisterModal && (
                 <QuickRegisterModal
                     initialName={inputValue}
@@ -268,7 +319,6 @@ export function ClientNameField({ value, onChange, error }: ClientNameFieldProps
                 />
             )}
 
-            {/* Field */}
             <div ref={wrapperRef} className="relative space-y-1.5">
                 <Label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     <User className="h-3 w-3" /> Nome do Cliente
@@ -281,34 +331,37 @@ export function ClientNameField({ value, onChange, error }: ClientNameFieldProps
                         value={inputValue}
                         onChange={e => handleInputChange(e.target.value)}
                         onFocus={() => inputValue.length > 0 && setShowSuggestions(true)}
-                        placeholder="Buscar ou digitar nome do cliente…"
-                        className="h-12 rounded-xl bg-muted/30 border-none focus-visible:ring-primary pl-10 pr-24"
+                        placeholder="Buscar cliente ou digitar novo nome…"
+                        className="h-12 rounded-xl bg-muted/30 border-none focus-visible:ring-primary pl-10 pr-28"
                         autoComplete="off"
                     />
-                    {/* Quick register button */}
                     <button
                         type="button"
-                        onClick={() => setShowRegisterModal(true)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 h-8 px-3 bg-primary/10 hover:bg-primary text-primary hover:text-white rounded-lg text-[10px] font-black uppercase tracking-tight transition-all"
+                        onClick={() => { setShowSuggestions(false); setShowRegisterModal(true); }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 h-8 px-3 bg-primary/10 hover:bg-primary text-primary hover:text-white rounded-lg text-[10px] font-black uppercase tracking-tight transition-all active:scale-95"
                         title="Cadastrar novo cliente"
                     >
                         <UserPlus className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">Novo</span>
+                        <span>+ Novo</span>
                     </button>
                 </div>
 
-                {error && <p className="text-xs font-medium text-destructive">{error}</p>}
+                {error && (
+                    <p className="text-xs font-medium text-destructive flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {error}
+                    </p>
+                )}
 
                 {/* Suggestions dropdown */}
-                {showSuggestions && (
-                    <div className="absolute left-0 right-0 top-full mt-1 z-30 bg-card rounded-2xl shadow-2xl border border-border overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+                {showSuggestions && (filtered.length > 0 || noExactMatch) && (
+                    <div className="absolute left-0 right-0 top-full mt-1.5 z-30 bg-card rounded-2xl shadow-2xl border border-border overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
                         {filtered.length > 0 && (
-                            <ul>
+                            <ul className="py-1">
                                 {filtered.map(client => (
                                     <li key={client.id}>
                                         <button
                                             type="button"
-                                            onClick={() => handleSelect(client.name)}
+                                            onMouseDown={(e) => { e.preventDefault(); handleSelect(client.name); }}
                                             className="w-full flex items-center gap-3 px-4 py-3 hover:bg-primary/5 text-left transition-colors group"
                                         >
                                             <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -327,16 +380,14 @@ export function ClientNameField({ value, onChange, error }: ClientNameFieldProps
                             </ul>
                         )}
 
-                        {/* Not found — offer to register */}
+                        {/* Option to register new client */}
                         {noExactMatch && (
                             <button
                                 type="button"
-                                onClick={() => { setShowSuggestions(false); setShowRegisterModal(true); }}
+                                onMouseDown={(e) => { e.preventDefault(); setShowSuggestions(false); setShowRegisterModal(true); }}
                                 className={cn(
-                                    "w-full flex items-center gap-3 px-4 py-3 transition-colors",
-                                    filtered.length > 0
-                                        ? "border-t border-border hover:bg-indigo-500/5"
-                                        : "hover:bg-indigo-500/5"
+                                    "w-full flex items-center gap-3 px-4 py-3 transition-colors hover:bg-indigo-500/5",
+                                    filtered.length > 0 && "border-t border-border"
                                 )}
                             >
                                 <div className="h-8 w-8 rounded-xl bg-indigo-500/10 flex items-center justify-center shrink-0">
@@ -344,20 +395,14 @@ export function ClientNameField({ value, onChange, error }: ClientNameFieldProps
                                 </div>
                                 <div className="flex-1 text-left">
                                     <p className="text-sm font-black text-indigo-600 dark:text-indigo-400">
-                                        Cadastrar "{inputValue}"
+                                        Cadastrar "{inputValue.trim()}"
                                     </p>
                                     <p className="text-[10px] font-bold text-muted-foreground">
-                                        Adicionar como novo cliente
+                                        Adicionar como novo cliente no sistema
                                     </p>
                                 </div>
                                 <ChevronRight className="h-4 w-4 text-indigo-400 shrink-0" />
                             </button>
-                        )}
-
-                        {filtered.length === 0 && !noExactMatch && (
-                            <div className="px-4 py-4 text-center text-sm text-muted-foreground font-medium">
-                                Nenhum cliente encontrado
-                            </div>
                         )}
                     </div>
                 )}
