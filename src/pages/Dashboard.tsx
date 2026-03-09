@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Plus, Clock, TrendingUp, Briefcase, AlertCircle,
   CalendarDays, Users, ArrowRight, Zap, AlertTriangle,
   CheckCircle2, CircleDollarSign, BarChart3, ChevronRight,
-  Flame, Timer,
+  Flame, Timer, Phone, MessageCircle, FileText,
+  DollarSign, Wrench, Star, Target, Activity
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,39 +14,45 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useProfile } from "@/hooks/useProfile";
 import { useServices } from "@/hooks/useServices";
 import { useAppointments } from "@/hooks/useAppointments";
+import { useCalendarEvents } from "@/hooks/useCalendarEvents";
+import { useClients } from "@/hooks/useClients";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
-import { format, isToday, isTomorrow, isPast, parseISO, isThisWeek } from "date-fns";
+import { format, isToday, isTomorrow, isPast, parseISO, isThisWeek, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-// ----------------------------
-// Helpers
-// ----------------------------
+// ─── Constants ────────────────────────────────────────────────────────────────
 const TODAY = new Date().toISOString().slice(0, 10);
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 function dateLabel(dateStr: string) {
   try {
     const d = parseISO(dateStr);
     if (isToday(d)) return { text: "Hoje", urgent: true };
     if (isTomorrow(d)) return { text: "Amanhã", urgent: false };
     if (isPast(d)) return { text: "Vencido", urgent: true };
-    if (isThisWeek(d)) return { text: format(d, "EEEE", { locale: ptBR }), urgent: false };
+    if (isThisWeek(d, { weekStartsOn: 1 })) return { text: format(d, "EEEE", { locale: ptBR }), urgent: false };
     return { text: format(d, "dd/MM", { locale: ptBR }), urgent: false };
   } catch {
     return { text: dateStr, urgent: false };
   }
 }
 
-// ----------------------------
-// Sub-components
-// ----------------------------
+function greetingText() {
+  const h = new Date().getHours();
+  if (h < 12) return "Bom dia";
+  if (h < 18) return "Boa tarde";
+  return "Boa noite";
+}
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
 function SectionHeader({ icon: Icon, label, to, iconColor = "text-muted-foreground" }: {
   icon: any; label: string; to?: string; iconColor?: string;
 }) {
   return (
     <div className="flex items-center justify-between">
-      <h2 className={cn("text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2")}>
+      <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
         <Icon className={cn("h-3.5 w-3.5", iconColor)} />
         {label}
       </h2>
@@ -118,47 +126,108 @@ function AlertCard({ title, description, href, variant = "warning" }: {
   );
 }
 
-// ----------------------------
-// Main Dashboard
-// ----------------------------
+// ─── Quick Action Button ──────────────────────────────────────────────────────
+function QuickAction({ icon: Icon, label, color, bg, onClick }: {
+  icon: any; label: string; color: string; bg: string; onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex flex-col items-center justify-center gap-2 p-3 rounded-2xl transition-all hover:scale-105 active:scale-95",
+        bg
+      )}
+    >
+      <Icon className={cn("h-5 w-5", color)} />
+      <span className="text-[9px] font-black uppercase tracking-tight text-muted-foreground text-center leading-tight">{label}</span>
+    </button>
+  );
+}
+
+// ─── Service Row (today) ─────────────────────────────────────────────────────
+function TodayServiceRow({ service, clientPhone }: { service: any; clientPhone?: string }) {
+  const navigate = useNavigate();
+  return (
+    <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-card border border-border group hover:shadow-md transition-all">
+      <div className="h-9 w-9 rounded-xl bg-indigo-500/10 flex items-center justify-center shrink-0">
+        <Wrench className="h-4 w-4 text-indigo-500" />
+      </div>
+      <div className="flex-1 min-w-0 cursor-pointer" onClick={() => navigate(`/services/${service.id}/edit`)}>
+        <p className="font-black text-sm truncate">{service.client_name}</p>
+        <p className="text-[10px] font-bold text-muted-foreground truncate">{service.service_type}</p>
+      </div>
+      <div className="flex items-center gap-1 shrink-0">
+        <span className="text-sm font-black text-emerald-600">{formatCurrency(Number(service.value))}</span>
+        {clientPhone && (
+          <>
+            <a
+              href={`tel:${clientPhone}`}
+              onClick={e => e.stopPropagation()}
+              className="h-7 w-7 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center hover:bg-blue-500/20"
+              title="Ligar"
+            >
+              <Phone className="h-3.5 w-3.5" />
+            </a>
+            <a
+              href={`https://wa.me/${clientPhone.replace(/\D/g, "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              className="h-7 w-7 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center hover:bg-emerald-500/20"
+              title="WhatsApp"
+            >
+              <MessageCircle className="h-3.5 w-3.5" />
+            </a>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function Dashboard() {
   const navigate = useNavigate();
   const { data: profile, isLoading: profileLoading } = useProfile();
-  const { services, loading } = useServices();
-  const { appointments } = useAppointments();
+  const { services, loading: servicesLoading } = useServices();
+  const { appointments, isLoading: apptLoading } = useAppointments();
+  const { events, isLoading: eventsLoading } = useCalendarEvents();
+  const { clients } = useClients();
 
-  const isLoading = profileLoading || loading;
-
-  const greeting = useMemo(() => {
-    const h = new Date().getHours();
-    if (h < 12) return "Bom dia";
-    if (h < 18) return "Boa tarde";
-    return "Boa noite";
-  }, []);
+  const isLoading = profileLoading || servicesLoading || apptLoading || eventsLoading;
 
   const data = useMemo(() => {
     const now = new Date();
     const thisMonth = now.getMonth();
     const thisYear = now.getFullYear();
 
-    // Services
+    // ── Services ──
     const pending = services.filter(s => s.status === "pending");
     const paid = services.filter(s => s.status === "paid");
 
-    const overdueServices = pending.filter(s => s.payment_date < TODAY)
+    // Today's services (execution date = today)
+    const todayServices = services.filter(s => s.service_date === TODAY);
+    // Today's payments due
+    const todayPayments = pending.filter(s => s.payment_date === TODAY);
+    // Overdue
+    const overdueServices = pending
+      .filter(s => s.payment_date < TODAY)
       .sort((a, b) => a.payment_date.localeCompare(b.payment_date));
-
-    const dueTodayServices = pending.filter(s => s.payment_date === TODAY);
-
+    // Due this week
     const dueThisWeek = pending.filter(s => {
       const d = parseISO(s.payment_date);
       return isThisWeek(d, { weekStartsOn: 1 }) && s.payment_date >= TODAY;
     });
-
+    // Paid this month
     const paidThisMonth = paid.filter(s => {
       const d = parseISO(s.payment_date);
       return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
     });
+    // Next 3 pending
+    const nextPending = pending
+      .filter(s => s.payment_date >= TODAY)
+      .sort((a, b) => a.payment_date.localeCompare(b.payment_date))
+      .slice(0, 3);
 
     const totalPending = pending.reduce((a, s) => a + Number(s.value), 0);
     const totalPaidMonth = paidThisMonth.reduce((a, s) => a + Number(s.value), 0);
@@ -167,54 +236,77 @@ export default function Dashboard() {
       return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
     }).length;
 
-    // Appointments
-    const todayAppts = appointments.filter(a => a.status === "scheduled" && a.date === TODAY);
+    // ── Appointments (legacy) ──
+    const todayAppts = appointments
+      .filter(a => a.status === "scheduled" && a.date === TODAY)
+      .sort((a, b) => (a.time || "").localeCompare(b.time || ""));
     const upcomingAppts = appointments
-      .filter(a => a.status === "scheduled" && a.date >= TODAY)
+      .filter(a => a.status === "scheduled" && a.date > TODAY)
       .sort((a, b) => a.date.localeCompare(b.date))
-      .slice(0, 4);
-
-    // Next pending services (sorted by payment_date asc)
-    const nextPending = pending
-      .filter(s => s.payment_date >= TODAY)
-      .sort((a, b) => a.payment_date.localeCompare(b.payment_date))
       .slice(0, 3);
 
+    // ── Calendar Events ──
+    const todayEvents = events
+      .filter(e => e.data_inicio === TODAY && e.status !== "cancelado" && e.status !== "concluido")
+      .sort((a, b) => (a.hora_inicio || "").localeCompare(b.hora_inicio || ""));
+    const nextEvents = events
+      .filter(e => e.data_inicio > TODAY && e.status !== "cancelado" && e.status !== "concluido")
+      .sort((a, b) => a.data_inicio.localeCompare(b.data_inicio))
+      .slice(0, 3);
+
+    // ── Next appointment (combined: first of today's events/appts sorted by time) ──
+    const allTodayScheduled: { title: string; time?: string; type: string }[] = [
+      ...todayAppts.map(a => ({ title: a.title, time: a.time || undefined, type: "compromisso" })),
+      ...todayEvents.map(e => ({ title: e.titulo, time: e.hora_inicio || undefined, type: e.tipo_evento })),
+    ].sort((a, b) => (a.time || "99:99").localeCompare(b.time || "99:99"));
+
+    const nextAppointment = allTodayScheduled[0];
+
+    // ── Client phone lookup ──
+    const clientPhoneMap: Record<string, string | undefined> = {};
+    clients.forEach(c => { clientPhoneMap[c.name.toLowerCase().trim()] = c.phone || undefined; });
+
     return {
-      pending, paid,
-      overdueServices, dueTodayServices, dueThisWeek,
-      paidThisMonth, totalPending, totalPaidMonth,
-      totalServicesMonth,
-      todayAppts, upcomingAppts, nextPending,
+      pending, paid, overdueServices, todayPayments,
+      todayServices, dueThisWeek, paidThisMonth, nextPending,
+      totalPending, totalPaidMonth, totalServicesMonth,
+      todayAppts, upcomingAppts,
+      todayEvents, nextEvents,
+      allTodayScheduled, nextAppointment,
+      clientPhoneMap,
     };
-  }, [services, appointments]);
+  }, [services, appointments, events, clients]);
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-6 p-6 animate-pulse max-w-lg mx-auto">
-        <Skeleton className="h-12 w-56 rounded-xl" />
+      <div className="flex flex-col gap-5 p-5 animate-pulse max-w-lg mx-auto">
+        <Skeleton className="h-14 w-64 rounded-xl" />
+        <div className="grid grid-cols-3 gap-2">
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 rounded-2xl" />)}
+        </div>
         <div className="grid grid-cols-2 gap-3">
           {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 rounded-3xl" />)}
         </div>
-        {[1, 2].map(i => <Skeleton key={i} className="h-20 w-full rounded-2xl" />)}
+        {[1, 2, 3].map(i => <Skeleton key={i} className="h-16 w-full rounded-2xl" />)}
       </div>
     );
   }
 
   const firstName = profile?.name?.split(" ")[0] || "Usuário";
-  const hasAlerts = data.overdueServices.length > 0 || data.dueTodayServices.length > 0;
+  const hasAlerts = data.overdueServices.length > 0 || data.todayPayments.length > 0;
+  const todayTotal = data.todayPayments.reduce((a, s) => a + Number(s.value), 0);
 
   return (
-    <div className="flex flex-col gap-6 p-5 pb-28 max-w-lg mx-auto lg:max-w-2xl">
+    <div className="flex flex-col gap-5 p-5 pb-28 max-w-lg mx-auto">
 
       {/* ── Header ── */}
       <header className="flex items-center justify-between pt-2">
         <div>
-          <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-0.5">
+          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-0.5">
             {format(new Date(), "EEEE, dd 'de' MMMM", { locale: ptBR })}
           </p>
           <h1 className="text-2xl font-black tracking-tight">
-            {greeting}, <span className="text-primary">{firstName}</span>! 👋
+            {greetingText()}, <span className="text-primary">{firstName}</span>! 👋
           </h1>
         </div>
         <button
@@ -225,7 +317,26 @@ export default function Dashboard() {
         </button>
       </header>
 
-      {/* ── Alertas do dia ── */}
+      {/* ── Próximo compromisso do dia ── */}
+      {data.nextAppointment && (
+        <Link to="/agenda">
+          <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-primary/10 via-blue-500/5 to-indigo-500/5 border border-primary/20 rounded-2xl hover:border-primary/40 transition-all">
+            <div className="h-11 w-11 bg-primary/15 rounded-2xl flex items-center justify-center shrink-0">
+              <CalendarDays className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary/70">Próximo hoje</p>
+              <p className="font-black text-base truncate">{data.nextAppointment.title}</p>
+              <p className="text-[10px] font-bold text-muted-foreground">
+                {data.nextAppointment.time ? `às ${data.nextAppointment.time}` : "Sem horário definido"}
+              </p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-primary/40 shrink-0" />
+          </div>
+        </Link>
+      )}
+
+      {/* ── Alertas urgentes ── */}
       {hasAlerts && (
         <div className="space-y-2">
           {data.overdueServices.length > 0 && (
@@ -233,38 +344,38 @@ export default function Dashboard() {
               variant="danger"
               title={`${data.overdueServices.length} serviço${data.overdueServices.length > 1 ? "s" : ""} em atraso!`}
               description={`${formatCurrency(data.overdueServices.reduce((a, s) => a + Number(s.value), 0))} não recebidos · mais antigo: ${data.overdueServices[0]?.payment_date}`}
-              href="/services?status=pending"
+              href="/financial"
             />
           )}
-          {data.dueTodayServices.length > 0 && (
+          {data.todayPayments.length > 0 && (
             <AlertCard
               variant="warning"
-              title={`${data.dueTodayServices.length} pagamento${data.dueTodayServices.length > 1 ? "s" : ""} vencem hoje`}
-              description={`${formatCurrency(data.dueTodayServices.reduce((a, s) => a + Number(s.value), 0))} a receber · clique para ver`}
-              href="/services?status=pending"
+              title={`${data.todayPayments.length} pagamento${data.todayPayments.length > 1 ? "s" : ""} vencem hoje`}
+              description={`${formatCurrency(todayTotal)} a receber · clique para cobrar`}
+              href="/financial"
             />
           )}
         </div>
       )}
 
-      {/* ── Hoje em resumo (3 pills) ── */}
+      {/* ── Resumo do dia em 3 pills ── */}
       <div className="grid grid-cols-3 gap-2">
         {[
           {
             icon: CalendarDays,
-            val: data.todayAppts.length,
-            label: "hoje na agenda",
+            val: data.allTodayScheduled.length,
+            label: "na agenda hoje",
             color: "text-blue-600",
             bg: "bg-blue-500/10",
             to: "/agenda",
           },
           {
-            icon: Flame,
-            val: data.dueThisWeek.length,
-            label: "vencem semana",
-            color: "text-amber-600",
-            bg: "bg-amber-500/10",
-            to: "/services?status=pending",
+            icon: Wrench,
+            val: data.todayServices.length,
+            label: "serviços hoje",
+            color: "text-indigo-600",
+            bg: "bg-indigo-500/10",
+            to: "/services",
           },
           {
             icon: Timer,
@@ -272,7 +383,7 @@ export default function Dashboard() {
             label: "em atraso",
             color: data.overdueServices.length > 0 ? "text-destructive" : "text-emerald-600",
             bg: data.overdueServices.length > 0 ? "bg-destructive/10" : "bg-emerald-500/10",
-            to: "/services?status=pending",
+            to: "/financial",
           },
         ].map(({ icon: Icon, val, label, color, bg, to }) => (
           <Link key={label} to={to}>
@@ -282,11 +393,86 @@ export default function Dashboard() {
             )}>
               <Icon className={cn("h-5 w-5", color)} />
               <span className={cn("text-2xl font-black leading-none", val > 0 && label.includes("atraso") ? "text-destructive" : "")}>{val}</span>
-              <span className="text-[9px] font-black uppercase tracking-tight text-muted-foreground text-center">{label}</span>
+              <span className="text-[9px] font-black uppercase tracking-tight text-muted-foreground text-center leading-tight">{label}</span>
             </div>
           </Link>
         ))}
       </div>
+
+      {/* ── Serviços de hoje ── */}
+      {data.todayServices.length > 0 && (
+        <div className="space-y-2.5">
+          <SectionHeader icon={Wrench} label="Serviços de Hoje" to="/services" iconColor="text-indigo-500" />
+          <div className="space-y-2">
+            {data.todayServices.map(s => {
+              const phone = data.clientPhoneMap[s.client_name.toLowerCase().trim()];
+              return <TodayServiceRow key={s.id} service={s} clientPhone={phone} />;
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Agenda de hoje (eventos calendar + compromissos legacy) ── */}
+      {data.allTodayScheduled.length > 0 && (
+        <div className="space-y-2.5">
+          <SectionHeader icon={CalendarDays} label="Agenda de Hoje" to="/agenda" iconColor="text-blue-500" />
+          <div className="space-y-2">
+            {data.allTodayScheduled.map((item, idx) => (
+              <Link key={idx} to="/agenda">
+                <div className="flex items-center gap-3 p-3.5 bg-blue-500/5 border border-blue-500/15 rounded-2xl hover:border-blue-500/40 transition-colors">
+                  <div className="h-9 w-9 rounded-xl bg-blue-500/15 flex items-center justify-center shrink-0">
+                    <CalendarDays className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-black text-sm truncate">{item.title}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase">
+                      {item.time ? `às ${item.time}` : "Sem horário"} · {item.type}
+                    </p>
+                  </div>
+                  <Badge className="bg-blue-500/10 text-blue-600 text-[9px] font-black uppercase shrink-0">Hoje</Badge>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Recebimentos do dia ── */}
+      {data.todayPayments.length > 0 && (
+        <div className="space-y-2.5">
+          <SectionHeader icon={DollarSign} label="Recebimentos de Hoje" to="/financial" iconColor="text-emerald-500" />
+          <div className="space-y-2">
+            {data.todayPayments.map(s => {
+              const phone = data.clientPhoneMap[s.client_name.toLowerCase().trim()];
+              return (
+                <div key={s.id} className="flex items-center gap-3 p-3.5 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl group">
+                  <div className="h-9 w-9 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+                    <DollarSign className="h-4 w-4 text-emerald-600" />
+                  </div>
+                  <Link to={`/services/${s.id}/edit`} className="flex-1 min-w-0">
+                    <p className="font-black text-sm truncate">{s.client_name}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground truncate">{s.service_type}</p>
+                  </Link>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="font-black text-emerald-600">{formatCurrency(Number(s.value))}</span>
+                    {phone && (
+                      <a
+                        href={`https://wa.me/${phone.replace(/\D/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="h-7 w-7 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center hover:bg-emerald-500/20"
+                        title="Cobrar via WhatsApp"
+                      >
+                        <MessageCircle className="h-3.5 w-3.5" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* ── KPIs financeiros ── */}
       <div className="grid grid-cols-2 gap-3">
@@ -296,7 +482,7 @@ export default function Dashboard() {
           label="Total em aberto"
           sub={`${data.pending.length} serviços pendentes`}
           color="bg-gradient-to-br from-amber-500 to-orange-600"
-          to="/services?status=pending"
+          to="/financial"
         />
         <KpiCard
           icon={TrendingUp}
@@ -307,7 +493,7 @@ export default function Dashboard() {
           to="/financial"
         />
         <KpiCard
-          icon={CircleDollarSign}
+          icon={Activity}
           value={`${data.totalServicesMonth}`}
           label="Serviços no mês"
           sub="Todos os status"
@@ -325,58 +511,111 @@ export default function Dashboard() {
       </div>
 
       {/* ── Ações rápidas ── */}
-      <div className="grid grid-cols-4 gap-2">
-        {[
-          { icon: Plus, label: "Serviço", to: "/services/new", color: "text-primary", bg: "bg-primary/10" },
-          { icon: Users, label: "Clientes", to: "/clients", color: "text-indigo-500", bg: "bg-indigo-500/10" },
-          { icon: CalendarDays, label: "Agenda", to: "/agenda", color: "text-blue-500", bg: "bg-blue-500/10" },
-          { icon: BarChart3, label: "Relatório", to: "/statistics", color: "text-purple-500", bg: "bg-purple-500/10" },
-        ].map(({ icon: Icon, label, to, color, bg }) => (
-          <Link key={to} to={to}>
-            <div className={cn("flex flex-col items-center justify-center gap-2 p-3 rounded-2xl hover:opacity-80 active:scale-95 transition-all", bg)}>
-              <Icon className={cn("h-5 w-5", color)} />
-              <span className="text-[9px] font-black uppercase tracking-tight text-muted-foreground">{label}</span>
-            </div>
-          </Link>
-        ))}
+      <div className="space-y-2">
+        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
+          <Zap className="h-3.5 w-3.5 text-amber-500" /> Ações Rápidas
+        </p>
+        <div className="grid grid-cols-4 gap-2">
+          <QuickAction
+            icon={Plus}
+            label="Novo Serviço"
+            color="text-primary"
+            bg="bg-primary/10 hover:bg-primary/20"
+            onClick={() => navigate("/services/new")}
+          />
+          <QuickAction
+            icon={CalendarDays}
+            label="Novo Evento"
+            color="text-blue-600"
+            bg="bg-blue-500/10 hover:bg-blue-500/20"
+            onClick={() => navigate("/agenda")}
+          />
+          <QuickAction
+            icon={DollarSign}
+            label="Financeiro"
+            color="text-emerald-600"
+            bg="bg-emerald-500/10 hover:bg-emerald-500/20"
+            onClick={() => navigate("/financial")}
+          />
+          <QuickAction
+            icon={BarChart3}
+            label="Relatórios"
+            color="text-purple-600"
+            bg="bg-purple-500/10 hover:bg-purple-500/20"
+            onClick={() => navigate("/statistics")}
+          />
+        </div>
+        <div className="grid grid-cols-4 gap-2">
+          <QuickAction
+            icon={Users}
+            label="Clientes"
+            color="text-indigo-600"
+            bg="bg-indigo-500/10 hover:bg-indigo-500/20"
+            onClick={() => navigate("/clients")}
+          />
+          <QuickAction
+            icon={FileText}
+            label="Serviços"
+            color="text-slate-600"
+            bg="bg-slate-500/10 hover:bg-slate-500/20"
+            onClick={() => navigate("/services")}
+          />
+          <QuickAction
+            icon={Target}
+            label="Agenda"
+            color="text-cyan-600"
+            bg="bg-cyan-500/10 hover:bg-cyan-500/20"
+            onClick={() => navigate("/agenda")}
+          />
+          <QuickAction
+            icon={Star}
+            label="Perfil"
+            color="text-amber-600"
+            bg="bg-amber-500/10 hover:bg-amber-500/20"
+            onClick={() => navigate("/profile")}
+          />
+        </div>
       </div>
 
-      {/* ── Compromissos de hoje ── */}
-      {data.todayAppts.length > 0 && (
+      {/* ── Próximos eventos da agenda ── */}
+      {(data.nextEvents.length > 0 || data.upcomingAppts.length > 0) && (
         <div className="space-y-2.5">
-          <SectionHeader icon={CalendarDays} label="Hoje na Agenda" to="/agenda" iconColor="text-blue-500" />
+          <SectionHeader icon={CalendarDays} label="Próximos na Agenda" to="/agenda" iconColor="text-blue-400" />
           <div className="space-y-2">
-            {data.todayAppts.map(appt => (
-              <Link key={appt.id} to="/agenda">
-                <div className="flex items-center gap-3 p-3 bg-blue-500/5 border border-blue-500/15 rounded-2xl hover:border-blue-500/40 transition-colors group">
-                  <div className="h-9 w-9 rounded-xl bg-blue-500/15 flex items-center justify-center shrink-0">
-                    <CalendarDays className="h-4 w-4 text-blue-600" />
+            {/* Calendar events */}
+            {data.nextEvents.map(evt => {
+              const daysUntil = differenceInDays(parseISO(evt.data_inicio), new Date());
+              return (
+                <Link key={evt.id} to="/agenda">
+                  <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-2xl border border-transparent hover:border-border transition-colors">
+                    <div className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0 text-center"
+                      style={{ background: (evt.cor || "#6366f1") + "20" }}>
+                      <div>
+                        <p className="text-[8px] font-black uppercase leading-none" style={{ color: evt.cor || "#6366f1" }}>
+                          {format(parseISO(evt.data_inicio), "MMM", { locale: ptBR })}
+                        </p>
+                        <p className="text-sm font-black leading-none">
+                          {format(parseISO(evt.data_inicio), "dd")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-black text-sm truncate">{evt.titulo}</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase">
+                        {evt.hora_inicio ? `às ${evt.hora_inicio}` : ""} {daysUntil === 0 ? "· Hoje" : daysUntil === 1 ? "· Amanhã" : `· em ${daysUntil} dias`}
+                      </p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground/30 shrink-0" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-black text-sm truncate">{appt.title}</p>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase">
-                      {appt.time ? `às ${appt.time}` : "Sem horário"}
-                      {appt.location ? ` · ${appt.location}` : ""}
-                    </p>
-                  </div>
-                  <Badge className="bg-blue-500/10 text-blue-600 text-[9px] font-black uppercase">Hoje</Badge>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── Próximos compromissos ── */}
-      {data.upcomingAppts.filter(a => a.date !== TODAY).length > 0 && (
-        <div className="space-y-2.5">
-          <SectionHeader icon={CalendarDays} label="Próximos Compromissos" to="/agenda" iconColor="text-blue-400" />
-          <div className="space-y-2">
-            {data.upcomingAppts.filter(a => a.date !== TODAY).map(appt => {
+                </Link>
+              );
+            })}
+            {/* Legacy appointments */}
+            {data.upcomingAppts.map(appt => {
               const dl = dateLabel(appt.date);
               return (
                 <Link key={appt.id} to="/agenda">
-                  <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-2xl border border-transparent hover:border-border transition-colors group">
+                  <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-2xl border border-transparent hover:border-border transition-colors">
                     <div className="h-9 w-9 rounded-xl bg-muted flex items-center justify-center shrink-0 text-center">
                       <div>
                         <p className="text-[9px] font-black text-muted-foreground uppercase leading-none">
@@ -390,7 +629,7 @@ export default function Dashboard() {
                     <div className="flex-1 min-w-0">
                       <p className="font-black text-sm truncate">{appt.title}</p>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase">
-                        {dl.text}{appt.time ? ` · ${appt.time}` : ""}
+                        {dl.text}{appt.time ? ` · às ${appt.time}` : ""}
                       </p>
                     </div>
                     <ChevronRight className="h-4 w-4 text-muted-foreground/30 shrink-0" />
@@ -403,90 +642,93 @@ export default function Dashboard() {
       )}
 
       {/* ── A receber em breve ── */}
-      <div className="space-y-2.5">
-        <SectionHeader
-          icon={AlertCircle}
-          label={data.nextPending.length > 0 ? "A receber em breve" : "Sem pendências"}
-          to="/services?status=pending"
-          iconColor="text-amber-500"
-        />
-        {data.nextPending.length > 0 ? (
+      {data.nextPending.length > 0 && (
+        <div className="space-y-2.5">
+          <SectionHeader icon={AlertCircle} label="A receber em breve" to="/financial" iconColor="text-amber-500" />
           <div className="space-y-2">
             {data.nextPending.map(s => {
               const dl = dateLabel(s.payment_date);
+              const phone = data.clientPhoneMap[s.client_name.toLowerCase().trim()];
               return (
-                <Link key={s.id} to={`/services/${s.id}/edit`}>
-                  <div className={cn(
-                    "flex items-center gap-3 p-3.5 rounded-2xl border transition-all hover:shadow-md group",
-                    dl.urgent
-                      ? "bg-amber-500/5 border-amber-500/20 hover:border-amber-500/40"
-                      : "bg-card border-border hover:border-primary/30"
-                  )}>
-                    <div className={cn(
-                      "h-9 w-9 rounded-xl flex items-center justify-center shrink-0",
-                      dl.urgent ? "bg-amber-500/10" : "bg-muted"
-                    )}>
-                      <Clock className={cn("h-4 w-4", dl.urgent ? "text-amber-500" : "text-muted-foreground")} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-black text-sm truncate">{s.client_name}</p>
-                      <p className="text-[10px] font-bold text-muted-foreground truncate">{s.service_type}</p>
-                    </div>
-                    <div className="text-right shrink-0">
+                <div key={s.id} className={cn(
+                  "flex items-center gap-3 p-3.5 rounded-2xl border transition-all group",
+                  dl.urgent
+                    ? "bg-amber-500/5 border-amber-500/20 hover:border-amber-500/40"
+                    : "bg-card border-border hover:border-primary/30"
+                )}>
+                  <Link to={`/services/${s.id}/edit`} className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0"
+                    style={{ background: dl.urgent ? "rgb(245 158 11 / 0.1)" : "hsl(var(--muted))" }}>
+                    <Clock className={cn("h-4 w-4", dl.urgent ? "text-amber-500" : "text-muted-foreground")} />
+                  </Link>
+                  <Link to={`/services/${s.id}/edit`} className="flex-1 min-w-0">
+                    <p className="font-black text-sm truncate">{s.client_name}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground truncate">{s.service_type}</p>
+                  </Link>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="text-right">
                       <p className="font-black text-sm text-emerald-600">{formatCurrency(Number(s.value))}</p>
                       <Badge className={cn(
                         "text-[9px] font-black uppercase",
-                        dl.urgent
-                          ? "bg-amber-500/10 text-amber-600"
-                          : "bg-muted text-muted-foreground"
+                        dl.urgent ? "bg-amber-500/10 text-amber-600" : "bg-muted text-muted-foreground"
                       )}>
                         {dl.text}
                       </Badge>
                     </div>
+                    {phone && (
+                      <a
+                        href={`https://wa.me/${phone.replace(/\D/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="h-7 w-7 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center hover:bg-emerald-500/20 shrink-0"
+                        title="Cobrar via WhatsApp"
+                      >
+                        <MessageCircle className="h-3.5 w-3.5" />
+                      </a>
+                    )}
                   </div>
-                </Link>
+                </div>
               );
             })}
           </div>
-        ) : (
-          <Link to="/services/new">
-            <div className="flex flex-col items-center gap-3 p-8 border-2 border-dashed border-muted rounded-2xl text-center hover:border-primary/30 hover:bg-primary/5 transition-all group">
-              <div className="h-14 w-14 bg-muted/30 rounded-full flex items-center justify-center">
-                <Briefcase className="h-7 w-7 text-muted-foreground/30 group-hover:text-primary/40 transition-colors" />
-              </div>
-              <div>
-                <p className="font-black uppercase tracking-tight">Tudo em dia! 🎉</p>
-                <p className="text-xs text-muted-foreground font-medium">Cadastre um novo serviço</p>
-              </div>
-            </div>
-          </Link>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* ── Serviços em atraso (destaque) ── */}
+      {/* ── Serviços em atraso ── */}
       {data.overdueServices.length > 0 && (
         <div className="space-y-2.5">
-          <SectionHeader icon={AlertTriangle} label="Serviços em Atraso" to="/services?status=pending" iconColor="text-destructive" />
+          <SectionHeader icon={AlertTriangle} label="Em Atraso — Ação necessária" to="/financial" iconColor="text-destructive" />
           <div className="space-y-2">
-            {data.overdueServices.slice(0, 3).map(s => (
-              <Link key={s.id} to={`/services/${s.id}/edit`}>
-                <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-destructive/5 border border-destructive/20 hover:border-destructive/40 transition-all group">
-                  <div className="h-9 w-9 rounded-xl bg-destructive/10 flex items-center justify-center shrink-0">
+            {data.overdueServices.slice(0, 3).map(s => {
+              const phone = data.clientPhoneMap[s.client_name.toLowerCase().trim()];
+              const daysLate = differenceInDays(new Date(), parseISO(s.payment_date));
+              return (
+                <div key={s.id} className="flex items-center gap-3 p-3.5 rounded-2xl bg-destructive/5 border border-destructive/20 hover:border-destructive/40 transition-all">
+                  <Link to={`/services/${s.id}/edit`} className="h-9 w-9 rounded-xl bg-destructive/10 flex items-center justify-center shrink-0">
                     <AlertTriangle className="h-4 w-4 text-destructive" />
-                  </div>
-                  <div className="flex-1 min-w-0">
+                  </Link>
+                  <Link to={`/services/${s.id}/edit`} className="flex-1 min-w-0">
                     <p className="font-black text-sm truncate text-destructive">{s.client_name}</p>
-                    <p className="text-[10px] font-bold text-muted-foreground truncate">{s.service_type}</p>
-                  </div>
-                  <div className="text-right shrink-0">
+                    <p className="text-[10px] font-bold text-muted-foreground truncate">{s.service_type} · {daysLate}d atraso</p>
+                  </Link>
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <p className="font-black text-sm text-destructive">{formatCurrency(Number(s.value))}</p>
-                    <p className="text-[9px] font-black text-destructive/60 uppercase">{s.payment_date}</p>
+                    {phone && (
+                      <>
+                        <a href={`tel:${phone}`} className="h-7 w-7 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center hover:bg-blue-500/20" title="Ligar">
+                          <Phone className="h-3.5 w-3.5" />
+                        </a>
+                        <a href={`https://wa.me/${phone.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer"
+                          className="h-7 w-7 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center hover:bg-emerald-500/20" title="WhatsApp">
+                          <MessageCircle className="h-3.5 w-3.5" />
+                        </a>
+                      </>
+                    )}
                   </div>
                 </div>
-              </Link>
-            ))}
+              );
+            })}
             {data.overdueServices.length > 3 && (
-              <Link to="/services?status=pending">
+              <Link to="/financial">
                 <div className="text-center p-2 text-xs font-black text-destructive/60 hover:text-destructive transition-colors">
                   +{data.overdueServices.length - 3} serviços em atraso
                 </div>
@@ -494,6 +736,21 @@ export default function Dashboard() {
             )}
           </div>
         </div>
+      )}
+
+      {/* ── Estado vazio: tudo em dia ── */}
+      {data.pending.length === 0 && data.allTodayScheduled.length === 0 && (
+        <Link to="/services/new">
+          <div className="flex flex-col items-center gap-3 p-8 border-2 border-dashed border-muted rounded-2xl text-center hover:border-primary/30 hover:bg-primary/5 transition-all group">
+            <div className="h-14 w-14 bg-emerald-500/10 rounded-full flex items-center justify-center">
+              <CheckCircle2 className="h-7 w-7 text-emerald-500" />
+            </div>
+            <div>
+              <p className="font-black uppercase tracking-tight">Tudo em dia! 🎉</p>
+              <p className="text-xs text-muted-foreground font-medium mt-0.5">Cadastre um novo serviço para começar</p>
+            </div>
+          </div>
+        </Link>
       )}
 
     </div>
