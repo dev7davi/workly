@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowLeft, Loader2, Check, User, Briefcase, Calendar, Clock, DollarSign, FileText, Lock } from "lucide-react";
+import { ArrowLeft, Loader2, Check, Briefcase, Calendar, Clock, DollarSign, FileText, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useEffect } from "react";
 import { usePlan } from "@/hooks/usePlan";
 import { UpgradeModal } from "@/components/UpgradeModal";
+import { ClientNameField } from "@/components/ClientNameField";
 
 const serviceSchema = z.object({
   client_name: z.string().min(2, "Digite o nome do cliente"),
@@ -40,11 +41,8 @@ export default function NewService() {
   const [status, setStatus] = useState<ServiceStatus>("pending");
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  // Show modal immediately if already at limit
   useEffect(() => {
-    if (isAtLimit) {
-      setShowUpgradeModal(true);
-    }
+    if (isAtLimit) setShowUpgradeModal(true);
   }, [isAtLimit]);
 
   const today = new Date().toISOString().slice(0, 10);
@@ -63,42 +61,34 @@ export default function NewService() {
     },
   });
 
+  const clientName = watch("client_name") || "";
+
   const onSubmit = async (data: ServiceForm) => {
     if (!canAddService) {
       setShowUpgradeModal(true);
       return;
     }
-
     await createService({
       client_name: data.client_name,
       service_type: data.service_type,
       value: Number(data.value.replace(/\./g, "").replace(",", ".")),
       service_date: data.service_date,
       payment_date: data.payment_date,
-      status: status,
+      status,
       notes: data.notes || undefined,
     });
-
     navigate("/services");
   };
 
-  const setToday = (field: "service_date" | "payment_date") => {
-    setValue(field, today);
-  };
+  const setToday = (field: "service_date" | "payment_date") => setValue(field, today);
 
   return (
     <>
-      {/* Upgrade Modal */}
       {showUpgradeModal && <UpgradeModal onClose={() => setShowUpgradeModal(false)} />}
 
       <div className="flex flex-col gap-6 p-4 max-w-2xl mx-auto pb-24">
         <header className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate(-1)}
-            className="rounded-full"
-          >
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full">
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
@@ -129,19 +119,13 @@ export default function NewService() {
         )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Status Toggle - High Visibility */}
-          <Tabs value={status} onValueChange={(v) => setStatus(v as ServiceStatus)} className="w-full">
+          {/* Status Toggle */}
+          <Tabs value={status} onValueChange={(v) => setStatus(v as ServiceStatus)}>
             <TabsList className="grid w-full grid-cols-2 h-14 p-1 bg-muted/50 rounded-2xl">
-              <TabsTrigger
-                value="pending"
-                className="rounded-xl font-bold data-[state=active]:bg-warning data-[state=active]:text-warning-foreground"
-              >
+              <TabsTrigger value="pending" className="rounded-xl font-bold data-[state=active]:bg-warning data-[state=active]:text-warning-foreground">
                 Em Aberto
               </TabsTrigger>
-              <TabsTrigger
-                value="paid"
-                className="rounded-xl font-bold data-[state=active]:bg-success data-[state=active]:text-success-foreground"
-              >
+              <TabsTrigger value="paid" className="rounded-xl font-bold data-[state=active]:bg-success data-[state=active]:text-success-foreground">
                 Já Pago
               </TabsTrigger>
             </TabsList>
@@ -151,20 +135,12 @@ export default function NewService() {
             {/* Client & Service Info */}
             <Card className="border-none shadow-lg rounded-2xl overflow-hidden">
               <CardContent className="p-6 space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="client_name" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    <User className="h-3 w-3" /> Nome do Cliente
-                  </Label>
-                  <Input
-                    id="client_name"
-                    placeholder="Ex: Maria Oliveira"
-                    className="h-12 rounded-xl bg-muted/30 border-none focus-visible:ring-primary"
-                    {...register("client_name")}
-                  />
-                  {errors.client_name && (
-                    <p className="text-xs font-medium text-destructive">{errors.client_name.message}</p>
-                  )}
-                </div>
+                {/* ✅ Smart Client Name Field */}
+                <ClientNameField
+                  value={clientName}
+                  onChange={(name) => setValue("client_name", name, { shouldValidate: true })}
+                  error={errors.client_name?.message}
+                />
 
                 <div className="space-y-2">
                   <Label htmlFor="service_type" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
@@ -190,15 +166,13 @@ export default function NewService() {
                   <Label htmlFor="value" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     <DollarSign className="h-3 w-3" /> Valor Cobrado (R$)
                   </Label>
-                  <div className="relative">
-                    <Input
-                      id="value"
-                      placeholder="0,00"
-                      inputMode="decimal"
-                      className="h-14 text-2xl font-black rounded-xl bg-muted/30 border-none px-4 text-primary"
-                      {...register("value")}
-                    />
-                  </div>
+                  <Input
+                    id="value"
+                    placeholder="0,00"
+                    inputMode="decimal"
+                    className="h-14 text-2xl font-black rounded-xl bg-muted/30 border-none px-4 text-primary"
+                    {...register("value")}
+                  />
                   {errors.value && (
                     <p className="text-xs font-medium text-destructive">{errors.value.message}</p>
                   )}
@@ -210,42 +184,19 @@ export default function NewService() {
                       <Calendar className="h-3 w-3" /> Data do Serviço
                     </Label>
                     <div className="flex gap-2">
-                      <Input
-                        id="service_date"
-                        type="date"
-                        className="h-12 rounded-xl bg-muted/30 border-none"
-                        {...register("service_date")}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-12 rounded-xl px-4 text-xs font-bold"
-                        onClick={() => setToday("service_date")}
-                      >
+                      <Input id="service_date" type="date" className="h-12 rounded-xl bg-muted/30 border-none" {...register("service_date")} />
+                      <Button type="button" variant="outline" size="sm" className="h-12 rounded-xl px-4 text-xs font-bold" onClick={() => setToday("service_date")}>
                         Hoje
                       </Button>
                     </div>
                   </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="payment_date" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                       <Clock className="h-3 w-3" /> Expectativa de Pagamento
                     </Label>
                     <div className="flex gap-2">
-                      <Input
-                        id="payment_date"
-                        type="date"
-                        className="h-12 rounded-xl bg-muted/30 border-none"
-                        {...register("payment_date")}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-12 rounded-xl px-4 text-xs font-bold"
-                        onClick={() => setToday("payment_date")}
-                      >
+                      <Input id="payment_date" type="date" className="h-12 rounded-xl bg-muted/30 border-none" {...register("payment_date")} />
+                      <Button type="button" variant="outline" size="sm" className="h-12 rounded-xl px-4 text-xs font-bold" onClick={() => setToday("payment_date")}>
                         Hoje
                       </Button>
                     </div>
@@ -281,10 +232,7 @@ export default function NewService() {
               {isSubmitting ? (
                 <Loader2 className="h-6 w-6 animate-spin" />
               ) : (
-                <>
-                  <Check className="mr-2 h-6 w-6" />
-                  SALVAR SERVIÇO
-                </>
+                <><Check className="mr-2 h-6 w-6" /> SALVAR SERVIÇO</>
               )}
             </Button>
           </div>
@@ -293,4 +241,3 @@ export default function NewService() {
     </>
   );
 }
-

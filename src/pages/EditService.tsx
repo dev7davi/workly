@@ -30,6 +30,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useServices, ServiceStatus } from "@/hooks/useServices";
 import { useEffect } from "react";
 import { ServiceCostsSection } from "@/components/services/ServiceCostsSection";
+import { ClientNameField } from "@/components/ClientNameField";
 import { cn } from "@/lib/utils";
 
 const serviceSchema = z.object({
@@ -178,15 +179,11 @@ export default function EditService() {
               <User className="h-3 w-3" /> Dados do Atendimento
             </p>
 
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase text-muted-foreground">Cliente *</Label>
-              <Input
-                className="h-12 rounded-xl bg-muted/30 border-none"
-                placeholder="Nome do cliente"
-                {...register("client_name")}
-              />
-              {errors.client_name && <p className="text-xs text-destructive">{errors.client_name.message}</p>}
-            </div>
+            <ClientNameField
+              value={watch("client_name") || ""}
+              onChange={(name) => setValue("client_name", name, { shouldValidate: true })}
+              error={errors.client_name?.message}
+            />
 
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase text-muted-foreground">Tipo de Serviço *</Label>
