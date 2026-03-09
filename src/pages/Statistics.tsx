@@ -222,6 +222,9 @@ export default function Statistics() {
           <TabsTrigger value="clientes" className="flex-1 rounded-xl font-black text-[10px] uppercase">
             👥 Clientes
           </TabsTrigger>
+          <TabsTrigger value="operacional" className="flex-1 rounded-xl font-black text-[10px] uppercase">
+            ⚡ Operacional
+          </TabsTrigger>
           <TabsTrigger value="previsao" className="flex-1 rounded-xl font-black text-[10px] uppercase">
             🔮 Previsão
           </TabsTrigger>
@@ -475,6 +478,148 @@ export default function Statistics() {
           )}
         </div>
       )}
+
+      {/* ======= OPERACIONAL TAB ======= */}
+      {activeTab === "operacional" && (() => {
+        const DIAS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+        const byDay = Array(7).fill(0) as number[];
+        services.forEach(s => { const d = new Date(s.service_date); byDay[d.getDay()]++; });
+        const dayData = DIAS.map((name, i) => ({ name, total: byDay[i] }));
+
+        // Service type ranking: most done + avg value
+        const typeMap = services.reduce((acc, s) => {
+          if (!acc[s.service_type]) acc[s.service_type] = { count: 0, total: 0 };
+          acc[s.service_type].count++;
+          acc[s.service_type].total += Number(s.value);
+          return acc;
+        }, {} as Record<string, { count: number; total: number }>);
+        const typeRanking = Object.entries(typeMap)
+          .sort(([, a], [, b]) => b.count - a.count).slice(0, 6);
+
+        // Client loyalty: most services (regardless of status)
+        const clientMap = services.reduce((acc, s) => {
+          if (!acc[s.client_name]) acc[s.client_name] = { count: 0, total: 0 };
+          acc[s.client_name].count++;
+          acc[s.client_name].total += Number(s.value);
+          return acc;
+        }, {} as Record<string, { count: number; total: number }>);
+        const clientRanking = Object.entries(clientMap)
+          .sort(([, a], [, b]) => b.count - a.count).slice(0, 5);
+
+        const now = new Date();
+        const thisMonthCount = services.filter(s => {
+          const d = new Date(s.service_date);
+          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        }).length;
+        const avgPerMonth = stats.monthlyData.length > 0
+          ? stats.monthlyData.reduce((a, m) => a + m.countPaid, 0) / stats.monthlyData.filter(m => m.countPaid > 0).length || 0
+          : 0;
+
+        return (
+          <div className="space-y-6">
+            {/* Productivity overview */}
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: "Este mês", val: thisMonthCount, icon: Zap, color: "text-primary", bg: "bg-primary/10" },
+                { label: "Média/mês", val: avgPerMonth.toFixed(1), icon: Calendar, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+                { label: "Total", val: stats.totalServices, icon: BarChart3, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+              ].map(({ label, val, icon: Icon, color, bg }) => (
+                <Card key={label} className="border-none shadow-md rounded-3xl bg-card">
+                  <CardContent className="p-4 text-center">
+                    <div className={cn("h-8 w-8 rounded-xl flex items-center justify-center mx-auto mb-2", bg)}>
+                      <Icon className={cn("h-4 w-4", color)} />
+                    </div>
+                    <p className="text-xl font-black leading-none">{val}</p>
+                    <p className="text-[9px] font-black uppercase text-muted-foreground mt-1">{label}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Day of week chart */}
+            <Card className="border-none shadow-xl rounded-3xl bg-card">
+              <CardContent className="p-6">
+                <h3 className="font-black uppercase text-xs tracking-widest text-muted-foreground mb-5">📅 Dia da Semana Mais Produtivo</h3>
+                <ResponsiveContainer width="100%" height={150}>
+                  <BarChart data={dayData} barCategoryGap="20%">
+                    <CartesianGrid strokeDasharray="3 3" className="opacity-20" vertical={false} />
+                    <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 700 }} tickLine={false} axisLine={false} />
+                    <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
+                    <Tooltip formatter={(v: any) => [`${v} serviço${v !== 1 ? "s" : ""}`, "Serviços"]} />
+                    <Bar dataKey="total" radius={[6, 6, 0, 0]}>
+                      {dayData.map((entry, i) => (
+                        <Cell key={i} fill={entry.total === Math.max(...dayData.map(d => d.total)) ? "hsl(var(--primary))" : "hsl(var(--muted))"} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Service type ranking */}
+            {typeRanking.length > 0 && (
+              <Card className="border-none shadow-xl rounded-3xl bg-card">
+                <CardContent className="p-6 space-y-4">
+                  <h3 className="font-black uppercase text-xs tracking-widest text-muted-foreground">🔧 Serviços Mais Executados</h3>
+                  {typeRanking.map(([type, d], idx) => {
+                    const max = typeRanking[0][1].count;
+                    const pct = max > 0 ? (d.count / max) * 100 : 0;
+                    return (
+                      <div key={type} className="flex items-center gap-3">
+                        <div className="h-8 w-8 shrink-0 flex items-center justify-center rounded-xl bg-primary/10 font-black text-primary text-xs">
+                          {idx + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="font-black text-sm truncate">{type}</p>
+                            <div className="flex items-center gap-2 ml-2 shrink-0">
+                              <span className="text-[10px] font-black text-muted-foreground">{d.count}x</span>
+                              <span className="text-[10px] font-black text-emerald-600">{formatCurrency(d.total / d.count)} avg</span>
+                            </div>
+                          </div>
+                          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Client loyalty */}
+            {clientRanking.length > 0 && (
+              <Card className="border-none shadow-xl rounded-3xl bg-card">
+                <CardContent className="p-6 space-y-4">
+                  <h3 className="font-black uppercase text-xs tracking-widest text-muted-foreground">👥 Clientes Mais Fiéis</h3>
+                  {clientRanking.map(([name, d], idx) => (
+                    <Link key={name} to="/clients">
+                      <div className="flex items-center gap-3 group">
+                        <div className={cn(
+                          "h-9 w-9 shrink-0 rounded-2xl flex items-center justify-center text-sm font-black",
+                          idx === 0 ? "bg-amber-500/15 text-amber-600" :
+                            idx === 1 ? "bg-slate-400/15 text-slate-500" :
+                              idx === 2 ? "bg-amber-700/15 text-amber-700" : "bg-muted/50 text-muted-foreground"
+                        )}>
+                          {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-black text-sm truncate group-hover:text-primary transition-colors">{name}</p>
+                          <p className="text-[10px] font-bold text-muted-foreground">
+                            {d.count} serviço{d.count !== 1 ? "s" : ""} · {formatCurrency(d.total)} total
+                          </p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-primary shrink-0" />
+                      </div>
+                    </Link>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        );
+      })()}
 
       {/* ======= PREVISÃO TAB ======= */}
       {activeTab === "previsao" && (
