@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAdmin } from "@/contexts/AdminContext";
 
 // Cast to any to bypass missing Supabase type gen for 'clients' table
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -32,14 +33,21 @@ export type UpdateClient = Partial<CreateClient>;
 
 export function useClients() {
     const queryClient = useQueryClient();
+    const { isMaster, viewingUserId } = useAdmin();
 
     const { data: clients = [], isLoading } = useQuery({
-        queryKey: ["clients"],
+        queryKey: ["clients", viewingUserId],
         queryFn: async () => {
-            const { data, error } = await db
+            let query = db
                 .from("clients")
                 .select("*")
                 .order("name", { ascending: true });
+
+            if (isMaster && viewingUserId) {
+                query = query.eq("user_id", viewingUserId);
+            }
+
+            const { data, error } = await query;
             if (error) throw error;
             return (data || []) as Client[];
         },
@@ -49,9 +57,12 @@ export function useClients() {
         mutationFn: async (client: CreateClient) => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("Usuário não autenticado");
+
+            const targetUserId = (isMaster && viewingUserId) ? viewingUserId : user.id;
+
             const { data, error } = await db
                 .from("clients")
-                .insert({ ...client, user_id: user.id })
+                .insert({ ...client, user_id: targetUserId })
                 .select()
                 .single();
             if (error) throw error;

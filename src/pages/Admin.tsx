@@ -1,175 +1,260 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import React, { useEffect, useState } from "react";
+import { useAdmin } from "@/contexts/AdminContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, Shield, ArrowLeft, Search, Loader2, LogIn, Database } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { formatDate } from "@/lib/format";
-import { useToast } from "@/hooks/use-toast";
+import {
+    Users,
+    Search,
+    Eye,
+    ShieldCheck,
+    ExternalLink,
+    Mail,
+    Calendar,
+    UserCheck,
+    Zap,
+    Star,
+    Crown,
+    Sparkles
+} from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface AdminUser {
     id: string;
-    name: string;
     email: string;
+    name: string;
     created_at: string;
-    phone: string;
-    document: string;
+    phone: string | null;
+    document: string | null;
+    plan: string;
 }
 
-export default function Admin() {
-    const { user } = useAuth();
-    const navigate = useNavigate();
-    const { toast } = useToast();
-    const [users, setUsers] = useState<AdminUser[]>([]);
-    const [filtered, setFiltered] = useState<AdminUser[]>([]);
-    const [search, setSearch] = useState("");
-    const [isLoading, setIsLoading] = useState(true);
+const planIcons: Record<string, any> = {
+    free: Star,
+    start: Zap,
+    pro: Crown,
+    pro_plus: Sparkles,
+};
 
-    // Verificação Mestra
-    const isMaster = user?.email === "masterworkly@workly.com";
+const planColors: Record<string, string> = {
+    free: "bg-slate-500/10 text-slate-500 border-slate-500/20",
+    start: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20",
+    pro: "bg-primary/10 text-primary border-primary/20",
+    pro_plus: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+};
+
+const Admin = () => {
+    const { isMaster, setViewingUser, viewingUserId } = useAdmin();
+    const [users, setUsers] = useState<AdminUser[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
+    const navigate = useNavigate();
 
     useEffect(() => {
-        if (user && !isMaster) {
+        if (!isMaster) {
             navigate("/");
-        } else if (user && isMaster) {
-            fetchUsers();
+            return;
         }
-    }, [user, isMaster, navigate]);
+        fetchUsers();
+    }, [isMaster]);
 
     const fetchUsers = async () => {
-        setIsLoading(true);
+        setLoading(true);
         try {
-            const { data, error } = await supabase.rpc("admin_list_users");
+            const { data, error } = await (supabase.rpc as any)("admin_list_users");
             if (error) throw error;
             setUsers(data || []);
-            setFiltered(data || []);
-        } catch (err: any) {
-            console.error(err);
-            toast({ title: "Erro ao buscar", description: err.message, variant: "destructive" });
+        } catch (error: any) {
+            console.error("Erro ao carregar usuários:", error);
+            toast.error("Erro ao carregar painel admin");
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     };
 
-    useEffect(() => {
-        if (search.trim() === "") {
-            setFiltered(users);
-        } else {
-            const lower = search.toLowerCase();
-            setFiltered(users.filter(u =>
-                (u.name && u.name.toLowerCase().includes(lower)) ||
-                (u.email && u.email.toLowerCase().includes(lower))
-            ));
-        }
-    }, [search, users]);
-
-    const handleImpersonate = async (targetUser: AdminUser) => {
-        toast({ title: "Iniciando sessão", description: `Acessando conta de ${targetUser.name || targetUser.email}` });
-
-        // Log Audit
-        await supabase.from("admin_audit_logs").insert({
-            admin_id: user?.id,
-            target_user_id: targetUser.id,
-            action: "impersonate_user",
-            description: `Admin logou como ${targetUser.email}`
+    const handleImpersonate = (user: AdminUser) => {
+        setViewingUser(user.id, user.email);
+        toast.success(`Visualizando como ${user.name || user.email}`, {
+            description: "Você agora vê os dados deste usuário.",
         });
-
-        // Impersonate behavior via local storage (mock for frontend if we were fully bypassing)
-        // REAL IMPERSONATION requires JWT or password reset.
-        // For this demonstration, we store target ID, and App logic would need to adapt.
-        // However, Supabase blocks pure frontend impersonation. 
-        // Emulação:
-        localStorage.setItem("impersonate_user_id", targetUser.id);
-        window.location.href = "/";
+        navigate("/dashboard");
     };
 
-    const handleBackupUser = (targetUser: AdminUser) => {
-        toast({ title: "Gerando Banco", description: "Iniciando dump do usuário (Fictício para este escopo)" });
-    };
+    const filteredUsers = users.filter(user =>
+        user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     if (!isMaster) return null;
 
     return (
-        <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-black/90 pb-20 p-6 max-w-5xl mx-auto">
-            <header className="flex items-center gap-4 mb-8">
-                <Link to="/profile">
-                    <Button variant="outline" size="icon" className="h-10 w-10 rounded-full bg-white dark:bg-slate-900 border-none shadow-sm">
-                        <ArrowLeft className="h-5 w-5" />
-                    </Button>
-                </Link>
-                <div className="flex-1">
-                    <h1 className="text-2xl font-black tracking-tight flex items-center gap-2">
-                        <Shield className="h-6 w-6 text-purple-600" />
-                        Admin Master
-                    </h1>
-                    <p className="text-xs font-bold text-muted-foreground uppercase">Workly Global Dashboard</p>
+        <div className="space-y-6 pb-20 md:pb-6">
+            <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight">Painel Admin</h1>
+                    <p className="text-muted-foreground">
+                        Gerenciamento centralizado de usuários e suporte técnico.
+                    </p>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="px-3 py-1 bg-primary/5 text-primary border-primary/20 flex gap-2 items-center">
+                        <ShieldCheck className="h-4 w-4" />
+                        Acesso Master Ativo
+                    </Badge>
                 </div>
             </header>
 
-            <div className="grid lg:grid-cols-4 gap-6">
-                <Card className="lg:col-span-1 border-none shadow-xl rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-700 text-white">
-                    <CardContent className="p-6">
-                        <h2 className="text-xs font-black uppercase tracking-widest opacity-80 mb-2">Total Usuários</h2>
-                        <p className="text-5xl font-black tracking-tighter mb-4">{users.length}</p>
-                        <div className="pt-4 border-t border-white/20">
-                            <p className="text-xs font-bold opacity-90"><Database className="h-4 w-4 inline mr-1" /> Banco Saudável</p>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className="lg:col-span-3 border-none shadow-lg rounded-2xl">
-                    <CardHeader>
-                        <CardTitle>Pesquisar Contas</CardTitle>
-                        <CardDescription>Busque usuários por nome ou e-mail na base de dados.</CardDescription>
-                        <div className="relative mt-2">
-                            <Search className="h-5 w-5 absolute left-3 top-3 text-muted-foreground" />
-                            <Input
-                                placeholder="Buscar usuário..."
-                                className="pl-10 h-12 rounded-xl bg-muted/30 border-none"
-                                value={search}
-                                onChange={e => setSearch(e.target.value)}
-                            />
-                        </div>
+            <div className="grid gap-6 md:grid-cols-3">
+                <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-sm font-medium">Total de Usuários</CardTitle>
+                        <Users className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
-                        {isLoading ? (
-                            <div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
-                        ) : (
-                            <div className="space-y-3">
-                                {filtered.map(u => (
-                                    <div key={u.id} className="flex flex-col sm:flex-row gap-4 p-4 rounded-xl border border-border bg-card/50 hover:bg-muted/30 transition-colors">
-                                        <div className="h-12 w-12 rounded-full bg-purple-500/10 text-purple-600 flex items-center justify-center font-black text-xl shrink-0">
-                                            {u.name ? u.name[0].toUpperCase() : u.email[0].toUpperCase()}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-black truncate">{u.name || "Sem nome"}</p>
-                                            <p className="text-sm text-muted-foreground truncate">{u.email}</p>
-                                            <div className="flex gap-2 mt-2">
-                                                <Badge variant="secondary" className="text-[10px] font-bold">Criado em {formatDate(u.created_at)}</Badge>
-                                                {u.phone && <Badge variant="outline" className="text-[10px]">{u.phone}</Badge>}
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2 shrink-0">
-                                            <Button variant="secondary" size="sm" onClick={() => handleBackupUser(u)} className="h-10 rounded-xl font-bold">
-                                                <Database className="h-4 w-4 mr-2" /> Backup
-                                            </Button>
-                                            <Button variant="default" size="sm" onClick={() => handleImpersonate(u)} className="h-10 rounded-xl font-black bg-purple-600 hover:bg-purple-700">
-                                                <LogIn className="h-4 w-4 mr-2" /> Entrar como
-                                            </Button>
-                                        </div>
-                                    </div>
-                                ))}
-                                {filtered.length === 0 && (
-                                    <div className="text-center p-8 text-muted-foreground font-bold">Nenhum usuário encontrado.</div>
-                                )}
-                            </div>
-                        )}
+                        <div className="text-2xl font-bold">{users.length}</div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                            Base de clientes Workly
+                        </p>
                     </CardContent>
                 </Card>
             </div>
+
+            <Card className="border-border/50 shadow-xl shadow-black/5 overflow-hidden">
+                <CardHeader className="bg-muted/30 border-b border-border/50">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <CardTitle>Base de Clientes</CardTitle>
+                            <CardDescription>Consulte e acesse perfis para suporte.</CardDescription>
+                        </div>
+                        <div className="relative w-full md:w-72">
+                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <Input
+                                placeholder="Buscar por nome ou e-mail..."
+                                className="pl-9 bg-background/50"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="hover:bg-transparent">
+                                    <TableHead className="w-[300px]">Usuário</TableHead>
+                                    <TableHead>Plano</TableHead>
+                                    <TableHead>Cadastro</TableHead>
+                                    <TableHead>Documento</TableHead>
+                                    <TableHead className="text-right">Ações</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {loading ? (
+                                    Array.from({ length: 5 }).map((_, i) => (
+                                        <TableRow key={i}>
+                                            <TableCell colSpan={5} className="h-16 animate-pulse bg-muted/20" />
+                                        </TableRow>
+                                    ))
+                                ) : filteredUsers.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
+                                            Nenhum usuário encontrado.
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    filteredUsers.map((user) => {
+                                        const PlanIcon = planIcons[user.plan] || Star;
+                                        return (
+                                            <TableRow key={user.id} className="group hover:bg-muted/30 transition-colors">
+                                                <TableCell>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                                                            {user.name?.substring(0, 2).toUpperCase() || "??"}
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-medium">{user.name || "N/A"}</span>
+                                                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                                                <Mail className="h-3 w-3" /> {user.email}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant="outline" className={`flex gap-1 items-center w-fit ${planColors[user.plan]}`}>
+                                                        <PlanIcon className="h-3 w-3" />
+                                                        {user.plan?.charAt(0).toUpperCase() + user.plan?.slice(1)}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-sm text-muted-foreground">
+                                                    <div className="flex items-center gap-1">
+                                                        <Calendar className="h-3 w-3" />
+                                                        {format(new Date(user.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-xs font-mono text-muted-foreground">
+                                                    {user.document || "Não inf."}
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="hover:bg-primary/10 hover:text-primary transition-all flex gap-2 items-center ml-auto"
+                                                        onClick={() => handleImpersonate(user)}
+                                                        disabled={user.id === viewingUserId}
+                                                    >
+                                                        {user.id === viewingUserId ? (
+                                                            <>
+                                                                <UserCheck className="h-4 w-4" />
+                                                                Acessado
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Eye className="h-4 w-4" />
+                                                                Visualizar como
+                                                            </>
+                                                        )}
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-6 flex flex-col md:flex-row items-center gap-6">
+                <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                    <ShieldCheck className="h-6 w-6" />
+                </div>
+                <div className="flex-1 text-center md:text-left">
+                    <h3 className="text-lg font-semibold">Modo de Impersonation (View Mode)</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                        Diferente de uma troca de senha, o modo de visualização utiliza a sua permissão Master para ler apenas os dados do usuário selecionado. Suas ações de auditoria são registradas para conformidade.
+                    </p>
+                </div>
+                <Button variant="outline" className="border-primary/20 hover:bg-primary/10">
+                    Ver Logs de Auditoria
+                </Button>
+            </div>
         </div>
     );
-}
+};
+
+export default Admin;

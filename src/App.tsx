@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { AdminProvider } from "@/contexts/AdminContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -82,45 +83,47 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            {/* Rotas públicas */}
-            <Route path="/" element={<PublicRoute><Index /></PublicRoute>} />
-            <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
+          <AdminProvider>
+            <Routes>
+              {/* Rotas públicas */}
+              <Route path="/" element={<PublicRoute><Index /></PublicRoute>} />
+              <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
 
-            {/* Rotas protegidas */}
-            <Route path="/dashboard" element={<P><Dashboard /></P>} />
+              {/* Rotas protegidas */}
+              <Route path="/dashboard" element={<P><Dashboard /></P>} />
 
-            {/* Serviços */}
-            <Route path="/services" element={<P><Services /></P>} />
-            <Route path="/services/new" element={<P><NewService /></P>} />
-            <Route path="/services/:id/edit" element={<P><EditService /></P>} />
-            <Route path="/services/:id/receipt" element={<P><Receipt /></P>} />
-            <Route path="/services/:id/os" element={<P><OS /></P>} />
+              {/* Serviços */}
+              <Route path="/services" element={<P><Services /></P>} />
+              <Route path="/services/new" element={<P><NewService /></P>} />
+              <Route path="/services/:id/edit" element={<P><EditService /></P>} />
+              <Route path="/services/:id/receipt" element={<P><Receipt /></P>} />
+              <Route path="/services/:id/os" element={<P><OS /></P>} />
 
-            {/* Clientes */}
-            <Route path="/clients" element={<P><Clients /></P>} />
-            <Route path="/clients/new" element={<P><ClientForm /></P>} />
-            <Route path="/clients/:id/edit" element={<P><ClientForm /></P>} />
-            <Route path="/clients/:clientName" element={<P><ClientDetails /></P>} />
+              {/* Clientes */}
+              <Route path="/clients" element={<P><Clients /></P>} />
+              <Route path="/clients/new" element={<P><ClientForm /></P>} />
+              <Route path="/clients/:id/edit" element={<P><ClientForm /></P>} />
+              <Route path="/clients/:clientName" element={<P><ClientDetails /></P>} />
 
-            {/* Catálogo */}
-            <Route path="/catalog" element={<P><Catalog /></P>} />
+              {/* Catálogo */}
+              <Route path="/catalog" element={<P><Catalog /></P>} />
 
-            {/* Agenda */}
-            <Route path="/agenda" element={<P><Agenda /></P>} />
+              {/* Agenda */}
+              <Route path="/agenda" element={<P><Agenda /></P>} />
 
-            {/* Financeiro e Custos */}
-            <Route path="/financial" element={<P><Financial /></P>} />
-            <Route path="/costs" element={<P><Costs /></P>} />
-            <Route path="/statistics" element={<P><Statistics /></P>} />
-            <Route path="/profile" element={<P><Profile /></P>} />
-            <Route path="/plans" element={<P><Plans /></P>} />
+              {/* Financeiro e Custos */}
+              <Route path="/financial" element={<P><Financial /></P>} />
+              <Route path="/costs" element={<P><Costs /></P>} />
+              <Route path="/statistics" element={<P><Statistics /></P>} />
+              <Route path="/profile" element={<P><Profile /></P>} />
+              <Route path="/plans" element={<P><Plans /></P>} />
 
-            <Route path="/admin" element={<P><Admin /></P>} />
-            <Route path="/import" element={<P><ImportNote /></P>} />
+              <Route path="/admin" element={<P><Admin /></P>} />
+              <Route path="/import" element={<P><ImportNote /></P>} />
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AdminProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

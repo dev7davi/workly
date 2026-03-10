@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAdmin } from "@/contexts/AdminContext";
 
 export type ServiceStatus = "pending" | "paid" | "cancelled";
 
@@ -15,17 +16,26 @@ export interface Service {
   notes?: string;
 }
 
+const db = supabase as any;
+
 export function useServices() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
+  const { isMaster, viewingUserId } = useAdmin();
 
   async function fetchServices() {
     setLoading(true);
 
-    const { data, error } = await supabase
+    let query = db
       .from("services")
       .select("*")
       .order("payment_date", { ascending: true });
+
+    if (isMaster && viewingUserId) {
+      query = query.eq("user_id", viewingUserId);
+    }
+
+    const { data, error } = await query;
 
     if (!error && data) {
       setServices(data);
@@ -41,21 +51,23 @@ export function useServices() {
 
     if (!user) return;
 
-    await supabase.from("services").insert({
+    const targetUserId = (isMaster && viewingUserId) ? viewingUserId : user.id;
+
+    await db.from("services").insert({
       ...payload,
-      user_id: user.id,
+      user_id: targetUserId,
     });
 
     fetchServices();
   }
 
   async function updateService(id: string, payload: Partial<Service>) {
-    await supabase.from("services").update(payload).eq("id", id);
+    await db.from("services").update(payload).eq("id", id);
     fetchServices();
   }
 
   async function deleteService(id: string) {
-    await supabase.from("services").delete().eq("id", id);
+    await db.from("services").delete().eq("id", id);
     fetchServices();
   }
 
@@ -63,9 +75,12 @@ export function useServices() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     const { id, user_id, ...rest } = service;
-    await supabase.from("services").insert({
+
+    const targetUserId = (isMaster && viewingUserId) ? viewingUserId : user.id;
+
+    await db.from("services").insert({
       ...rest,
-      user_id: user.id,
+      user_id: targetUserId,
       status: "pending" as ServiceStatus,
       service_date: new Date().toISOString().slice(0, 10),
       payment_date: new Date().toISOString().slice(0, 10),
@@ -75,7 +90,7 @@ export function useServices() {
 
   useEffect(() => {
     fetchServices();
-  }, []);
+  }, [viewingUserId]); // Refetch if admin changes viewing user
 
   return {
     services,

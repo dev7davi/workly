@@ -2,9 +2,10 @@ import { NavLink, useLocation } from "react-router-dom";
 import {
     Home, FileText, Users, CalendarDays,
     BarChart3, User, BookOpen, Wallet, Package, TrendingDown,
-    Settings, ScanText
+    Settings, ScanText, ShieldCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAdmin } from "@/contexts/AdminContext";
 
 const sidebarItems = [
     {
@@ -37,6 +38,25 @@ const sidebarItems = [
 
 export function Sidebar({ className }: { className?: string }) {
     const location = useLocation();
+    const { isMaster } = useAdmin();
+
+    const currentSidebarItems = [...sidebarItems];
+
+    if (isMaster) {
+        // Encontrar a seção Administração
+        const adminSectionIdx = currentSidebarItems.findIndex(s => s.title === "Administração");
+        if (adminSectionIdx !== -1) {
+            // Adicionar Painel Admin no início da seção
+            const updatedAdminItems = [
+                { to: "/admin", icon: ShieldCheck, label: "Painel Admin", color: "text-amber-500", bg: "bg-amber-500/10" },
+                ...currentSidebarItems[adminSectionIdx].items
+            ];
+            currentSidebarItems[adminSectionIdx] = {
+                ...currentSidebarItems[adminSectionIdx],
+                items: updatedAdminItems
+            };
+        }
+    }
 
     return (
         <aside className={cn("fixed left-0 top-0 bottom-0 w-64 bg-card border-r border-border flex flex-col z-40 overflow-y-auto", className)}>
@@ -59,7 +79,7 @@ export function Sidebar({ className }: { className?: string }) {
 
             {/* Navigation */}
             <div className="flex-1 py-6 flex flex-col gap-6 px-4">
-                {sidebarItems.map((section, idx) => (
+                {currentSidebarItems.map((section, idx) => (
                     <div key={idx} className="flex flex-col gap-1">
                         <p className="px-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
                             {section.title}
