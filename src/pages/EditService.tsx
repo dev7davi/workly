@@ -123,7 +123,7 @@ export default function EditService() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6 pb-28 max-w-2xl mx-auto">
+    <div className="flex flex-col gap-6 p-6 pb-36 max-w-2xl mx-auto">
       {/* Header */}
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">

@@ -297,7 +297,7 @@ export default function Dashboard() {
   const todayTotal = data.todayPayments.reduce((a, s) => a + Number(s.value), 0);
 
   return (
-    <div className="flex flex-col gap-5 p-5 pb-28 max-w-lg mx-auto">
+    <div className="flex flex-col gap-5 p-5 pb-36 max-w-lg mx-auto">
 
       {/* ── Header ── */}
       <header className="flex items-center justify-between pt-2">

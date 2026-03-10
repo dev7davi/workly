@@ -158,7 +158,7 @@ export default function ImportNote() {
     };
 
     return (
-        <div className="flex flex-col gap-6 p-6 pb-28 max-w-2xl mx-auto min-h-screen animate-in fade-in zoom-in duration-300">
+        <div className="flex flex-col gap-6 p-6 pb-36 max-w-2xl mx-auto min-h-screen animate-in fade-in zoom-in duration-300">
             <header className="flex items-center gap-4">
                 <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full">
                     <ArrowLeft className="h-5 w-5" />

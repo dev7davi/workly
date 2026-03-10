@@ -193,7 +193,7 @@ export default function Statistics() {
   }
 
   return (
-    <div className="flex flex-col gap-8 p-6 pb-24 max-w-4xl mx-auto">
+    <div className="flex flex-col gap-8 p-6 pb-36 max-w-4xl mx-auto">
       {/* Header */}
       <header className="flex items-center justify-between">
         <div>
@@ -540,19 +540,21 @@ export default function Statistics() {
             <Card className="border-none shadow-xl rounded-3xl bg-card">
               <CardContent className="p-6">
                 <h3 className="font-black uppercase text-xs tracking-widest text-muted-foreground mb-5">📅 Dia da Semana Mais Produtivo</h3>
-                <ResponsiveContainer width="100%" height={150}>
-                  <BarChart data={dayData} barCategoryGap="20%">
-                    <CartesianGrid strokeDasharray="3 3" className="opacity-20" vertical={false} />
-                    <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: 700 }} tickLine={false} axisLine={false} />
-                    <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
-                    <Tooltip formatter={(v: any) => [`${v} serviço${v !== 1 ? "s" : ""}`, "Serviços"]} />
-                    <Bar dataKey="total" radius={[6, 6, 0, 0]}>
-                      {dayData.map((entry, i) => (
-                        <Cell key={i} fill={entry.total === Math.max(...dayData.map(d => d.total)) ? "hsl(var(--primary))" : "hsl(var(--muted))"} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                <div className="h-40 w-full -ml-4 sm:ml-0">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={dayData} barCategoryGap="20%" margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" className="opacity-20" vertical={false} />
+                      <XAxis dataKey="name" tick={{ fontSize: 9, fontWeight: 700 }} tickLine={false} axisLine={false} padding={{ left: 10, right: 10 }} />
+                      <YAxis tick={{ fontSize: 9 }} tickLine={false} axisLine={false} allowDecimals={false} width={40} />
+                      <Tooltip formatter={(v: any) => [`${v} serviço${v !== 1 ? "s" : ""}`, "Serviços"]} />
+                      <Bar dataKey="total" radius={[6, 6, 0, 0]}>
+                        {dayData.map((entry, i) => (
+                          <Cell key={i} fill={entry.total === Math.max(...dayData.map(d => d.total)) ? "hsl(var(--primary))" : "hsl(var(--muted))"} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </CardContent>
             </Card>
 

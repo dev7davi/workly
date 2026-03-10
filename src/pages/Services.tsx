@@ -47,7 +47,7 @@ export default function Services() {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-6 pb-24 max-w-4xl mx-auto">
+    <div className="flex flex-col gap-6 p-6 pb-36 max-w-4xl mx-auto">
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-black tracking-tight">Serviços</h1>
