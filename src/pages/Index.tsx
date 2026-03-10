@@ -138,10 +138,7 @@ const Index = () => {
       <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-background/80 backdrop-blur-md px-6 py-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue-600 shadow-lg shadow-primary/20">
-              <Briefcase className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-black tracking-tighter">WORKLY</span>
+            <img src="/logo_w.png" alt="WORKLY" className="h-8 mix-blend-multiply dark:mix-blend-normal" />
           </div>
           <div className="flex items-center gap-6">
             <a href="#planos" className="text-sm font-semibold hover:text-primary transition-colors hidden sm:block">
@@ -453,13 +450,18 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border bg-card px-6 py-12">
         <div className="mx-auto max-w-5xl flex flex-col items-center justify-between gap-6 md:flex-row">
-          <div className="flex items-center gap-2">
-            <Briefcase className="h-5 w-5 text-primary" />
-            <span className="font-black tracking-tighter">WORKLY</span>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2">
+              <img src="/logo_w.png" alt="WORKLY" className="h-8 mix-blend-multiply dark:mix-blend-normal" />
+            </div>
+            <div className="text-xs text-muted-foreground font-medium space-y-1">
+              <p>E-mail: serviceworkly@gmail.com</p>
+              <p>Whatsapp: +55 17 99203.0665</p>
+            </div>
+            <p className="text-xs text-muted-foreground uppercase font-bold tracking-[0.2em] mt-2">
+              © 2026 WORKLY — Feito para o autônomo brasileiro.
+            </p>
           </div>
-          <p className="text-xs text-muted-foreground uppercase font-bold tracking-[0.2em]">
-            © 2026 WORKLY — Feito para o autônomo brasileiro.
-          </p>
           <div className="flex gap-6">
             <a href="#planos" className="text-xs font-bold hover:text-primary transition-colors">Planos</a>
             <Link to="/auth" className="text-xs font-bold hover:text-primary transition-colors">Entrar</Link>

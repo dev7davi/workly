@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Briefcase, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const loginSchema = z.object({
   email: z.string().email("Digite um e-mail válido"),
@@ -28,11 +29,20 @@ const resetSchema = z.object({
   email: z.string().email("Digite um e-mail válido"),
 });
 
+const updatePasswordSchema = z.object({
+  password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "As senhas não coincidem",
+  path: ["confirmPassword"],
+});
+
 type LoginForm = z.infer<typeof loginSchema>;
 type SignupForm = z.infer<typeof signupSchema>;
 type ResetForm = z.infer<typeof resetSchema>;
+type UpdatePasswordForm = z.infer<typeof updatePasswordSchema>;
 
-type AuthMode = "login" | "signup" | "reset";
+type AuthMode = "login" | "signup" | "reset" | "update_password";
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
@@ -45,8 +55,23 @@ export default function Auth() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp, resetPassword } = useAuth();
+  const { signIn, signUp, resetPassword, updatePassword } = useAuth();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setMode("update_password");
+      }
+    });
+
+    const hash = window.location.hash;
+    if (hash && hash.includes("type=recovery")) {
+      setMode("update_password");
+    }
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const loginForm = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -61,6 +86,11 @@ export default function Auth() {
   const resetForm = useForm<ResetForm>({
     resolver: zodResolver(resetSchema),
     defaultValues: { email: "" },
+  });
+
+  const updatePasswordForm = useForm<UpdatePasswordForm>({
+    resolver: zodResolver(updatePasswordSchema),
+    defaultValues: { password: "", confirmPassword: "" },
   });
 
   useEffect(() => {
@@ -151,6 +181,28 @@ export default function Auth() {
     }
   };
 
+  const handleUpdatePassword = async (data: UpdatePasswordForm) => {
+    setIsLoading(true);
+    try {
+      const { error } = await updatePassword(data.password);
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: "Não foi possível atualizar a senha. O link pode ter expirado.",
+        });
+      } else {
+        toast({
+          title: "Senha atualizada!",
+          description: "Você já pode acessar com sua nova senha.",
+        });
+        navigate("/dashboard");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
@@ -162,7 +214,7 @@ export default function Auth() {
             </Button>
           </Link>
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="Workly" className="h-10 max-w-[140px] object-contain" onError={(e) => {
+            <img src="/logo_w.png" alt="Workly" className="h-10 mix-blend-multiply dark:mix-blend-normal object-contain" onError={(e) => {
               e.currentTarget.style.display = 'none';
             }} />
             <style>{`
@@ -191,11 +243,13 @@ export default function Auth() {
               {mode === "login" && "Entrar"}
               {mode === "signup" && "Criar conta"}
               {mode === "reset" && "Recuperar senha"}
+              {mode === "update_password" && "Atualizar senha"}
             </CardTitle>
             <CardDescription>
               {mode === "login" && "Acesse sua conta para gerenciar seus serviços"}
               {mode === "signup" && "Crie sua conta gratuita e comece agora"}
               {mode === "reset" && "Digite seu e-mail para receber o link"}
+              {mode === "update_password" && "Digite a nova senha de acesso"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -409,6 +463,65 @@ export default function Auth() {
                   onClick={() => setMode("login")}
                 >
                   Voltar para o login
+                </Button>
+              </form>
+            )}
+
+            {mode === "update_password" && (
+              <form onSubmit={updatePasswordForm.handleSubmit(handleUpdatePassword)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">Nova senha</Label>
+                  <div className="relative">
+                    <Input
+                      id="new-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      {...updatePasswordForm.register("password")}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  {updatePasswordForm.formState.errors.password && (
+                    <p className="text-sm text-destructive">
+                      {updatePasswordForm.formState.errors.password.message}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new-confirm-password">Confirmar nova senha</Label>
+                  <Input
+                    id="new-confirm-password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    {...updatePasswordForm.register("confirmPassword")}
+                  />
+                  {updatePasswordForm.formState.errors.confirmPassword && (
+                    <p className="text-sm text-destructive">
+                      {updatePasswordForm.formState.errors.confirmPassword.message}
+                    </p>
+                  )}
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-hero"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Atualizar senha"
+                  )}
                 </Button>
               </form>
             )}
