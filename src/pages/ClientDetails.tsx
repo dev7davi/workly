@@ -28,7 +28,7 @@ export default function ClientDetails() {
 
     if (loading) {
         return (
-            <div className="flex flex-col gap-6 p-6">
+            <div className="flex flex-col gap-6 p-6 max-w-7xl mx-auto w-full">
                 <Skeleton className="h-10 w-48" />
                 <Skeleton className="h-32 w-full rounded-2xl" />
                 <div className="space-y-4">
@@ -40,7 +40,7 @@ export default function ClientDetails() {
     }
 
     return (
-        <div className="flex flex-col gap-8 p-6 pb-24 max-w-2xl mx-auto">
+        <div className="flex flex-col gap-8 p-6 pb-24 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
             <header className="flex items-center gap-4">
                 <Button
                     variant="ghost"

@@ -24,6 +24,7 @@ import Agenda from "./pages/Agenda";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import ImportNote from "./pages/ImportNote";
+import OS from "./pages/OS";
 import { AppLayout } from "./components/layout/AppLayout";
 
 const queryClient = new QueryClient();
@@ -94,6 +95,7 @@ const App = () => (
             <Route path="/services/new" element={<P><NewService /></P>} />
             <Route path="/services/:id/edit" element={<P><EditService /></P>} />
             <Route path="/services/:id/receipt" element={<P><Receipt /></P>} />
+            <Route path="/services/:id/os" element={<P><OS /></P>} />
 
             {/* Clientes */}
             <Route path="/clients" element={<P><Clients /></P>} />

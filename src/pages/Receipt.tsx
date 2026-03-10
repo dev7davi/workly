@@ -34,7 +34,7 @@ export default function Receipt() {
 
     try {
       const dataUrl = await toPng(receiptRef.current, { backgroundColor: "#fff", quality: 1, pixelRatio: 2 });
-      
+
       const blob = await (await fetch(dataUrl)).blob();
       const file = new File([blob], `comprovante-${service.client_name.toLowerCase().replace(/\s+/g, "-")}.png`, { type: blob.type });
 
@@ -72,11 +72,11 @@ export default function Receipt() {
     if (!service || !profile) return;
 
     const doc = new jsPDF();
-    
+
     // Header
     doc.setFillColor(37, 99, 235); // Primary color
     doc.rect(0, 0, 210, 40, "F");
-    
+
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(24);
     doc.text("WORKLY", 105, 20, { align: "center" });
@@ -113,7 +113,7 @@ export default function Receipt() {
     doc.setFontSize(10);
     doc.text("DATA", 20, 160);
     doc.text("VALOR TOTAL", 140, 160);
-    
+
     doc.setFontSize(12);
     doc.text(formatDateLong(service.service_date), 20, 170);
     doc.setFontSize(20);
@@ -124,7 +124,7 @@ export default function Receipt() {
     doc.text(`Identificador: ${service.id.toUpperCase()}`, 105, 280, { align: "center" });
 
     doc.save(`comprovante-${service.id.slice(0, 8)}.pdf`);
-    
+
     toast({
       title: "PDF Gerado!",
       description: "O comprovante foi baixado com sucesso.",
@@ -158,7 +158,7 @@ export default function Receipt() {
   const StatusIcon = status.icon;
 
   return (
-    <div className="flex flex-col gap-6 p-4 max-w-2xl mx-auto pb-20">
+    <div className="flex flex-col gap-6 p-4 max-w-7xl mx-auto w-full pb-20 animate-in fade-in duration-300">
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full">
@@ -246,7 +246,7 @@ export default function Receipt() {
             </p>
           </div>
         </CardContent>
-        
+
         {/* Serrated edge effect (decorative) */}
         <div className="h-2 w-full flex overflow-hidden">
           {Array.from({ length: 20 }).map((_, i) => (
@@ -255,7 +255,7 @@ export default function Receipt() {
         </div>
       </div>
 
-      <div className="fixed bottom-6 left-4 right-4 max-w-2xl mx-auto">
+      <div className="fixed bottom-6 left-4 right-4 max-w-7xl mx-auto w-full px-4">
         <Button className="w-full h-14 bg-success hover:bg-success/90 text-success-foreground shadow-2xl rounded-2xl text-lg font-bold gap-3 transition-all hover:scale-[1.02] active:scale-95" onClick={handleShare}>
           <Share2 className="h-6 w-6" />
           Compartilhar no WhatsApp

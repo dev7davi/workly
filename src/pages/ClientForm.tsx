@@ -111,7 +111,7 @@ export default function ClientForm() {
     }
 
     return (
-        <div className="flex flex-col gap-6 p-6 pb-24 max-w-2xl mx-auto">
+        <div className="flex flex-col gap-6 p-6 pb-24 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
             {/* Header */}
             <header className="flex items-center gap-4">
                 <Button variant="ghost" size="icon" onClick={() => navigate("/clients")} className="rounded-full">

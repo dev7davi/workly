@@ -111,9 +111,9 @@ export default function Clients() {
     }
 
     return (
-        <div className="flex flex-col gap-5 p-5 pb-28 max-w-4xl mx-auto">
+        <div className="flex flex-col gap-5 p-5 pb-28 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
             {/* ── Header ── */}
-            <header className="flex items-center justify-between pt-2">
+            <header className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-4 pt-2">
                 <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-0.5">
                         Base de Contatos

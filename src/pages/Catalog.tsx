@@ -174,9 +174,9 @@ export default function Catalog() {
     }
 
     return (
-        <div className="flex flex-col gap-6 p-6 pb-24 max-w-2xl mx-auto">
+        <div className="flex flex-col gap-6 p-6 pb-24 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
             {/* Header */}
-            <header className="flex items-center justify-between">
+            <header className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-black tracking-tight">Catálogo</h1>
                     <p className="text-sm text-muted-foreground font-medium">

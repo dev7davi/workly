@@ -47,8 +47,8 @@ export default function Services() {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-6 pb-24 max-w-4xl mx-auto">
-      <header className="flex items-center justify-between">
+    <div className="flex flex-col gap-6 p-6 pb-24 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
+      <header className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black tracking-tight">Serviços</h1>
           <p className="text-sm text-muted-foreground font-medium">
@@ -56,7 +56,7 @@ export default function Services() {
           </p>
         </div>
         <Link to="/services/new">
-          <Button className="rounded-2xl h-12 px-6 font-black bg-primary shadow-lg shadow-primary/20">
+          <Button className="rounded-2xl h-12 px-6 font-black bg-primary shadow-lg shadow-primary/20 shrink-0">
             <Plus className="mr-2 h-5 w-5" />
             Novo
           </Button>
@@ -73,14 +73,16 @@ export default function Services() {
         />
       </div>
 
-      <Tabs value={statusFilter} onValueChange={handleStatusChange}>
-        <TabsList className="w-full h-12 rounded-2xl bg-muted/50 p-1">
-          <TabsTrigger value="all" className="flex-1 rounded-xl font-bold text-xs uppercase">Todos</TabsTrigger>
-          <TabsTrigger value="pending" className="flex-1 rounded-xl font-bold text-xs uppercase">Pendentes</TabsTrigger>
-          <TabsTrigger value="paid" className="flex-1 rounded-xl font-bold text-xs uppercase">Pagos</TabsTrigger>
-          <TabsTrigger value="cancelled" className="flex-1 rounded-xl font-bold text-xs uppercase">Cancelados</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="overflow-x-auto -mx-1 px-1 pb-1">
+        <Tabs value={statusFilter} onValueChange={handleStatusChange} className="min-w-max w-full">
+          <TabsList className="w-full h-12 rounded-2xl bg-muted/50 p-1 flex">
+            <TabsTrigger value="all" className="flex-1 rounded-xl font-bold text-xs uppercase px-6">Todos</TabsTrigger>
+            <TabsTrigger value="pending" className="flex-1 rounded-xl font-bold text-xs uppercase px-6">Pendentes</TabsTrigger>
+            <TabsTrigger value="paid" className="flex-1 rounded-xl font-bold text-xs uppercase px-6">Pagos</TabsTrigger>
+            <TabsTrigger value="cancelled" className="flex-1 rounded-xl font-bold text-xs uppercase px-6">Cancelados</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
       {loading ? (
         <div className="space-y-3">

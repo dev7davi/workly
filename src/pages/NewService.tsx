@@ -86,7 +86,7 @@ export default function NewService() {
     <>
       {showUpgradeModal && <UpgradeModal onClose={() => setShowUpgradeModal(false)} />}
 
-      <div className="flex flex-col gap-6 p-4 max-w-2xl mx-auto pb-24">
+      <div className="flex flex-col gap-6 p-4 max-w-7xl mx-auto w-full pb-24 animate-in fade-in duration-300">
         <header className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full">
             <ArrowLeft className="h-5 w-5" />

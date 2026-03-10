@@ -28,7 +28,7 @@ const PLAN_STYLES = {
 
 export default function Plans() {
     return (
-        <div className="flex flex-col gap-8 p-6 pb-24 max-w-4xl mx-auto">
+        <div className="flex flex-col gap-8 p-6 pb-24 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
             {/* Header */}
             <header className="text-center">
                 <p className="text-xs font-black uppercase tracking-[0.3em] text-primary mb-3">Planos & Preços</p>
@@ -37,7 +37,7 @@ export default function Plans() {
             </header>
 
             {/* Plans Grid */}
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {PLAN_ORDER.map(planKey => {
                     const plan = PLANS[planKey];
                     const style = PLAN_STYLES[planKey];

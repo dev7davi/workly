@@ -123,7 +123,7 @@ export default function EditService() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6 pb-28 max-w-2xl mx-auto">
+    <div className="flex flex-col gap-6 p-6 pb-28 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
       {/* Header */}
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -142,15 +142,26 @@ export default function EditService() {
             </p>
           </div>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => navigate(`/services/${id}/receipt`)}
-          className="rounded-xl font-bold gap-1"
-        >
-          <FileText className="h-4 w-4" />
-          Comprovante
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(`/services/${id}/os`)}
+            className="rounded-xl font-bold gap-1 bg-primary/5 border-primary/20 text-primary hover:bg-primary/10"
+          >
+            <Briefcase className="h-4 w-4" />
+            <span className="hidden sm:inline">Gerar</span> O.S.
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(`/services/${id}/receipt`)}
+            className="rounded-xl font-bold gap-1"
+          >
+            <FileText className="h-4 w-4" />
+            <span className="hidden sm:inline">Comprovante</span>
+          </Button>
+        </div>
       </header>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

@@ -193,9 +193,9 @@ export default function Statistics() {
   }
 
   return (
-    <div className="flex flex-col gap-8 p-6 pb-24 max-w-4xl mx-auto">
+    <div className="flex flex-col gap-8 p-6 pb-24 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
       {/* Header */}
-      <header className="flex items-center justify-between">
+      <header className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black tracking-tight">Relatórios</h1>
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">

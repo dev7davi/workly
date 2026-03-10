@@ -58,7 +58,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="flex flex-col gap-8 p-6 pb-24 max-w-2xl mx-auto">
+    <div className="flex flex-col gap-8 p-6 pb-24 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
       <header className="flex flex-col gap-1">
         <h1 className="text-3xl font-black tracking-tight">Meu Perfil</h1>
         <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Gestão de conta e preferências</p>
