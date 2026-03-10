@@ -74,17 +74,33 @@ drop policy if exists "Users can view own events" on calendar_events;
 create policy "Users can view own events or admin"
     on calendar_events for select using (auth.uid() = user_id or is_master_admin());
 
--- Costs
-drop policy if exists "Users can view own service costs" on service_costs;
-create policy "Users can view own service costs or admin"
-    on service_costs for select using (auth.uid() = user_id or is_master_admin());
+-- Costs (O costs usa exists via services)
+drop policy if exists "Users can view their service costs" on service_costs;
+create policy "Users can view their service costs or admin"
+    on service_costs for select
+    using (
+      is_master_admin() or 
+      exists (
+        select 1 from public.services s
+        where s.id = service_costs.service_id
+        and s.user_id = auth.uid()
+      )
+    );
 
 -- Catalog
-drop policy if exists "Users can view own catalog items" on catalog_items;
+drop policy if exists "Users can view own catalog items" on service_catalog;
+drop policy if exists "Users can view own catalog" on service_catalog;
 create policy "Users can view own catalog items or admin"
-    on catalog_items for select using (auth.uid() = user_id or is_master_admin());
+    on service_catalog for select using (auth.uid() = user_id or is_master_admin());
 
--- Preferences
-drop policy if exists "Users can view own dashboard prefs" on dashboard_preferences;
-create policy "Users can view own dashboard prefs or admin"
-    on dashboard_preferences for select using (auth.uid() = user_id or is_master_admin());
+-- Preferences (Cuidado caso a tabela não exista, usa DO BLOCK seguro)
+DO $$
+BEGIN
+   IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'dashboard_preferences') THEN
+      drop policy if exists "Users can view own dashboard prefs" on dashboard_preferences;
+      drop policy if exists "Users can view own preferences" on dashboard_preferences;
+      create policy "Users can view own dashboard prefs or admin"
+          on dashboard_preferences for select using (auth.uid() = user_id or is_master_admin());
+   END IF;
+END
+$$;

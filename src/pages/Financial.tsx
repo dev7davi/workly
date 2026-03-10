@@ -118,7 +118,7 @@ export default function Financial() {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-4 animate-pulse max-w-lg mx-auto">
+      <div className="p-6 space-y-4 animate-pulse max-w-7xl mx-auto w-full">
         <Skeleton className="h-10 w-48 rounded-xl" />
         <div className="grid grid-cols-2 gap-3">
           {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 rounded-3xl" />)}
@@ -136,7 +136,7 @@ export default function Financial() {
   ];
 
   return (
-    <div className="flex flex-col gap-6 p-5 pb-36 max-w-lg mx-auto">
+    <div className="flex flex-col gap-6 p-5 pb-28 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
       {/* Header */}
       <header className="flex items-center justify-between pt-2">
         <div>
@@ -203,7 +203,7 @@ export default function Financial() {
       {activeTab === "resumo" && (
         <div className="space-y-5">
           {/* KPIs */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5">
             {/* Recebido mês */}
             <Link to="#" onClick={() => setActiveTab("recebidos")}>
               <Card className="border-none shadow-xl rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white cursor-pointer hover:-translate-y-0.5 transition-all group overflow-hidden relative">
@@ -304,28 +304,26 @@ export default function Financial() {
           <Card className="border-none shadow-lg rounded-3xl overflow-hidden">
             <CardContent className="p-4">
               {data.monthlyData.some(m => m.recebido > 0 || m.pendente > 0) ? (
-                <div className="h-48 w-full -ml-4 sm:ml-0">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={data.monthlyData} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="gRec" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                        </linearGradient>
-                        <linearGradient id="gPend" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.2} />
-                          <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                      <XAxis dataKey="month" tick={{ fontSize: 9, fontWeight: 700 }} tickLine={false} axisLine={false} padding={{ left: 10, right: 10 }} />
-                      <YAxis tick={{ fontSize: 9 }} tickLine={false} axisLine={false} width={40} tickFormatter={v => `${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`} />
-                      <Tooltip content={<ChartTooltipContent />} />
-                      <Area type="monotone" dataKey="recebido" name="Recebido" stroke="#10b981" strokeWidth={2} fill="url(#gRec)" />
-                      <Area type="monotone" dataKey="pendente" name="Pendente" stroke="#f59e0b" strokeWidth={2} fill="url(#gPend)" strokeDasharray="4 2" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
+                <ResponsiveContainer width="100%" height={180}>
+                  <AreaChart data={data.monthlyData} margin={{ left: -20, right: 8 }}>
+                    <defs>
+                      <linearGradient id="gRec" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="gPend" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.2} />
+                        <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                    <XAxis dataKey="month" tick={{ fontSize: 9, fontWeight: 700 }} tickLine={false} axisLine={false} />
+                    <YAxis tick={{ fontSize: 9 }} tickLine={false} axisLine={false} tickFormatter={v => `${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`} />
+                    <Tooltip content={<ChartTooltipContent />} />
+                    <Area type="monotone" dataKey="recebido" name="Recebido" stroke="#10b981" strokeWidth={2} fill="url(#gRec)" />
+                    <Area type="monotone" dataKey="pendente" name="Pendente" stroke="#f59e0b" strokeWidth={2} fill="url(#gPend)" strokeDasharray="4 2" />
+                  </AreaChart>
+                </ResponsiveContainer>
               ) : (
                 <div className="h-[180px] flex items-center justify-center">
                   <p className="text-sm text-muted-foreground font-medium">Ainda sem dados para o gráfico</p>

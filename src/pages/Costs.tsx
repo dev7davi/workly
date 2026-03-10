@@ -148,7 +148,7 @@ export default function Costs() {
 
     if (isLoading) {
         return (
-            <div className="flex flex-col gap-6 p-6 animate-pulse max-w-lg mx-auto">
+            <div className="flex flex-col gap-6 p-6 animate-pulse max-w-7xl mx-auto w-full">
                 <Skeleton className="h-12 w-56 rounded-xl" />
                 <div className="grid grid-cols-2 gap-3">
                     {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 rounded-3xl" />)}
@@ -163,7 +163,7 @@ export default function Costs() {
     const leastProfitable = [...profitRanking].sort((a, b) => a.profit - b.profit).slice(0, 3);
 
     return (
-        <div className="flex flex-col gap-5 p-5 pb-36 max-w-lg mx-auto">
+        <div className="flex flex-col gap-5 p-5 pb-28 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
             {/* ── Header ── */}
             <header className="flex items-center justify-between pt-2">
                 <div>
@@ -175,7 +175,7 @@ export default function Costs() {
             </header>
 
             {/* ── Indicadores Macro ── */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 {/* Lucro Liquido */}
                 <Card className="border-none shadow-xl rounded-3xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white col-span-2">
                     <CardContent className="p-6">
@@ -222,26 +222,23 @@ export default function Costs() {
             {/* ── Comparação barras Receita x Custo ── */}
             {data.chartBars.length > 0 && (
                 <Card className="border-none shadow-xl rounded-3xl bg-card">
-                    <CardContent className="p-4 sm:p-6">
-                        <h3 className="font-black uppercase text-[10px] sm:text-xs tracking-widest text-muted-foreground mb-4 flex items-center gap-2">
+                    <CardContent className="p-6">
+                        <h3 className="font-black uppercase text-xs tracking-widest text-muted-foreground mb-4 flex items-center gap-2">
                             <Activity className="h-4 w-4 text-primary" /> Balanço últimos 6 meses
                         </h3>
-                        <div className="h-48 w-full -ml-4 sm:ml-0">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={data.chartBars} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} className="opacity-20" />
-                                    <XAxis dataKey="month" tick={{ fontSize: 9, fontWeight: 700 }} tickLine={false} axisLine={false} padding={{ left: 10, right: 10 }} />
-                                    <YAxis tick={{ fontSize: 9 }} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} tickLine={false} axisLine={false} width={40} />
-                                    <Tooltip
-                                        cursor={{ fill: 'transparent' }}
-                                        contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontSize: '11px', fontWeight: 'bold' }}
-                                        formatter={(value: number) => [formatCurrency(value), '']}
-                                    />
-                                    <Bar dataKey="recebido" name="Receita" fill="#10b981" radius={[4, 4, 0, 0]} barSize={10} />
-                                    <Bar dataKey="custo" name="Custo" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={10} />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
+                        <ResponsiveContainer width="100%" height={180}>
+                            <BarChart data={data.chartBars} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} className="opacity-20" />
+                                <XAxis dataKey="month" tick={{ fontSize: 10, fontWeight: 700 }} tickLine={false} axisLine={false} />
+                                <YAxis tick={{ fontSize: 10 }} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} tickLine={false} axisLine={false} />
+                                <Tooltip
+                                    cursor={{ fill: 'transparent' }}
+                                    contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontSize: '11px', fontWeight: 'bold' }}
+                                />
+                                <Bar dataKey="recebido" name="Receita" fill="#10b981" radius={[4, 4, 0, 0]} barSize={12} />
+                                <Bar dataKey="custo" name="Custo" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={12} />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </CardContent>
                 </Card>
             )}

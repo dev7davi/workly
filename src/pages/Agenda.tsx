@@ -767,7 +767,7 @@ export default function Agenda() {
 
     if (isLoading) {
         return (
-            <div className="p-5 space-y-4 animate-pulse max-w-lg mx-auto">
+            <div className="p-5 space-y-4 animate-pulse max-w-7xl mx-auto w-full">
                 <Skeleton className="h-10 w-48 rounded-xl" />
                 <div className="grid grid-cols-7 gap-1">
                     {Array.from({ length: 35 }).map((_, i) => <Skeleton key={i} className="h-12 rounded-xl" />)}
@@ -804,7 +804,7 @@ export default function Agenda() {
                 />
             )}
 
-            <div className="flex flex-col gap-5 p-5 pb-36 max-w-lg mx-auto">
+            <div className="flex flex-col gap-5 p-5 pb-28 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
                 {/* Header */}
                 <header className="flex items-center justify-between pt-2">
                     <div>

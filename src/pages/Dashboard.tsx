@@ -279,7 +279,7 @@ export default function Dashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-5 p-5 animate-pulse max-w-lg mx-auto">
+      <div className="flex flex-col gap-5 p-5 animate-pulse max-w-7xl mx-auto w-full">
         <Skeleton className="h-14 w-64 rounded-xl" />
         <div className="grid grid-cols-3 gap-2">
           {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 rounded-2xl" />)}
@@ -297,7 +297,7 @@ export default function Dashboard() {
   const todayTotal = data.todayPayments.reduce((a, s) => a + Number(s.value), 0);
 
   return (
-    <div className="flex flex-col gap-5 p-5 pb-36 max-w-lg mx-auto">
+    <div className="flex flex-col gap-5 p-5 pb-28 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
 
       {/* ── Header ── */}
       <header className="flex items-center justify-between pt-2">

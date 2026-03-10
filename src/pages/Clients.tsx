@@ -111,7 +111,7 @@ export default function Clients() {
     }
 
     return (
-        <div className="flex flex-col gap-5 p-5 pb-36 max-w-4xl mx-auto">
+        <div className="flex flex-col gap-5 p-5 pb-28 max-w-4xl mx-auto">
             {/* ── Header ── */}
             <header className="flex items-center justify-between pt-2">
                 <div>
