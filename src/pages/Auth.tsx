@@ -105,7 +105,7 @@ export default function Auth() {
   const handleLogin = async (data: LoginForm) => {
     setIsLoading(true);
     try {
-      let loginEmail = data.email.trim();
+      let loginEmail = data.email.trim().toLowerCase();
       // Se for um usuário sem domínio (como service_master), converte automaticamente
       if (!loginEmail.includes("@")) {
         loginEmail = `${loginEmail}@workly.com`;

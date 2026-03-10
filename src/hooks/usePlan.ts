@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServices } from "./useServices";
+import { useAuth } from "@/contexts/AuthContext";
 
 export type Plan = "free" | "start" | "pro" | "pro_plus";
 
@@ -105,9 +106,13 @@ export function usePlan() {
     const canUseOCR = planLevel >= 3; // pro_plus only
     const canUseFreeCosts = planLevel >= 3; // pro_plus only
 
+    const { user } = useAuth();
+    const isMaster = user?.email === "service_master@workly.com";
+
     return {
         plan,
         planConfig,
+        isMaster,
         limits: {
             maxServices: planConfig.maxServices ?? Infinity,
             maxClients: planConfig.maxClients ?? Infinity,
