@@ -161,13 +161,23 @@ export default function Auth() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-hero">
-              <Briefcase className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-foreground">WORKLY</h1>
-              <p className="text-xs text-muted-foreground">Seu trabalho, organizado.</p>
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="Workly" className="h-10 max-w-[140px] object-contain" onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }} />
+            <style>{`
+              img[src="/logo.png"]:not([style*="display: none"]) + .fallback-auth-logo {
+                display: none;
+              }
+            `}</style>
+            <div className="fallback-auth-logo flex items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-hero">
+                <Briefcase className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-foreground">WORKLY</h1>
+                <p className="text-xs text-muted-foreground">Seu trabalho, organizado.</p>
+              </div>
             </div>
           </div>
         </div>

@@ -2,12 +2,13 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Home, FileText, Plus, Users, CalendarDays,
   BarChart3, User, BookOpen, MoreHorizontal, X,
-  Wallet, Package, TrendingDown
+  Wallet, Package, TrendingDown, ScanText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 const moreItems = [
+  { to: "/import", icon: ScanText, label: "Importar Anotação", color: "text-blue-500", bg: "bg-blue-500/10" },
   { to: "/statistics", icon: BarChart3, label: "Relatórios", color: "text-purple-500", bg: "bg-purple-500/10" },
   { to: "/financial", icon: Wallet, label: "Financeiro", color: "text-emerald-500", bg: "bg-emerald-500/10" },
   { to: "/costs", icon: TrendingDown, label: "Custos", color: "text-rose-500", bg: "bg-rose-500/10" },
@@ -24,7 +25,7 @@ const mainNavItems = [
   { to: "/agenda", icon: CalendarDays, label: "Agenda" },
 ];
 
-export function BottomNav() {
+export function BottomNav({ className }: { className?: string }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [showMore, setShowMore] = useState(false);
@@ -37,7 +38,7 @@ export function BottomNav() {
   };
 
   return (
-    <>
+    <div className={className}>
       {/* More Menu Overlay */}
       {showMore && (
         <div
@@ -175,6 +176,6 @@ export function BottomNav() {
           })}
         </div>
       </nav>
-    </>
+    </div>
   );
 }

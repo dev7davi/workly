@@ -30,6 +30,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useServices, ServiceStatus } from "@/hooks/useServices";
 import { useEffect } from "react";
 import { ServiceCostsSection } from "@/components/services/ServiceCostsSection";
+import { ServiceMediaSection } from "@/components/services/ServiceMediaSection";
 import { ClientNameField } from "@/components/ClientNameField";
 import { cn } from "@/lib/utils";
 
@@ -255,6 +256,8 @@ export default function EditService() {
             </div>
           </CardContent>
         </Card>
+
+        {id && <ServiceMediaSection serviceId={id} />}
 
         {/* Action Buttons inside form */}
         <div className="flex gap-3">

@@ -22,6 +22,8 @@ import Plans from "./pages/Plans";
 import Catalog from "./pages/Catalog";
 import Agenda from "./pages/Agenda";
 import NotFound from "./pages/NotFound";
+import Admin from "./pages/Admin";
+import ImportNote from "./pages/ImportNote";
 import { AppLayout } from "./components/layout/AppLayout";
 
 const queryClient = new QueryClient();
@@ -111,6 +113,9 @@ const App = () => (
             <Route path="/statistics" element={<P><Statistics /></P>} />
             <Route path="/profile" element={<P><Profile /></P>} />
             <Route path="/plans" element={<P><Plans /></P>} />
+
+            <Route path="/admin" element={<P><Admin /></P>} />
+            <Route path="/import" element={<P><ImportNote /></P>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
-import { User, Mail, Phone, FileText, Calendar, LogOut, Loader2, Check, Crown, Sun, Moon, Settings, ShieldCheck, ChevronRight } from "lucide-react";
+import { User, Mail, Phone, FileText, Calendar, LogOut, Loader2, Check, Crown, Sun, Moon, Settings, ShieldCheck, ChevronRight, DownloadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useProfile, useUpdateProfile } from "@/hooks/useProfile";
+import { useBackup } from "@/hooks/useBackup";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDateLong } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -20,6 +21,7 @@ export default function Profile() {
   const { theme, setTheme } = useTheme();
   const { data: profile, isLoading } = useProfile();
   const updateProfile = useUpdateProfile();
+  const { exportData, isExporting } = useBackup();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [document, setDocument] = useState("");
@@ -215,6 +217,16 @@ export default function Profile() {
       </div>
 
       <div className="pt-4 flex flex-col gap-4">
+        <Button
+          variant="outline"
+          className="w-full h-14 rounded-2xl text-primary font-black uppercase text-xs border-primary/20 hover:bg-primary/5 transition-all"
+          onClick={exportData}
+          disabled={isExporting}
+        >
+          {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DownloadCloud className="mr-2 h-4 w-4" />}
+          {isExporting ? "Gerando Backup..." : "Exportar Backup Completo (.ZIP)"}
+        </Button>
+
         <Button
           variant="outline"
           className="w-full h-14 rounded-2xl text-destructive font-black uppercase text-xs border-destructive/20 hover:bg-destructive/5 transition-all"
