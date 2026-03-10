@@ -1,3 +1,14 @@
+-- Tabela de Auditoria e Ajustes na Tabela Profiles
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='profiles' AND column_name='phone') THEN
+        ALTER TABLE public.profiles ADD COLUMN phone text;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='profiles' AND column_name='document') THEN
+        ALTER TABLE public.profiles ADD COLUMN document text;
+    END IF;
+END $$;
+
 -- Tabela de Auditoria
 create table if not exists admin_audit_logs (
     id uuid primary key default gen_random_uuid(),
