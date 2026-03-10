@@ -13,12 +13,14 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const loginSchema = z.object({
-  email: z.string().email("Digite um e-mail válido"),
+  email: z.string().min(3, "Digite um e-mail válido ou usuário"),
   password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
 });
 
-const signupSchema = loginSchema.extend({
+const signupSchema = z.object({
   name: z.string().min(2, "Digite seu nome completo"),
+  email: z.string().email("Digite um e-mail válido"),
+  password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não coincidem",
@@ -103,7 +105,13 @@ export default function Auth() {
   const handleLogin = async (data: LoginForm) => {
     setIsLoading(true);
     try {
-      const { error } = await signIn(data.email, data.password);
+      let loginEmail = data.email.trim();
+      // Se for um usuário sem domínio (como service_master), converte automaticamente
+      if (!loginEmail.includes("@")) {
+        loginEmail = `${loginEmail}@workly.com`;
+      }
+
+      const { error } = await signIn(loginEmail, data.password);
       if (error) {
         let message = "Erro ao fazer login. Tente novamente.";
         if (error.message.includes("Invalid login")) {
@@ -256,11 +264,11 @@ export default function Auth() {
             {mode === "login" && (
               <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">E-mail</Label>
+                  <Label htmlFor="email">E-mail ou Usuário</Label>
                   <Input
                     id="email"
-                    type="email"
-                    placeholder="seu@email.com"
+                    type="text"
+                    placeholder="seu@email.com ou usuário"
                     {...loginForm.register("email")}
                   />
                   {loginForm.formState.errors.email && (
