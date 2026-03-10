@@ -18,6 +18,10 @@ import {
 } from "@/components/ui/select";
 import { useServiceCatalog, CatalogItem } from "@/hooks/useServiceCatalog";
 import { formatCurrency } from "@/lib/format";
+import { usePlan } from "@/hooks/usePlan";
+import { UpgradeModal } from "@/components/UpgradeModal";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const CATEGORIES = [
     "Instalação", "Manutenção", "Reparo", "Reforma",
@@ -164,6 +168,16 @@ export default function Catalog() {
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
 
+    const { canUseCatalog } = usePlan();
+    const navigate = useNavigate();
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+    useEffect(() => {
+        if (!isLoading && !canUseCatalog) {
+            setShowUpgradeModal(true);
+        }
+    }, [isLoading, canUseCatalog]);
+
     if (isLoading) {
         return (
             <div className="p-6 space-y-4 animate-pulse">
@@ -175,6 +189,8 @@ export default function Catalog() {
 
     return (
         <div className="flex flex-col gap-6 p-6 pb-24 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
+            {showUpgradeModal && <UpgradeModal onClose={() => { setShowUpgradeModal(false); navigate(-1); }} />}
+
             {/* Header */}
             <header className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-4">
                 <div>

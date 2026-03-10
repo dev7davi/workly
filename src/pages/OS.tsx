@@ -10,6 +10,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useRef } from "react";
 import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
+import { usePlan } from "@/hooks/usePlan";
+import { UpgradeModal } from "@/components/UpgradeModal";
+import { useState, useEffect } from "react";
 
 export default function OS() {
     const { id } = useParams<{ id: string }>();
@@ -22,6 +25,15 @@ export default function OS() {
 
     const service = services.find((s) => s.id === id);
     const isLoading = loadingServices || loadingProfile;
+
+    const { canUseOS, canUseWhiteLabel } = usePlan();
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+    useEffect(() => {
+        if (!isLoading && !canUseOS) {
+            setShowUpgradeModal(true);
+        }
+    }, [isLoading, canUseOS]);
 
     const generatePDF = async () => {
         if (!osRef.current || !service) return;
@@ -111,6 +123,8 @@ export default function OS() {
 
     return (
         <div className="flex flex-col gap-6 p-4 max-w-7xl mx-auto w-full pb-20 animate-in fade-in duration-300">
+            {showUpgradeModal && <UpgradeModal onClose={() => { setShowUpgradeModal(false); navigate(-1) }} />}
+
             <header className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full">
@@ -150,9 +164,15 @@ export default function OS() {
 
                             <div className="z-10 relative flex flex-col items-end">
                                 {/* Placeholder for Logo */}
-                                <div className="text-[4rem] leading-none font-black bg-clip-text text-transparent bg-gradient-to-tr from-blue-400 to-emerald-400 italic">
-                                    W
-                                </div>
+                                {!canUseWhiteLabel ? (
+                                    <div className="text-[4rem] leading-none font-black bg-clip-text text-transparent bg-gradient-to-tr from-blue-400 to-emerald-400 italic">
+                                        W
+                                    </div>
+                                ) : (
+                                    <div className="w-16 h-16 rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center">
+                                        <User className="text-slate-400 h-8 w-8" />
+                                    </div>
+                                )}
                             </div>
                             <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-blue-500/20 blur-3xl rounded-full" />
                             <div className="absolute top-0 right-10 w-32 h-32 bg-emerald-500/10 blur-2xl rounded-full" />
@@ -245,11 +265,19 @@ export default function OS() {
                         </div>
 
                         {/* Bottom line */}
-                        <div className="pt-8 text-center border-t border-slate-200 mt-8 opacity-60">
-                            <p className="text-xs text-slate-500 font-medium">
-                                Gerado através do WORKLY - Automação Ágil
-                            </p>
-                        </div>
+                        {!canUseWhiteLabel ? (
+                            <div className="pt-8 text-center border-t border-slate-200 mt-8 opacity-60">
+                                <p className="text-xs text-slate-500 font-medium">
+                                    Gerado através do WORKLY - Automação Ágil
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="pt-8 text-center border-t border-slate-200 mt-8 opacity-60">
+                                <p className="text-xs text-slate-500 font-medium uppercase tracking-widest block">
+                                    {profile?.name} - Prestação de Serviços
+                                </p>
+                            </div>
+                        )}
 
                     </div>
                 </div>

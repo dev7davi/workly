@@ -37,13 +37,13 @@ type ServiceForm = z.infer<typeof serviceSchema>;
 export default function NewService() {
   const navigate = useNavigate();
   const { createService } = useServices();
-  const { canAddService, isAtLimit, plan, limits, serviceCount } = usePlan();
+  const { canAddService, isAtServiceLimit, plan, limits, serviceCount } = usePlan();
   const [status, setStatus] = useState<ServiceStatus>("pending");
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
-    if (isAtLimit) setShowUpgradeModal(true);
-  }, [isAtLimit]);
+    if (isAtServiceLimit) setShowUpgradeModal(true);
+  }, [isAtServiceLimit]);
 
   const today = new Date().toISOString().slice(0, 10);
 

@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/select";
 import { useClients, ClientType } from "@/hooks/useClients";
 import { cn } from "@/lib/utils";
+import { usePlan } from "@/hooks/usePlan";
+import { UpgradeModal } from "@/components/UpgradeModal";
 
 const clientSchema = z.object({
     name: z.string().min(2, "Nome obrigatório"),
@@ -41,7 +43,9 @@ export default function ClientForm() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { clients, isLoading, createClient, updateClient } = useClients();
+    const { limits } = usePlan();
     const [clientType, setClientType] = useState<ClientType>("pf");
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const isEdit = !!id;
 
     const existing = clients.find(c => c.id === id);
@@ -73,10 +77,18 @@ export default function ClientForm() {
             setValue("birthday", existing.birthday || "");
             setValue("notes", existing.notes || "");
             setClientType(existing.type || "pf");
+        } else if (!isEdit) {
+            if (clients.length >= limits.maxClients) {
+                setShowUpgradeModal(true);
+            }
         }
-    }, [existing, setValue]);
+    }, [existing, setValue, isEdit, clients.length, limits.maxClients]);
 
     const onSubmit = async (data: ClientForm) => {
+        if (!isEdit && clients.length >= limits.maxClients) {
+            setShowUpgradeModal(true);
+            return;
+        }
         const payload = {
             ...data,
             type: clientType,
@@ -112,6 +124,8 @@ export default function ClientForm() {
 
     return (
         <div className="flex flex-col gap-6 p-6 pb-24 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
+            {showUpgradeModal && <UpgradeModal onClose={() => { setShowUpgradeModal(false); navigate("/clients") }} />}
+
             {/* Header */}
             <header className="flex items-center gap-4">
                 <Button variant="ghost" size="icon" onClick={() => navigate("/clients")} className="rounded-full">

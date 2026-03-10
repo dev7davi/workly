@@ -10,6 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { usePlan } from "@/hooks/usePlan";
+import { UpgradeModal } from "@/components/UpgradeModal";
+import { useEffect } from "react";
 
 interface ParsedData {
     client: string;
@@ -30,6 +33,14 @@ export default function ImportNote() {
     const [parsed, setParsed] = useState<ParsedData>({ client: "", phone: "", service: "", value: "", date: "" });
     const [isSaving, setIsSaving] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const { canUseOCR } = usePlan();
+
+    useEffect(() => {
+        if (!canUseOCR) {
+            setShowUpgradeModal(true);
+        }
+    }, [canUseOCR]);
 
     const processText = (text: string) => {
         // Simple heuristic parser
@@ -159,6 +170,8 @@ export default function ImportNote() {
 
     return (
         <div className="flex flex-col gap-6 p-6 pb-28 max-w-7xl mx-auto w-full min-h-screen animate-in fade-in zoom-in duration-300">
+            {showUpgradeModal && <UpgradeModal onClose={() => { setShowUpgradeModal(false); navigate(-1) }} />}
+
             <header className="flex items-center gap-4">
                 <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full">
                     <ArrowLeft className="h-5 w-5" />
