@@ -13,7 +13,15 @@ BEGIN
   END IF;
 END $$;
 
--- 2. Criar o novo User admin: service_master@workly.com com a senha informada
+-- 2. Atualizar a função que verifica se o usuário é o master admin (para o novo e-mail)
+create or replace function is_master_admin()
+returns boolean as $$
+begin
+  return (auth.jwt()->>'email' = 'service_master@workly.com');
+end;
+$$ language plpgsql security definer;
+
+-- 3. Criar o novo User admin: service_master@workly.com com a senha informada
 DO $$ 
 DECLARE
     v_new_user_id uuid := gen_random_uuid();
@@ -47,20 +55,18 @@ BEGIN
             'authenticated'
         );
 
-        -- Garantir que ele seja admin no profiles
+        -- Garantir que ele exista na profiles
         INSERT INTO public.profiles (
             id,
             name,
-            role,
             created_at
         ) VALUES (
             v_new_user_id,
             'Service Master Dashboard',
-            'admin',
             now()
-        ) ON CONFLICT (id) DO UPDATE SET role = 'admin';
+        ) ON CONFLICT (id) DO UPDATE SET name = 'Service Master Dashboard';
         
-        RAISE NOTICE 'Usuário service_master criado com SUCESSO e perfil admin gerado.';
+        RAISE NOTICE 'Usuário service_master criado com SUCESSO.';
     ELSE
         -- Update password instead if already exists
         UPDATE auth.users 
@@ -68,9 +74,9 @@ BEGIN
         WHERE id = v_already_exists;
 
         UPDATE public.profiles 
-        SET role = 'admin' 
+        SET name = 'Service Master Dashboard' 
         WHERE id = v_already_exists;
 
-        RAISE NOTICE 'Usuário service_master já existe. Senha e permissões de admin resetadas.';
+        RAISE NOTICE 'Usuário service_master já existe. Senha resetada.';
     END IF;
 END $$;
