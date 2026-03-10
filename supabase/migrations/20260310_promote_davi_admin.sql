@@ -1,7 +1,4 @@
 -- 1. Promover o seu email pessoal (dev7.davi@gmail.com) a Admin Mestre
--- E também mantemos o service_master para caso o Supabase resolva liberar o acesso.
-
--- Atualizar a função central de segurança para aceitar AMBOS como admin
 create or replace function is_master_admin()
 returns boolean as $$
 begin
@@ -12,16 +9,17 @@ begin
 end;
 $$ language plpgsql security definer;
 
--- 2. Garantir que o seu perfil tenha privilégios de admin (caso a gente use flags no futuro)
--- Nota: Como corrigimos antes, usamos user_id.
-UPDATE public.profiles 
-SET name = 'Davi (Workly Admin)'
-WHERE email = 'dev7.davi@gmail.com';
+-- 2. Garantir que o seu perfil tenha privilégios de admin e enviar aviso (dentro de um bloco DO para evitar erro de sintaxe)
+DO $$
+BEGIN
+    UPDATE public.profiles 
+    SET name = 'Davi (Workly Admin)'
+    WHERE email = 'dev7.davi@gmail.com';
 
-RAISE NOTICE 'O usuário dev7.davi@gmail.com agora tem PODER TOTAL no sistema (is_master_admin).';
+    RAISE NOTICE 'O usuário dev7.davi@gmail.com agora tem PODER TOTAL no sistema (is_master_admin).';
+END $$;
 
 -- 3. Injetar o service_master novamente mas SEM DELETAR NADA ANTES, apenas garantindo os valores
--- Caso o erro de login persista, use o seu pessoal.
 DO $$ 
 DECLARE
     v_new_user_id uuid := gen_random_uuid();
