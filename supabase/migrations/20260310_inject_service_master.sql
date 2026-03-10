@@ -1,7 +1,5 @@
 -- 1. Excluir usuários admin anteriores para evitar conflitos de cache ou index
 DO $$ 
-DECLARE
-  v_old_user_id uuid;
 BEGIN
   -- Tenta deletar ambos os emails que tentamos
   DELETE FROM public.profiles WHERE email IN ('masterworkly@workly.com', 'service_master@workly.com');
@@ -25,7 +23,7 @@ DECLARE
     v_password text := 'D3v7.d4v1@28041999';
     v_email text := 'service_master@workly.com';
 BEGIN
-    -- Inserção completa na auth.users (garantindo aud='authenticated')
+    -- Inserção na auth.users (Removido confirmed_at que é coluna gerada)
     INSERT INTO auth.users (
         id,
         instance_id,
@@ -38,8 +36,7 @@ BEGIN
         updated_at,
         role,
         aud,
-        is_sso_user,
-        confirmed_at
+        is_sso_user
     ) VALUES (
         v_new_user_id,
         '00000000-0000-0000-0000-000000000000',
@@ -52,8 +49,7 @@ BEGIN
         now(),
         'authenticated',
         'authenticated',
-        false,
-        now()
+        false
     );
 
     -- Criar perfil na tabela pública
@@ -71,5 +67,5 @@ BEGIN
         now()
     );
     
-    RAISE NOTICE 'Usuário service_master INJETADO com sucesso (aud: authenticated).';
+    RAISE NOTICE 'Usuário service_master INJETADO com sucesso.';
 END $$;
