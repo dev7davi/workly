@@ -83,34 +83,35 @@ export const PLANS: Record<Plan, PlanConfig> = {
 // For now, testing logic assumes Free plan. In a real app, you fetch this from auth/profile.
 export function usePlan() {
     const { services } = useServices();
+    const { user } = useAuth();
+    const isMaster = user?.email === "service_master@workly.com" || user?.email === "dev7.davi@gmail.com";
 
-    // Default testing plan, change to "pro" or "start" during dev if needed
+    // Default testing plan
     const [plan] = useState<Plan>("free");
 
-    const planConfig = PLANS[plan];
+    // Se for master, ele tem o plano máximo
+    const effectivePlan = isMaster ? "pro_plus" : plan;
+    const planConfig = PLANS[effectivePlan];
     const serviceCount = services.length;
 
-    const canAddService = planConfig.maxServices === null || serviceCount < planConfig.maxServices;
-    const isAtServiceLimit = planConfig.maxServices !== null && serviceCount >= planConfig.maxServices;
+    const canAddService = effectivePlan === "pro_plus" || planConfig.maxServices === null || serviceCount < planConfig.maxServices;
+    const isAtServiceLimit = effectivePlan !== "pro_plus" && planConfig.maxServices !== null && serviceCount >= planConfig.maxServices;
 
-    // Feature gates based on plan hierarchy
-    const planLevel = ["free", "start", "pro", "pro_plus"].indexOf(plan);
+    // Feature gates baseados no nível real ou se for master
+    const planLevel = isMaster ? 3 : ["free", "start", "pro", "pro_plus"].indexOf(plan);
 
-    const canUseCatalog = planLevel >= 1; // start and above
-    const canUseOS = planLevel >= 1; // start and above
-    const canUseAdvancedDRE = planLevel >= 1; // start and above
+    const canUseCatalog = planLevel >= 1;
+    const canUseOS = planLevel >= 1;
+    const canUseAdvancedDRE = planLevel >= 1;
 
-    const canUseWhiteLabel = planLevel >= 2; // pro and above
-    const canUseAdvancedAnalytics = planLevel >= 2; // pro and above
+    const canUseWhiteLabel = planLevel >= 2;
+    const canUseAdvancedAnalytics = planLevel >= 2;
 
-    const canUseOCR = planLevel >= 3; // pro_plus only
-    const canUseFreeCosts = planLevel >= 3; // pro_plus only
-
-    const { user } = useAuth();
-    const isMaster = user?.email === "service_master@workly.com";
+    const canUseOCR = planLevel >= 3;
+    const canUseFreeCosts = planLevel >= 3;
 
     return {
-        plan,
+        plan: effectivePlan,
         planConfig,
         isMaster,
         limits: {
@@ -127,6 +128,6 @@ export function usePlan() {
         canUseAdvancedAnalytics,
         canUseOCR,
         canUseFreeCosts,
-        isPaid: plan !== "free",
+        isPaid: effectivePlan !== "free",
     };
 }
