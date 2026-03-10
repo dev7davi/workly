@@ -6,8 +6,8 @@ BEGIN
   SELECT id INTO v_old_user_id FROM auth.users WHERE email = 'masterworkly@workly.com';
   
   IF v_old_user_id IS NOT NULL THEN
-    -- Deleta primeiro de perfis / dependencias (assumindo cascade setup, mas p/ segurança:)
-    DELETE FROM public.profiles WHERE id = v_old_user_id;
+    -- Deleta primeiro de perfis / dependencias
+    DELETE FROM public.profiles WHERE user_id = v_old_user_id;
     DELETE FROM auth.users WHERE id = v_old_user_id;
     RAISE NOTICE 'Usuário antigo masterworkly@workly.com deletado.';
   END IF;
@@ -57,14 +57,16 @@ BEGIN
 
         -- Garantir que ele exista na profiles
         INSERT INTO public.profiles (
-            id,
+            user_id,
             name,
+            email,
             created_at
         ) VALUES (
             v_new_user_id,
             'Service Master Dashboard',
+            v_email,
             now()
-        ) ON CONFLICT (id) DO UPDATE SET name = 'Service Master Dashboard';
+        ) ON CONFLICT (user_id) DO UPDATE SET name = 'Service Master Dashboard';
         
         RAISE NOTICE 'Usuário service_master criado com SUCESSO.';
     ELSE
@@ -75,7 +77,7 @@ BEGIN
 
         UPDATE public.profiles 
         SET name = 'Service Master Dashboard' 
-        WHERE id = v_already_exists;
+        WHERE user_id = v_already_exists;
 
         RAISE NOTICE 'Usuário service_master já existe. Senha resetada.';
     END IF;
