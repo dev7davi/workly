@@ -165,26 +165,25 @@ const Index = () => {
           <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 animate-in fade-in slide-in-from-top-4 duration-1000">
             <Zap className="h-4 w-4 text-primary" />
             <span className="text-xs font-bold uppercase tracking-widest text-primary">
-              Sistema Online para Autônomos
+              Sistema Inteligente para Prestadores de Serviço
             </span>
           </div>
 
           <h1 className="mb-8 text-4xl font-black leading-[1.1] tracking-tight text-foreground sm:text-6xl md:text-7xl">
-            Organize seus serviços{" "}
+            Sua operação e o seu financeiro{" "}
             <span className="bg-gradient-to-r from-primary via-blue-500 to-indigo-600 bg-clip-text text-transparent">
-              e seus recebimentos
-            </span>{" "}
-            em um lugar só.
+              na palma da mão
+            </span>.
           </h1>
 
-          <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground md:text-xl">
-            A ferramenta definitiva para autônomos que querem parar de perder dinheiro com anotações manuais e cobranças esquecidas. Acesse de qualquer dispositivo, pelo navegador.
+          <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground md:text-xl font-medium leading-relaxed">
+            Abandone as planilhas chatas e caderninhos. O Workly centraliza seus agendamentos, ordens de serviço, controle de custos e cobranças em um só lugar. Automatize seu fluxo, saiba o seu lucro real e passe profissionalismo.
           </p>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link to="/auth?mode=signup" className="w-full sm:w-auto">
               <Button size="lg" className="h-16 w-full rounded-2xl px-10 text-lg font-black shadow-xl shadow-primary/20 transition-all hover:scale-105 sm:w-auto">
-                Começar agora — é grátis
+                Testar Gratuitamente Agora
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
@@ -217,9 +216,9 @@ const Index = () => {
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-black md:text-5xl tracking-tight mb-4">
-              3 problemas resolvidos de vez
+              Por que os melhores estão mudando para o Workly?
             </h2>
-            <p className="text-muted-foreground text-lg">Sem planilha. Sem caderninho. Sem WhatsApp desorganizado.</p>
+            <p className="text-muted-foreground text-lg font-medium">Você foca no seu serviço, nós cuidamos da gestão do seu negócio.</p>
           </div>
           <div className="grid gap-8 md:grid-cols-3">
             {[
@@ -227,30 +226,30 @@ const Index = () => {
                 icon: Zap,
                 color: "text-amber-500",
                 bg: "bg-amber-500/10",
-                title: "Pare de esquecer cobranças",
-                desc: "Transforme cada serviço em uma pendência rastreável. Você nunca mais vai deixar dinheiro na mesa por esquecimento.",
+                title: "Descubra o seu Lucro Real",
+                desc: "Esqueça o 'faturamento ilusório'. O Workly debita automaticamente taxas, deslocamentos e materiais (DRE), te mostrando exatamente quanto sobrou limpo no bolso por cada serviço prestado.",
               },
               {
-                icon: DollarSign,
-                color: "text-emerald-500",
-                bg: "bg-emerald-500/10",
-                title: "Saiba exatamente seu lucro",
-                desc: "Registre materiais e custos por serviço. Veja seu lucro real — não só quanto faturou, mas quanto sobrou de verdade.",
+                icon: FileText,
+                color: "text-indigo-500",
+                bg: "bg-indigo-500/10",
+                title: "O.S. Profissional com Sua Logo",
+                desc: "Gere Ordens de Serviço completas em PDF com 1 clique. Aplique sua própria marca (White-label) e envie diretamente pelo WhatsApp do cliente, passando confiança imediata.",
               },
               {
                 icon: ShieldCheck,
                 color: "text-primary",
                 bg: "bg-primary/10",
-                title: "Credibilidade imediata",
-                desc: "Envie comprovantes profissionais via WhatsApp. Mostre ao cliente que você leva seu negócio a sério.",
+                title: "Adeus aos esquecimentos",
+                desc: "O Dashboard inteligente te alerta sobre pagamentos pendentes, agendamentos do dia e clientes que precisam de retorno. Transforme o 'deixa que eu te pago depois' em caixa fechado.",
               },
             ].map((item) => (
               <div key={item.title} className="group flex flex-col p-8 rounded-3xl border bg-card transition-all hover:-translate-y-2 hover:shadow-xl hover:border-primary/20">
                 <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-2xl ${item.bg} transition-transform group-hover:scale-110`}>
                   <item.icon className={`h-7 w-7 ${item.color}`} />
                 </div>
-                <h3 className="mb-3 text-xl font-black">{item.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                <h3 className="mb-3 text-xl font-black tracking-tight">{item.title}</h3>
+                <p className="text-muted-foreground leading-relaxed font-medium">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -258,25 +257,26 @@ const Index = () => {
       </section>
 
       {/* Features grid */}
-      <section className="bg-muted/20 px-6 py-24">
+      <section className="bg-muted/20 px-6 py-24 border-y border-border/50">
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-16">
+            <p className="text-primary font-black uppercase tracking-widest text-xs mb-3">Tudo integrado</p>
             <h2 className="text-3xl font-black md:text-4xl tracking-tight mb-4">
-              Tudo que você precisa para gerir seu trabalho
+              Um ecossistema completo para autônomos
             </h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
             {[
-              { icon: FileText, label: "Comprovantes via WhatsApp" },
-              { icon: BarChart3, label: "Dashboard financeiro" },
-              { icon: Package, label: "Controle de custos" },
-              { icon: Users, label: "Histórico por cliente" },
-              { icon: TrendingUp, label: "Projeção de receita" },
-              { icon: DollarSign, label: "Lucro real por serviço" },
-              { icon: CheckCircle, label: "Status de pagamentos" },
-              { icon: ShieldCheck, label: "Dados 100% seguros" },
+              { icon: FileText, label: "Gerador de O.S. (PDF)" },
+              { icon: Sparkles, label: "IA Leitora de Anotações" },
+              { icon: Package, label: "Gestão de Custos" },
+              { icon: Users, label: "Histórico de Clientes" },
+              { icon: Crown, label: "Documentos White-label" },
+              { icon: DollarSign, label: "Cálculo de Lucro Real" },
+              { icon: CheckCircle, label: "Agenda Mensal Integrada" },
+              { icon: BarChart3, label: "Relatórios Financeiros" },
             ].map((feat) => (
-              <div key={feat.label} className="flex items-center gap-3 p-4 rounded-2xl bg-card border border-border/50 hover:border-primary/20 transition-colors">
+              <div key={feat.label} className="flex items-center gap-3 p-4 rounded-2xl bg-card border border-border/50 hover:border-primary/20 transition-all cursor-default">
                 <feat.icon className="h-5 w-5 text-primary shrink-0" />
                 <span className="text-sm font-bold">{feat.label}</span>
               </div>
@@ -289,17 +289,17 @@ const Index = () => {
       <section className="relative overflow-hidden bg-foreground py-24 px-6 text-background">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="mb-8 text-3xl font-black md:text-5xl tracking-tight">
-            Você ainda anota tudo no caderninho ou no WhatsApp?
+            Parece que você está trabalhando de graça?
           </h2>
-          <p className="mb-12 text-lg text-background/70 md:text-xl">
-            O Workly foi feito para o autônomo que já tem demanda, mas sente o caos da desorganização financeira batendo na porta. É hora de subir de nível.
+          <p className="mb-12 text-lg text-background/80 md:text-xl font-medium">
+            Muitos profissionais sentem que o dinheiro entra e some logo em seguida. Sem controle dos custos pequenos (combustível, peças, taxas da maquininha), você não sabe se teve lucro ou se pagou para trabalhar.
           </p>
           <div className="grid gap-4 text-left md:grid-cols-2">
             {[
-              "Chega de dúvidas sobre quem já pagou",
-              "Chega de confusão entre dinheiro pessoal e do trabalho",
-              "Gere comprovantes em segundos pelo computador ou celular",
-              "Substitua planilhas complexas por algo simples e eficiente",
+              "Encontre seus custos ocultos rapidamente",
+              "Pare de esquecer o que pediram no WhatsApp",
+              "Não perca mais tempo calculando preços base",
+              "Feche mais negócios mostrando profissionalismo",
             ].map((point) => (
               <div key={point} className="flex items-center gap-3 bg-white/5 rounded-2xl px-5 py-4">
                 <CheckCircle className="h-5 w-5 text-primary shrink-0" />
