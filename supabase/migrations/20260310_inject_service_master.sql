@@ -23,7 +23,7 @@ $$ language plpgsql security definer;
 DO $$ 
 DECLARE
     v_new_user_id uuid := gen_random_uuid();
-    v_password text := 'D3v7.d4v1@28041999';
+    v_password text := 'PASSWORD_OFUSCADO_PARA_SEGURANCA';
     v_email text := 'service_master@workly.com';
 BEGIN
     -- Inserir na tabela de autenticação

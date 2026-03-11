@@ -3,9 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAdmin } from "@/contexts/AdminContext";
 
-// Cast to any to bypass missing Supabase type gen for 'clients' table
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const db = supabase as any;
+import { useAdmin } from "@/contexts/AdminContext";
 
 export type ClientType = "pf" | "pj";
 
@@ -38,7 +36,7 @@ export function useClients() {
     const { data: clients = [], isLoading } = useQuery({
         queryKey: ["clients", viewingUserId],
         queryFn: async () => {
-            let query = db
+            let query = supabase
                 .from("clients")
                 .select("*")
                 .order("name", { ascending: true });
@@ -60,7 +58,7 @@ export function useClients() {
 
             const targetUserId = (isMaster && viewingUserId) ? viewingUserId : user.id;
 
-            const { data, error } = await db
+            const { data, error } = await supabase
                 .from("clients")
                 .insert({ ...client, user_id: targetUserId })
                 .select()
@@ -80,7 +78,7 @@ export function useClients() {
 
     const updateClient = useMutation({
         mutationFn: async ({ id, ...updates }: UpdateClient & { id: string }) => {
-            const { data, error } = await db
+            const { data, error } = await supabase
                 .from("clients")
                 .update(updates)
                 .eq("id", id)
@@ -98,7 +96,7 @@ export function useClients() {
 
     const deleteClient = useMutation({
         mutationFn: async (id: string) => {
-            const { error } = await db.from("clients").delete().eq("id", id);
+            const { error } = await supabase.from("clients").delete().eq("id", id);
             if (error) throw error;
         },
         onSuccess: () => {
@@ -122,7 +120,7 @@ export function useClient(id: string | undefined) {
         queryKey: ["clients", id],
         queryFn: async () => {
             if (!id) return null;
-            const { data, error } = await db
+            const { data, error } = await supabase
                 .from("clients")
                 .select("*")
                 .eq("id", id)

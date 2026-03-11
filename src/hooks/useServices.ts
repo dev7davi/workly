@@ -16,8 +16,6 @@ export interface Service {
   notes?: string;
 }
 
-const db = supabase as any;
-
 export function useServices() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +24,7 @@ export function useServices() {
   async function fetchServices() {
     setLoading(true);
 
-    let query = db
+    let query = supabase
       .from("services")
       .select("*")
       .order("payment_date", { ascending: true });
@@ -53,7 +51,7 @@ export function useServices() {
 
     const targetUserId = (isMaster && viewingUserId) ? viewingUserId : user.id;
 
-    await db.from("services").insert({
+    await supabase.from("services").insert({
       ...payload,
       user_id: targetUserId,
     });
@@ -62,12 +60,12 @@ export function useServices() {
   }
 
   async function updateService(id: string, payload: Partial<Service>) {
-    await db.from("services").update(payload).eq("id", id);
+    await supabase.from("services").update(payload).eq("id", id);
     fetchServices();
   }
 
   async function deleteService(id: string) {
-    await db.from("services").delete().eq("id", id);
+    await supabase.from("services").delete().eq("id", id);
     fetchServices();
   }
 
@@ -78,7 +76,7 @@ export function useServices() {
 
     const targetUserId = (isMaster && viewingUserId) ? viewingUserId : user.id;
 
-    await db.from("services").insert({
+    await supabase.from("services").insert({
       ...rest,
       user_id: targetUserId,
       status: "pending" as ServiceStatus,

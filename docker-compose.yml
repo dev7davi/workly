@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  workly-frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: workly-prod
+    ports:
+      # Expõe a porta 80 do Nginx interno para a porta 3000 do VPS (Mude se necessário)
+      - "3000:80"
+    restart: always # Mantém o Docker rodando em crash / reboots do VPS
+    environment:
+      # As variáveis são passadas pro build pelo .env, mas podem ser reforçadas aqui
+      - NODE_ENV=production

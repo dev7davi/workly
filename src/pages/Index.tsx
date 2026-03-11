@@ -22,9 +22,9 @@ import { useState } from "react";
 
 // ⚠️ Substitua pelas URLs reais do Stripe
 const STRIPE_LINKS = {
-  start: "https://buy.stripe.com/SEU_LINK_START_AQUI",
-  pro: "https://buy.stripe.com/SEU_LINK_PRO_AQUI",
-  pro_plus: "https://buy.stripe.com/SEU_LINK_PLUS_AQUI",
+  start: "https://buy.stripe.com/6oU8wOftDaqzdBpb2EaMU02",
+  pro: "https://buy.stripe.com/7sYbJ0dlv56f40P2w8aMU00",
+  pro_plus: "https://buy.stripe.com/14A00i3KV8ir9l9gmYaMU01",
 };
 
 const plans = [
@@ -134,7 +134,7 @@ const Index = () => {
       <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-background/80 backdrop-blur-md px-6 py-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <img src="/logo_w.png" alt="WORKLY" className="h-8 mix-blend-multiply dark:mix-blend-normal" />
+            <img src="/logo_w6.png" alt="WORKLY" className="h-8 mix-blend-multiply dark:mix-blend-normal" />
           </div>
           <div className="flex items-center gap-6">
             <a href="#planos" className="text-sm font-semibold hover:text-primary transition-colors hidden sm:block">
@@ -448,7 +448,7 @@ const Index = () => {
         <div className="mx-auto max-w-5xl flex flex-col items-center justify-between gap-6 md:flex-row">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
-              <img src="/logo_w.png" alt="WORKLY" className="h-8 mix-blend-multiply dark:mix-blend-normal" />
+              <img src="/logo_w6.png" alt="WORKLY" className="h-8 mix-blend-multiply dark:mix-blend-normal" />
             </div>
             <div className="text-xs text-muted-foreground font-medium space-y-1">
               <p>E-mail: serviceworkly@gmail.com</p>

@@ -5,9 +5,9 @@ import { PLANS, Plan } from "@/hooks/usePlan";
 import { cn } from "@/lib/utils";
 
 const STRIPE_LINKS = {
-    start: "https://buy.stripe.com/SEU_LINK_START_AQUI",
-    pro: "https://buy.stripe.com/SEU_LINK_PRO_AQUI",
-    pro_plus: "https://buy.stripe.com/SEU_LINK_PLUS_AQUI",
+    start: "https://buy.stripe.com/6oU8wOftDaqzdBpb2EaMU02",
+    pro: "https://buy.stripe.com/7sYbJ0dlv56f40P2w8aMU00",
+    pro_plus: "https://buy.stripe.com/14A00i3KV8ir9l9gmYaMU01",
 };
 
 const PLAN_ORDER: Plan[] = ["free", "start", "pro", "pro_plus"];
