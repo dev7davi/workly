@@ -234,40 +234,56 @@ export default function OS() {
                         {/* Itens */}
                         <div className="space-y-3">
                             <h2 className="text-sm font-bold text-slate-500 tracking-widest uppercase ml-1">Itens e Serviços</h2>
-                            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 h-64 flex flex-col justify-between">
-                                <div>
-                                    {/* Table Header */}
-                                    <div className="grid grid-cols-12 gap-4 pb-4 border-b border-slate-100">
+                            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 min-h-[16rem] flex flex-col justify-between overflow-hidden">
+                                <div className="divide-y divide-slate-100">
+                                    {/* Table Header - Desktop Only */}
+                                    <div className="hidden sm:grid grid-cols-12 gap-4 p-6 bg-slate-50/50">
                                         <div className="col-span-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Descrição</div>
                                         <div className="col-span-2 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">QTD</div>
-                                        <div className="col-span-2 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Valor Unit.</div>
+                                        <div className="col-span-2 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Unitário</div>
                                         <div className="col-span-2 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Total</div>
                                     </div>
 
-                                    {/* Improvised Table Rows (just the main service item for now) */}
-                                    <div className="grid grid-cols-12 gap-4 py-4 text-sm items-center border-b border-slate-50">
-                                        <div className="col-span-6 font-bold text-slate-800">{service.service_type}</div>
-                                        <div className="col-span-2 text-center text-slate-600 font-medium">1</div>
-                                        <div className="col-span-2 text-right text-slate-600 font-medium">{formatCurrency(service.value)}</div>
-                                        <div className="col-span-2 text-right font-black text-slate-800">{formatCurrency(service.value)}</div>
+                                    {/* Main Item Card/Row */}
+                                    <div className="p-6">
+                                        <div className="flex flex-col sm:grid sm:grid-cols-12 gap-4 sm:items-center">
+                                            <div className="sm:col-span-6">
+                                                <p className="sm:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Descrição</p>
+                                                <p className="font-bold text-slate-800 text-lg sm:text-sm">{service.service_type}</p>
+                                            </div>
+                                            <div className="flex justify-between sm:contents border-t border-slate-50 pt-3 sm:pt-0">
+                                                <div className="sm:col-span-2 text-left sm:text-center">
+                                                    <p className="sm:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">QTD</p>
+                                                    <p className="text-slate-600 font-medium sm:text-sm">1</p>
+                                                </div>
+                                                <div className="sm:col-span-2 text-right">
+                                                    <p className="sm:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Unitário</p>
+                                                    <p className="text-slate-600 font-medium sm:text-sm">{formatCurrency(service.value)}</p>
+                                                </div>
+                                                <div className="sm:col-span-2 text-right">
+                                                    <p className="sm:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total</p>
+                                                    <p className="font-black text-slate-800 text-lg sm:text-sm">{formatCurrency(service.value)}</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    {/* Add extra lines if notes exists */}
+                                    {/* Optional Notes Sub-item */}
                                     {service.notes && service.notes.length > 5 && (
-                                        <div className="grid grid-cols-12 gap-4 py-4 text-sm items-center border-b border-slate-50">
-                                            <div className="col-span-6 font-bold text-slate-800">Anotações e Materiais Previstos</div>
-                                            <div className="col-span-2 text-center text-slate-600 font-medium">-</div>
-                                            <div className="col-span-2 text-right text-slate-600 font-medium">-</div>
-                                            <div className="col-span-2 text-right font-black text-slate-800">-</div>
+                                        <div className="p-6 bg-slate-50/30">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Anotações Adicionais</p>
+                                            <p className="text-sm text-slate-600 leading-relaxed italic">
+                                                {service.notes}
+                                            </p>
                                         </div>
                                     )}
                                 </div>
 
                                 {/* Footer Totals */}
-                                <div className="flex justify-end pt-4 border-t border-slate-200">
+                                <div className="flex justify-end p-6 border-t border-slate-200 bg-slate-50/50">
                                     <div className="flex items-center gap-6">
                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Total Geral</p>
-                                        <p className="text-2xl font-black text-slate-900">{formatCurrency(service.value)}</p>
+                                        <p className="text-3xl font-black text-slate-900">{formatCurrency(service.value)}</p>
                                     </div>
                                 </div>
                             </div>

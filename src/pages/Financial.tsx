@@ -207,8 +207,8 @@ export default function Financial() {
             {/* Recebido mês */}
             <Link to="#" onClick={() => setActiveTab("recebidos")} className="w-full">
               <Card className="border-none shadow-xl rounded-[20px] bg-gradient-to-br from-emerald-500 to-teal-600 text-white cursor-pointer hover:-translate-y-0.5 transition-all group overflow-hidden relative">
-                <CardContent className="p-5">
-                  <div className="flex justify-between items-start mb-3">
+                <CardContent className="p-5 flex flex-col items-start">
+                  <div className="flex justify-between w-full items-start mb-3">
                     <div className="p-2 bg-white/20 rounded-xl">
                       <TrendingUp className="h-4 w-4" />
                     </div>
@@ -223,10 +223,10 @@ export default function Financial() {
                       </div>
                     )}
                   </div>
-                  <p className="text-2xl font-black tracking-tighter leading-none mb-1">
+                  <p className="text-3xl font-black tracking-tighter leading-none mb-1">
                     {formatCurrency(data.totalPaidMonth)}
                   </p>
-                  <p className="text-[10px] font-black opacity-70 uppercase">Recebido no mês</p>
+                  <p className="text-sm font-medium opacity-70 uppercase tracking-tight">Recebido no mês</p>
                 </CardContent>
                 <div className="absolute -bottom-4 -right-4 h-20 w-20 bg-white/10 rounded-full blur-xl" />
               </Card>
@@ -235,14 +235,14 @@ export default function Financial() {
             {/* A receber */}
             <button onClick={() => setActiveTab("areceber")} className="w-full">
               <Card className="border-none shadow-xl rounded-[20px] bg-gradient-to-br from-amber-500 to-orange-600 text-white cursor-pointer hover:-translate-y-0.5 transition-all group overflow-hidden relative w-full">
-                <CardContent className="p-5">
+                <CardContent className="p-5 flex flex-col items-start translate-x-0">
                   <div className="p-2 bg-white/20 rounded-xl w-fit mb-3">
                     <Clock className="h-4 w-4" />
                   </div>
-                  <p className="text-2xl font-black tracking-tighter leading-none mb-1">
+                  <p className="text-3xl font-black tracking-tighter leading-none mb-1">
                     {formatCurrency(data.totalPending)}
                   </p>
-                  <p className="text-[10px] font-black opacity-70 uppercase">Total em aberto</p>
+                  <p className="text-sm font-medium opacity-70 uppercase tracking-tight">Total em aberto</p>
                 </CardContent>
                 <div className="absolute -bottom-4 -right-4 h-20 w-20 bg-white/10 rounded-full blur-xl" />
               </Card>
@@ -251,14 +251,12 @@ export default function Financial() {
             {/* Ticket médio */}
             <Link to="/statistics" className="w-full">
               <Card className="border-none shadow-md rounded-[20px] bg-card cursor-pointer hover:shadow-lg transition-all">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-indigo-500/10 rounded-xl">
-                      <Target className="h-4 w-4 text-indigo-500" />
-                    </div>
-                    <p className="text-[10px] font-black uppercase text-muted-foreground">Ticket médio</p>
+                <CardContent className="p-5 flex flex-col items-start">
+                  <div className="p-1.5 bg-indigo-500/10 rounded-xl mb-3">
+                    <Target className="h-4 w-4 text-indigo-500" />
                   </div>
-                  <p className="text-xl font-black tracking-tighter">{formatCurrency(data.avgTicket)}</p>
+                  <p className="text-2xl font-black tracking-tighter mb-1">{formatCurrency(data.avgTicket)}</p>
+                  <p className="text-sm font-medium opacity-60 uppercase tracking-tight text-muted-foreground">Ticket médio</p>
                 </CardContent>
               </Card>
             </Link>
@@ -266,14 +264,12 @@ export default function Financial() {
             {/* Total all time */}
             <Link to="/statistics" className="w-full">
               <Card className="border-none shadow-md rounded-[20px] bg-card cursor-pointer hover:shadow-lg transition-all">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 bg-purple-500/10 rounded-xl">
-                      <Wallet className="h-4 w-4 text-purple-500" />
-                    </div>
-                    <p className="text-[10px] font-black uppercase text-muted-foreground">Receita total</p>
+                <CardContent className="p-5 flex flex-col items-start">
+                  <div className="p-1.5 bg-purple-500/10 rounded-xl mb-3">
+                    <Wallet className="h-4 w-4 text-purple-500" />
                   </div>
-                  <p className="text-xl font-black tracking-tighter">{formatCurrency(data.totalAllTime)}</p>
+                  <p className="text-2xl font-black tracking-tighter mb-1">{formatCurrency(data.totalAllTime)}</p>
+                  <p className="text-sm font-medium opacity-60 uppercase tracking-tight text-muted-foreground">Receita total</p>
                 </CardContent>
               </Card>
             </Link>

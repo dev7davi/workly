@@ -214,31 +214,33 @@ export default function Statistics() {
       </header>
 
       {/* Section Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="w-full h-12 rounded-2xl bg-muted/50 p-1">
-          <TabsTrigger value="financeiro" className="flex-1 rounded-xl font-black text-[10px] uppercase">
-            💰 Financeiro
-          </TabsTrigger>
-          <TabsTrigger value="clientes" className="flex-1 rounded-xl font-black text-[10px] uppercase">
-            👥 Clientes
-          </TabsTrigger>
-          <TabsTrigger value="operacional" className="flex-1 rounded-xl font-black text-[10px] uppercase">
-            ⚡ Operacional
-          </TabsTrigger>
-          <TabsTrigger value="previsao" className="flex-1 rounded-xl font-black text-[10px] uppercase">
-            🔮 Previsão
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="overflow-x-auto -mx-1 px-1">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="h-12 w-fit min-w-full rounded-2xl bg-muted/50 p-1 flex items-center">
+                <TabsTrigger value="financeiro" className="flex-1 rounded-xl font-black text-[10px] uppercase px-4 whitespace-nowrap">
+                    💰 Financeiro
+                </TabsTrigger>
+                <TabsTrigger value="clientes" className="flex-1 rounded-xl font-black text-[10px] uppercase px-4 whitespace-nowrap">
+                    👥 Clientes
+                </TabsTrigger>
+                <TabsTrigger value="operacional" className="flex-1 rounded-xl font-black text-[10px] uppercase px-4 whitespace-nowrap">
+                    ⚡ Operacional
+                </TabsTrigger>
+                <TabsTrigger value="previsao" className="flex-1 rounded-xl font-black text-[10px] uppercase px-4 whitespace-nowrap">
+                    🔮 Previsão
+                </TabsTrigger>
+            </TabsList>
+        </Tabs>
+      </div>
 
       {/* ======= FINANCEIRO TAB ======= */}
       {activeTab === "financeiro" && (
         <div className="space-y-6">
           {/* KPI Cards */}
-          <div className="grid grid-cols-2 gap-4">
-            <Card className="border-none shadow-xl rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white overflow-hidden relative group">
-              <CardContent className="p-5">
-                <div className="flex justify-between items-start mb-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="border-none shadow-xl rounded-[20px] bg-gradient-to-br from-emerald-500 to-teal-600 text-white overflow-hidden relative group">
+              <CardContent className="p-5 flex flex-col items-start">
+                <div className="flex justify-between w-full items-start mb-3">
                   <div className="p-2 bg-white/20 rounded-xl"><TrendingUp className="h-5 w-5" /></div>
                   <div className="flex items-center gap-1 text-white/80">
                     {stats.monthGrowth >= 0
@@ -247,45 +249,47 @@ export default function Statistics() {
                     <span className="text-[10px] font-black">{Math.abs(stats.monthGrowth).toFixed(0)}%</span>
                   </div>
                 </div>
-                <p className="text-2xl font-black tracking-tighter">{formatCurrency(stats.revenueThisMonth)}</p>
-                <p className="text-[10px] font-black opacity-70 uppercase">Recebido este mês</p>
+                <p className="text-3xl font-black tracking-tighter leading-none mb-1 break-words w-full overflow-visible">
+                  {formatCurrency(stats.revenueThisMonth)}
+                </p>
+                <p className="text-sm font-medium opacity-70 uppercase tracking-tight">Recebido este mês</p>
               </CardContent>
               <div className="absolute -bottom-4 -right-4 h-20 w-20 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
             </Card>
 
-            <Card className="border-none shadow-xl rounded-3xl bg-gradient-to-br from-amber-500 to-orange-600 text-white overflow-hidden relative group">
-              <CardContent className="p-5">
-                <div className="flex justify-between items-start mb-3">
+            <Card className="border-none shadow-xl rounded-[20px] bg-gradient-to-br from-amber-500 to-orange-600 text-white overflow-hidden relative group">
+              <CardContent className="p-5 flex flex-col items-start translate-x-0">
+                <div className="flex justify-between w-full items-start mb-3">
                   <div className="p-2 bg-white/20 rounded-xl"><Clock className="h-5 w-5" /></div>
-                  <span className="text-[10px] font-black bg-white/20 px-2 py-1 rounded-full">
+                  <span className="text-[10px] font-black bg-white/20 px-2 py-1 rounded-full whitespace-nowrap">
                     {stats.pendingCount} serv.
                   </span>
                 </div>
-                <p className="text-2xl font-black tracking-tighter">{formatCurrency(stats.totalPending)}</p>
-                <p className="text-[10px] font-black opacity-70 uppercase">A Receber</p>
+                <p className="text-3xl font-black tracking-tighter leading-none mb-1 break-words w-full overflow-visible">
+                  {formatCurrency(stats.totalPending)}
+                </p>
+                <p className="text-sm font-medium opacity-70 uppercase tracking-tight">A Receber</p>
               </CardContent>
               <div className="absolute -bottom-4 -right-4 h-20 w-20 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
             </Card>
 
-            <Card className="border-none shadow-lg rounded-3xl bg-card">
-              <CardContent className="p-5">
-                <div className="flex items-center gap-2 mb-2">
+            <Card className="border-none shadow-md rounded-[20px] bg-card">
+              <CardContent className="p-5 flex flex-col items-start translate-x-0">
+                <div className="p-2 bg-indigo-500/10 rounded-xl mb-3">
                   <Target className="h-4 w-4 text-primary" />
-                  <p className="text-[10px] font-black uppercase text-muted-foreground">Ticket Médio</p>
                 </div>
-                <p className="text-xl font-black tracking-tighter">{formatCurrency(stats.avgTicket)}</p>
-                <p className="text-[10px] font-medium text-muted-foreground">{stats.paidCount} serviços pagos</p>
+                <p className="text-2xl font-black tracking-tighter mb-1 break-words w-full overflow-visible">{formatCurrency(stats.avgTicket)}</p>
+                <p className="text-sm font-medium opacity-60 uppercase tracking-tight text-muted-foreground">Ticket Médio</p>
               </CardContent>
             </Card>
 
-            <Card className="border-none shadow-lg rounded-3xl bg-card">
-              <CardContent className="p-5">
-                <div className="flex items-center gap-2 mb-2">
+            <Card className="border-none shadow-md rounded-[20px] bg-card">
+              <CardContent className="p-5 flex flex-col items-start translate-x-0">
+                <div className="p-2 bg-emerald-500/10 rounded-xl mb-3">
                   <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                  <p className="text-[10px] font-black uppercase text-muted-foreground">Total Recebido</p>
                 </div>
-                <p className="text-xl font-black tracking-tighter">{formatCurrency(stats.totalRevenue)}</p>
-                <p className="text-[10px] font-medium text-muted-foreground">desde o início</p>
+                <p className="text-2xl font-black tracking-tighter mb-1 break-words w-full overflow-visible">{formatCurrency(stats.totalRevenue)}</p>
+                <p className="text-sm font-medium opacity-60 uppercase tracking-tight text-muted-foreground">Total Recebido</p>
               </CardContent>
             </Card>
           </div>
