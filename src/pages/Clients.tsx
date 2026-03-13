@@ -219,7 +219,7 @@ export default function Clients() {
                                 <CardContent className="p-0">
                                     <div
                                         className="p-5 flex items-start gap-4 cursor-pointer hover:bg-muted/30 transition-colors"
-                                        onClick={() => navigate(`/clients/${client.id}`)}
+                                        onClick={() => navigate(`/clients/${encodeURIComponent(client.name)}`)}
                                     >
                                         {/* Avatar */}
                                         <div className={cn(
@@ -238,6 +238,11 @@ export default function Clients() {
                                             <div className="flex justify-between items-start">
                                                 <div className="flex items-center gap-2 flex-wrap mb-1">
                                                     <p className="font-black text-base truncate">{client.name}</p>
+                                                    {client.profile_completed === false && (
+                                                        <Badge className="bg-amber-500/10 text-amber-600 border-none text-[9px] font-black uppercase">
+                                                            Incompleto
+                                                        </Badge>
+                                                    )}
                                                     {s.overdueCount > 0 && (
                                                         <Badge className="bg-destructive/10 text-destructive border-none text-[9px] font-black uppercase">
                                                             Atraso

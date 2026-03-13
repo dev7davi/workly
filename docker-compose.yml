@@ -1,15 +1,15 @@
 version: '3.8'
-
 services:
   workly-frontend:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
-    container_name: workly-prod
+    container_name: workly-frontend
+    restart: always
     ports:
-      # Expõe a porta 80 do Nginx interno para a porta 3000 do VPS (Mude se necessário)
-      - "3000:80"
-    restart: always # Mantém o Docker rodando em crash / reboots do VPS
+      - "3000:80" # Mapeia a porta 3000 do host para a porta 80 do contêiner Nginx
     environment:
-      # As variáveis são passadas pro build pelo .env, mas podem ser reforçadas aqui
-      - NODE_ENV=production
+      # Variáveis de ambiente para o build do Vite
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_PUBLISHABLE_KEY=${VITE_SUPABASE_PUBLISHABLE_KEY}
+      # Adicione outras variáveis VITE_... aqui se necessário

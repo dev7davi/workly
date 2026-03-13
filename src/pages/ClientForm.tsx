@@ -43,7 +43,7 @@ export default function ClientForm() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { clients, isLoading, createClient, updateClient } = useClients();
-    const { limits } = usePlan();
+    const { canAddClient, isAtClientLimit } = usePlan();
     const [clientType, setClientType] = useState<ClientType>("pf");
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const isEdit = !!id;
@@ -78,14 +78,14 @@ export default function ClientForm() {
             setValue("notes", existing.notes || "");
             setClientType(existing.type || "pf");
         } else if (!isEdit) {
-            if (clients.length >= limits.maxClients) {
+            if (isAtClientLimit) {
                 setShowUpgradeModal(true);
             }
         }
-    }, [existing, setValue, isEdit, clients.length, limits.maxClients]);
+    }, [existing, setValue, isEdit, isAtClientLimit]);
 
     const onSubmit = async (data: ClientForm) => {
-        if (!isEdit && clients.length >= limits.maxClients) {
+        if (!isEdit && !canAddClient) {
             setShowUpgradeModal(true);
             return;
         }
@@ -341,6 +341,7 @@ export default function ClientForm() {
                     )}
                 </Button>
             </form>
+            {showUpgradeModal && <UpgradeModal type="clients" onClose={() => setShowUpgradeModal(false)} />}
         </div>
     );
 }

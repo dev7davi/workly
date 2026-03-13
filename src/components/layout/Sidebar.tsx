@@ -2,7 +2,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import {
     Home, FileText, Users, CalendarDays,
     BarChart3, User, BookOpen, Wallet, Package, TrendingDown,
-    Settings, ScanText, ShieldCheck
+    Settings, ScanText, ShieldCheck, HelpCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdmin } from "@/contexts/AdminContext";
@@ -32,6 +32,7 @@ const sidebarItems = [
             { to: "/catalog", icon: BookOpen, label: "Catálogo" },
             { to: "/plans", icon: Package, label: "Planos" },
             { to: "/profile", icon: User, label: "Perfil" },
+            { to: "/help", icon: HelpCircle, label: "Ajuda", color: "text-primary", bg: "bg-primary/10" },
         ]
     }
 ];
@@ -64,7 +65,7 @@ export function Sidebar({ className }: { className?: string }) {
             <div className="h-20 flex items-center px-6 border-b border-border/50 shrink-0">
                 <div className="flex items-center gap-3">
                     {/* Fallback caso a logo não carregue, mas tentará carregar faviconw.png/logo.png */}
-                    <img src="/logo_w6.png" alt="Workly" className="h-8 max-w-[140px] object-contain" onError={(e) => {
+                    <img src="/logo_w6.png" alt="Workly" className="h-8 max-w-[140px] object-contain dark:invert-0 invert" onError={(e) => {
                         e.currentTarget.style.display = 'none';
                     }} />
                     <div className="font-black text-2xl tracking-tighter text-primary fallback-logo">Workly</div>

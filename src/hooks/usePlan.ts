@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServices } from "./useServices";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "./useProfile";
 
 export type Plan = "free" | "start" | "pro" | "pro_plus";
 
@@ -22,15 +23,16 @@ export const PLANS: Record<Plan, PlanConfig> = {
         label: "Free",
         price: "Grátis",
         priceAnnual: "Iniciantes / Teste",
-        maxServices: 30,
-        maxClients: 20,
+        maxServices: 20, // Por mês
+        maxClients: 10,
         color: "#94a3b8",
         features: [
-            "Até 20 clientes ativos",
-            "Até 30 serviços cadastrados",
+            "Até 10 clientes ativos",
+            "Até 20 serviços p/ mês",
             "Comprovante Simples",
             "Agenda básica",
             "Resumo financeiro",
+            "PDF com logo Workly",
         ],
     },
     start: {
@@ -42,10 +44,11 @@ export const PLANS: Record<Plan, PlanConfig> = {
         maxClients: 100,
         color: "#6366f1",
         features: [
-            "Até 100 clientes e 200 serviços",
-            "Ordem de Serviço (PDF) c/ Logo Workly",
+            "Até 100 clientes",
+            "Até 200 serviços",
+            "O.S. PDF c/ Logo Workly",
             "Catálogo de Serviços",
-            "Dashboard D.R.E. Financeiro",
+            "Dashboard DRE",
         ],
     },
     pro: {
@@ -57,10 +60,10 @@ export const PLANS: Record<Plan, PlanConfig> = {
         maxClients: null,
         color: "#10b981",
         features: [
-            "Clientes e Serviços Ilimitados",
-            "White-Label (Sua Logomarca na O.S.)",
-            "Anexos e Fotos nos Serviços",
-            "Dashboards e Relatórios Avançados",
+            "Cli. e Serv. Ilimitados",
+            "White Label (Logo Própria)",
+            "Anexos e Fotos",
+            "Relatórios Avançados",
         ],
     },
     pro_plus: {
@@ -73,9 +76,9 @@ export const PLANS: Record<Plan, PlanConfig> = {
         color: "#f59e0b",
         features: [
             "Tudo do Plano Pro",
-            "Inteligência IA (Leitura de texto manual)",
-            "Gestão livre de Custos Extras",
-            "Automação e Suporte VIP",
+            "Inteligência IA",
+            "Gestão livre de Custos",
+            "Suporte VIP",
         ],
     },
 };
@@ -84,18 +87,31 @@ export const PLANS: Record<Plan, PlanConfig> = {
 export function usePlan() {
     const { services } = useServices();
     const { user } = useAuth();
+    const { data: profile } = useProfile();
     const isMaster = user?.email === "service_master@workly.com" || user?.email === "dev7.davi@gmail.com";
 
-    // Default testing plan
-    const [plan] = useState<Plan>("free");
+    // Pega o plano real do perfil ou "free" como fallback
+    const plan = profile?.plan || "free";
 
     // Se for master, ele tem o plano máximo
     const effectivePlan = isMaster ? "pro_plus" : plan;
     const planConfig = PLANS[effectivePlan];
-    const serviceCount = services.length;
+    
+    // Contagens reais do banco de dados (via profile) ou fallback para contagem local
+    const totalServices = profile?.services_count ?? services.length;
+    const servicesThisMonth = profile?.services_created_this_month ?? 0;
+    const totalClients = profile?.clients_count ?? 0;
 
-    const canAddService = effectivePlan === "pro_plus" || planConfig.maxServices === null || serviceCount < planConfig.maxServices;
-    const isAtServiceLimit = effectivePlan !== "pro_plus" && planConfig.maxServices !== null && serviceCount >= planConfig.maxServices;
+    // Verificação de limites
+    const canAddService = isMaster || planConfig.maxServices === null || (
+        // Se for Free, limite é mensal. Se for Start, limite é total.
+        plan === "free" ? servicesThisMonth < planConfig.maxServices : totalServices < planConfig.maxServices
+    );
+
+    const canAddClient = isMaster || planConfig.maxClients === null || totalClients < planConfig.maxClients;
+
+    const isAtServiceLimit = !canAddService;
+    const isAtClientLimit = !canAddClient;
 
     // Feature gates baseados no nível real ou se for master
     const planLevel = isMaster ? 3 : ["free", "start", "pro", "pro_plus"].indexOf(plan);
@@ -118,9 +134,15 @@ export function usePlan() {
             maxServices: planConfig.maxServices ?? Infinity,
             maxClients: planConfig.maxClients ?? Infinity,
         },
-        serviceCount,
+        usage: {
+            servicesTotal: totalServices,
+            servicesMonth: servicesThisMonth,
+            clientsTotal: totalClients,
+        },
         canAddService,
+        canAddClient,
         isAtServiceLimit,
+        isAtClientLimit,
         canUseCatalog,
         canUseOS,
         canUseAdvancedDRE,

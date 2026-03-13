@@ -53,6 +53,11 @@ export default function ImportNote() {
                 result.client = line.replace(/.*cliente|.*nome/i, "").replace(/[:]/, "").trim();
             } else if (lower.includes("tel") || lower.includes("celular") || lower.includes("telefone")) {
                 result.phone = line.replace(/.*tel.*|.*celular.*|.*telefone.*/i, "").replace(/[:]/, "").trim();
+            } else if (line.match(/(?:\(?0?\d{2}\)?\s*)?\b9?\d{4}[-.\s]?\d{4}\b/)) {
+                const numbersOnly = line.replace(/[^\d]/g, "");
+                if (numbersOnly.length >= 10 && numbersOnly.length <= 11) {
+                    result.phone = numbersOnly;
+                }
             } else if (lower.includes("serviço") || lower.includes("servico") || lower.includes("trabalho")) {
                 result.service = line.replace(/.*serviço|.*servico|.*trabalho/i, "").replace(/[:]/, "").trim();
             } else if (lower.includes("valor") || line.includes("R$")) {

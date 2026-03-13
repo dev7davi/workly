@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
-export type UserPlan = "free" | "pro";
+export type UserPlan = "free" | "start" | "pro" | "pro_plus";
 
 export interface Profile {
   id: string;
@@ -13,7 +13,13 @@ export interface Profile {
   phone: string | null;
   document: string | null;
   plan: UserPlan;
+  clients_count: number;
   services_count: number;
+  services_created_this_month: number;
+  last_reset_date: string;
+  company_name: string | null;
+  company_logo_url: string | null;
+  company_primary_color: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -22,6 +28,9 @@ export interface UpdateProfileData {
   name?: string;
   phone?: string;
   document?: string;
+  company_name?: string;
+  company_logo_url?: string;
+  company_primary_color?: string;
 }
 
 export function useProfile() {

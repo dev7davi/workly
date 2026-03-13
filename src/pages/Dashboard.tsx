@@ -16,6 +16,7 @@ import { useServices } from "@/hooks/useServices";
 import { useAppointments } from "@/hooks/useAppointments";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useClients } from "@/hooks/useClients";
+import { usePlan } from "@/hooks/usePlan";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
@@ -193,6 +194,7 @@ export default function Dashboard() {
   const { appointments, isLoading: apptLoading } = useAppointments();
   const { events, isLoading: eventsLoading } = useCalendarEvents();
   const { clients } = useClients();
+  const { planConfig, usage, isMaster } = usePlan();
 
   const isLoading = profileLoading || servicesLoading || apptLoading || eventsLoading;
 
@@ -316,6 +318,55 @@ export default function Dashboard() {
           <Plus className="h-6 w-6 stroke-[2.5]" />
         </button>
       </header>
+
+      {/* ── Plan Usage ── */}
+      {planConfig.maxServices && (
+        <div className="bg-card border border-border rounded-2xl p-4 shadow-sm">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-2">
+              <Zap className={cn("h-4 w-4", usage.servicesMonth >= (planConfig.maxServices * 0.8) ? "text-amber-500" : "text-primary")} />
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Uso do Plano {planConfig.label}</span>
+            </div>
+            <Link to="/plans" className="text-[10px] font-black uppercase text-primary hover:underline">Upgrade</Link>
+          </div>
+          
+          <div className="space-y-3">
+            <div>
+              <div className="flex justify-between text-[11px] font-bold mb-1">
+                <span>Serviços (este mês)</span>
+                <span>{usage.servicesMonth} / {planConfig.maxServices}</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className={cn(
+                    "h-full transition-all duration-500",
+                    usage.servicesMonth >= planConfig.maxServices ? "bg-destructive" : usage.servicesMonth >= (planConfig.maxServices * 0.8) ? "bg-amber-500" : "bg-primary"
+                  )}
+                  style={{ width: `${Math.min(100, (usage.servicesMonth / planConfig.maxServices) * 100)}%` }}
+                />
+              </div>
+            </div>
+
+            {planConfig.maxClients && (
+              <div>
+                <div className="flex justify-between text-[11px] font-bold mb-1">
+                  <span>Clientes Ativos</span>
+                  <span>{usage.clientsTotal} / {planConfig.maxClients}</span>
+                </div>
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div 
+                    className={cn(
+                      "h-full transition-all duration-500",
+                      usage.clientsTotal >= planConfig.maxClients ? "bg-destructive" : usage.clientsTotal >= (planConfig.maxClients * 0.8) ? "bg-amber-500" : "bg-primary"
+                    )}
+                    style={{ width: `${Math.min(100, (usage.clientsTotal / planConfig.maxClients) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── Próximo compromisso do dia ── */}
       {data.nextAppointment && (

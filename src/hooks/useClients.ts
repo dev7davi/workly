@@ -12,21 +12,40 @@ export interface Client {
     user_id: string;
     name: string;
     type: ClientType;
-    document?: string | null;
-    email?: string | null;
-    phone?: string | null;
-    phone_secondary?: string | null;
-    street?: string | null;
-    neighborhood?: string | null;
-    city?: string | null;
-    state?: string | null;
-    zip?: string | null;
-    birthday?: string | null;
-    notes?: string | null;
+    phone?: string;
+    phone_secondary?: string;
+    document?: string;
+    email?: string;
+    street?: string;
+    neighborhood?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+    notes?: string;
+    birthday?: string;
+    created_from_service?: boolean;
+    profile_completed?: boolean;
+    registration_origin?: string;
     created_at: string;
 }
 
-export type CreateClient = Omit<Client, "id" | "user_id" | "created_at">;
+export const normalizeName = (name: string) => {
+    return name
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .replace(/\s+/g, " ");
+};
+
+export type CreateClient = Omit<Client, "id" | "user_id" | "created_at"> & {
+    name: string;
+    type: ClientType;
+    user_id?: string;
+    created_from_service?: boolean;
+    profile_completed?: boolean;
+    registration_origin?: string;
+};
 export type UpdateClient = Partial<CreateClient>;
 
 export function useClients() {

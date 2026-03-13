@@ -20,10 +20,10 @@ const PLAN_ICONS = {
 };
 
 const PLAN_STYLES = {
-    free: { icon: "text-slate-400", bg: "bg-slate-400/10", highlight: false, badge: null },
+    free: { icon: "text-slate-400", bg: "bg-slate-400/10", highlight: false, badge: "Sem cartão de crédito" },
     start: { icon: "text-indigo-500", bg: "bg-indigo-500/10", highlight: false, badge: null },
-    pro: { icon: "text-emerald-500", bg: "bg-emerald-500/10", highlight: true, badge: "Mais Popular" },
-    pro_plus: { icon: "text-amber-500", bg: "bg-amber-500/10", highlight: false, badge: "Completo" },
+    pro: { icon: "text-emerald-500", bg: "bg-emerald-500/10", highlight: true, badge: "MAIS POPULAR" },
+    pro_plus: { icon: "text-amber-500", bg: "bg-amber-500/10", highlight: false, badge: "EXCLUSIVO" },
 };
 
 export default function Plans() {

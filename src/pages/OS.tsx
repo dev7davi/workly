@@ -140,11 +140,11 @@ export default function OS() {
             </header>
 
             {/* OS Container visible on screen */}
-            <div className="overflow-x-auto pb-4 filter drop-shadow-xl flex justify-center">
+            <div className="filter drop-shadow-xl flex justify-center pb-10">
                 {/* The actual A4-like OS element to capture */}
                 <div
                     ref={osRef}
-                    className="bg-[#f8f9fa] w-full max-w-[800px] min-w-[700px] text-slate-900 border"
+                    className="bg-[#f8f9fa] w-full max-w-[800px] text-slate-900 border"
                     style={{
                         fontFamily: "'Inter', sans-serif"
                     }}>
@@ -154,7 +154,9 @@ export default function OS() {
                         <div className="bg-[#111] text-white rounded-3xl p-8 relative overflow-hidden flex justify-between items-center shadow-2xl">
                             <div className="z-10 relative space-y-2">
                                 <p className="tracking-[0.3em] font-black text-[10px] text-slate-400">ORDEM DE SERVIÇO</p>
-                                <h1 className="text-4xl font-black tracking-tight leading-none text-white">{profile?.name || "Prestador Autônomo"}</h1>
+                                <h1 className="text-4xl font-black tracking-tight leading-none text-white">
+                                    {(canUseWhiteLabel && profile?.company_name) ? profile.company_name : (profile?.name || "Prestador Autônomo")}
+                                </h1>
                                 <div className="text-xs text-slate-300 space-y-0.5 mt-2">
                                     {profile?.document && <p>{profile.document}</p>}
                                     {profile?.phone && <p>{profile.phone}</p>}
@@ -163,10 +165,17 @@ export default function OS() {
                             </div>
 
                             <div className="z-10 relative flex flex-col items-end">
-                                {/* Placeholder for Logo */}
-                                {!canUseWhiteLabel ? (
-                                    <div className="text-[4rem] leading-none font-black bg-clip-text text-transparent bg-gradient-to-tr from-blue-400 to-emerald-400 italic">
-                                        W
+                                {/* Dynamic Logo or Placeholder */}
+                                {canUseWhiteLabel && profile?.company_logo_url ? (
+                                    <img 
+                                        src={profile.company_logo_url} 
+                                        className="h-16 w-32 object-contain drop-shadow-md" 
+                                        alt="Company Logo" 
+                                    />
+                                ) : !canUseWhiteLabel ? (
+                                    <div className="flex flex-col items-end gap-2">
+                                        <img src="/logo_w6.png" className="h-10 object-contain drop-shadow-md brightness-0 invert opacity-100" alt="Workly Logo" />
+                                        <span className="text-[10px] font-black tracking-widest text-slate-400 uppercase">Seu trabalho, organizado</span>
                                     </div>
                                 ) : (
                                     <div className="w-16 h-16 rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center">
@@ -283,10 +292,10 @@ export default function OS() {
                 </div>
             </div>
 
-            <div className="fixed bottom-6 left-4 right-4 max-w-7xl mx-auto w-full px-4 flex gap-3">
+            <div className="fixed bottom-[calc(var(--menu-height)+32px)] left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-auto md:min-w-[400px] flex gap-3 z-50 animate-in slide-in-from-bottom-5 duration-500">
                 <Button className="flex-1 h-14 bg-success hover:bg-success/90 text-success-foreground shadow-2xl rounded-2xl text-lg font-bold gap-3 transition-all" onClick={shareOS}>
                     <Share2 className="h-6 w-6" />
-                    Whatsapp
+                    WhatsApp
                 </Button>
             </div>
 

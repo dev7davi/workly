@@ -129,7 +129,7 @@ const Index = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background selection:bg-primary selection:text-primary-foreground">
+    <div className="dark bg-background text-foreground min-h-screen flex flex-col pt-16 font-sans selection:bg-primary/30">
       {/* Navbar */}
       <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-background/80 backdrop-blur-md px-6 py-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">

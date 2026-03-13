@@ -5,14 +5,20 @@ import { PLANS } from "@/hooks/usePlan";
 
 interface UpgradeModalProps {
     onClose: () => void;
+    type?: "services" | "clients";
 }
 
-export function UpgradeModal({ onClose }: UpgradeModalProps) {
+export function UpgradeModal({ onClose, type = "services" }: UpgradeModalProps) {
     const navigate = useNavigate();
 
+    const title = type === "services" ? "Limite de Serviços" : "Limite de Clientes";
+    const description = type === "services" 
+        ? "Você atingiu o limite de serviços do plano gratuito neste mês. Faça upgrade para continuar criando serviços sem restrições."
+        : "Você atingiu o limite de clientes ativos do seu plano. Faça upgrade para continuar cadastrando novos clientes.";
+
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-            <div className="w-full max-w-md bg-card rounded-[2rem] shadow-2xl border border-border overflow-hidden animate-in slide-in-from-bottom-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in overflow-y-auto">
+            <div className="w-full max-w-md bg-card rounded-[2rem] shadow-2xl border border-border overflow-hidden animate-in slide-in-from-bottom-4 my-auto">
                 {/* Header */}
                 <div className="relative bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-8 text-white overflow-hidden">
                     <button
@@ -26,13 +32,12 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
                             <Crown className="h-6 w-6 text-amber-300" />
                         </div>
                         <div>
-                            <p className="text-xs font-black uppercase tracking-widest opacity-80">Limite Atingido</p>
+                            <p className="text-xs font-black uppercase tracking-widest opacity-80">{title}</p>
                             <h2 className="text-xl font-black">Faça Upgrade!</h2>
                         </div>
                     </div>
-                    <p className="text-sm font-medium opacity-90">
-                        Você atingiu o limite de <strong>5 serviços</strong> do plano gratuito.
-                        Faça upgrade para registrar serviços ilimitados e desbloquear recursos premium.
+                    <p className="text-sm font-medium opacity-90 leading-relaxed">
+                        {description}
                     </p>
                     <div className="absolute -bottom-8 -right-8 h-32 w-32 bg-white/10 rounded-full blur-2xl" />
                 </div>
@@ -44,15 +49,15 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
                         <div className="flex items-center justify-between mb-3">
                             <div>
                                 <p className="font-black text-lg">Start</p>
-                                <p className="text-xs font-bold text-muted-foreground uppercase">R$14,90/mês</p>
+                                <p className="text-xs font-bold text-muted-foreground uppercase">{PLANS.start.price}</p>
                             </div>
                             <Zap className="h-6 w-6 text-indigo-500" />
                         </div>
-                        <div className="grid grid-cols-2 gap-1">
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                             {PLANS.start.features.slice(0, 4).map((f) => (
                                 <div key={f} className="flex items-center gap-1">
                                     <Check className="h-3 w-3 shrink-0 text-indigo-500" />
-                                    <span className="text-[10px] font-bold text-muted-foreground">{f}</span>
+                                    <span className="text-[10px] font-bold text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis">{f}</span>
                                 </div>
                             ))}
                         </div>
@@ -68,15 +73,15 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
                         <div className="flex items-center justify-between mb-3 mt-1">
                             <div>
                                 <p className="font-black text-lg">Pro</p>
-                                <p className="text-xs font-bold text-muted-foreground uppercase">R$27,90/mês</p>
+                                <p className="text-xs font-bold text-muted-foreground uppercase">{PLANS.pro.price}</p>
                             </div>
                             <Crown className="h-6 w-6 text-primary" />
                         </div>
-                        <div className="grid grid-cols-2 gap-1">
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                             {PLANS.pro.features.slice(0, 4).map((f) => (
                                 <div key={f} className="flex items-center gap-1">
                                     <Check className="h-3 w-3 shrink-0 text-primary" />
-                                    <span className="text-[10px] font-bold text-muted-foreground">{f}</span>
+                                    <span className="text-[10px] font-bold text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis">{f}</span>
                                 </div>
                             ))}
                         </div>

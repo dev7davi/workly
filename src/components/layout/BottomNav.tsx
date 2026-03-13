@@ -2,7 +2,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Home, FileText, Plus, Users, CalendarDays,
   BarChart3, User, BookOpen, MoreHorizontal, X,
-  Wallet, Package, TrendingDown, ScanText
+  Wallet, Package, TrendingDown, ScanText, HelpCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -15,6 +15,7 @@ const moreItems = [
   { to: "/catalog", icon: BookOpen, label: "Catálogo", color: "text-primary", bg: "bg-primary/10" },
   { to: "/plans", icon: Package, label: "Planos", color: "text-amber-500", bg: "bg-amber-500/10" },
   { to: "/profile", icon: User, label: "Perfil", color: "text-slate-500", bg: "bg-slate-500/10" },
+  { to: "/help", icon: HelpCircle, label: "Ajuda", color: "text-primary", bg: "bg-primary/10" },
 ];
 
 const mainNavItems = [
@@ -91,8 +92,8 @@ export function BottomNav({ className }: { className?: string }) {
       )}
 
       {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 select-none">
-        <div className="mx-auto max-w-lg bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-[32px] h-20 flex items-center justify-around px-2">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 select-none bg-gradient-to-t from-background via-background/80 to-transparent pt-10">
+        <div className="mx-auto max-w-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-border/50 shadow-2xl rounded-[28px] h-[var(--menu-height)] flex items-center justify-around px-2 relative transition-all duration-300">
           {mainNavItems.map(({ to, icon: Icon, label, isAction }) => {
             const isActive =
               location.pathname === to ||
@@ -107,9 +108,9 @@ export function BottomNav({ className }: { className?: string }) {
                 <button
                   key={to}
                   onClick={() => { setShowMore(false); navigate(to); }}
-                  className="relative -top-8 flex items-center justify-center h-16 w-16 bg-gradient-to-br from-primary to-blue-600 rounded-full shadow-xl shadow-primary/40 text-white transition-all hover:scale-110 active:scale-90"
+                  className="flex items-center justify-center h-12 w-12 bg-gradient-to-br from-primary to-blue-600 rounded-full shadow-lg shadow-primary/30 text-white transition-all hover:scale-110 active:scale-90 border-2 border-white dark:border-slate-900 z-10"
                 >
-                  <Plus className="h-8 w-8 stroke-[3]" />
+                  <Plus className="h-6 w-6 stroke-[3]" />
                 </button>
               );
             }

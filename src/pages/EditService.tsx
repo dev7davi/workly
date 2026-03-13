@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowLeft, Loader2, Check, Trash2, FileText, User, Briefcase, DollarSign, Calendar } from "lucide-react";
+import { ArrowLeft, Loader2, Check, Trash2, FileText, User, Briefcase, DollarSign, Calendar, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -243,15 +243,17 @@ export default function EditService() {
                 </Label>
                 <Input
                   type="date"
-                  className="h-12 rounded-xl bg-muted/30 border-none"
+                  className="h-12 rounded-xl bg-muted/30 border-none w-full"
                   {...register("service_date")}
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-muted-foreground">Data de Pgto.</Label>
+                <Label className="text-[10px] font-black uppercase text-muted-foreground flex items-center gap-1">
+                  <Clock className="h-3 w-3" /> Data de Pgto.
+                </Label>
                 <Input
                   type="date"
-                  className="h-12 rounded-xl bg-muted/30 border-none"
+                  className="h-12 rounded-xl bg-muted/30 border-none w-full"
                   {...register("payment_date")}
                 />
               </div>

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { User, Search, ChevronRight, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useClients } from "@/hooks/useClients";
+import { useClients, normalizeName } from "@/hooks/useClients";
 
 interface ClientNameFieldProps {
     value: string;
@@ -31,13 +31,16 @@ export function ClientNameField({ value, onChange, error }: ClientNameFieldProps
     }, []);
 
     const filtered = clients
-        .filter(c => c.name.toLowerCase().includes(inputValue.toLowerCase()) && inputValue.length > 0)
+        .filter(c => {
+            const search = normalizeName(inputValue);
+            return normalizeName(c.name).includes(search) && search.length > 0;
+        })
         .slice(0, 7);
 
     const handleInputChange = (v: string) => {
         setInputValue(v);
         onChange(v);
-        setShowSuggestions(v.length > 0);
+        setShowSuggestions(v.trim().length > 0);
     };
 
     const handleSelect = (name: string) => {

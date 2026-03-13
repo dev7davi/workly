@@ -7,6 +7,7 @@ export type ServiceStatus = "pending" | "paid" | "cancelled";
 export interface Service {
   id: string;
   user_id: string;
+  client_id?: string;
   client_name: string;
   service_type: string;
   value: number;

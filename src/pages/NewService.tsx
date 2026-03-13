@@ -14,6 +14,18 @@ import { useState, useEffect } from "react";
 import { usePlan } from "@/hooks/usePlan";
 import { UpgradeModal } from "@/components/UpgradeModal";
 import { ClientNameField } from "@/components/ClientNameField";
+import { useClients, normalizeName } from "@/hooks/useClients";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 const serviceSchema = z.object({
   client_name: z.string().min(2, "Digite o nome do cliente"),
@@ -34,12 +46,24 @@ const serviceSchema = z.object({
 
 type ServiceForm = z.infer<typeof serviceSchema>;
 
+import { ContextHelp } from "@/components/ContextHelp";
+
 export default function NewService() {
   const navigate = useNavigate();
-  const { createService } = useServices();
+  const { createService, services } = useServices();
+  const { clients, createClient: apiCreateClient } = useClients();
   const { canAddService, isAtServiceLimit, plan, limits, serviceCount } = usePlan();
   const [status, setStatus] = useState<ServiceStatus>("pending");
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  
+  // States for Smart Registration
+  const [showSimilarityDialog, setShowSimilarityDialog] = useState(false);
+  const [similarClient, setSimilarClient] = useState<{ id: string, name: string } | null>(null);
+  const [pendingData, setPendingData] = useState<ServiceForm | null>(null);
+  
+  // States for Duplicity Check
+  const [showDuplicityDialog, setShowDuplicityDialog] = useState(false);
+  const [duplicateService, setDuplicateService] = useState<any>(null);
 
   useEffect(() => {
     if (isAtServiceLimit) setShowUpgradeModal(true);
@@ -63,21 +87,83 @@ export default function NewService() {
 
   const clientName = watch("client_name") || "";
 
+  const performSave = async (data: ServiceForm, clientId?: string, clientNameOverride?: string) => {
+    try {
+      await createService({
+        client_id: clientId,
+        client_name: clientNameOverride || data.client_name,
+        service_type: data.service_type,
+        value: Number(data.value.replace(/\./g, "").replace(",", ".")),
+        service_date: data.service_date,
+        payment_date: data.payment_date,
+        status,
+        notes: data.notes || undefined,
+      });
+      navigate("/services");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const onSubmit = async (data: ServiceForm) => {
     if (!canAddService) {
       setShowUpgradeModal(true);
       return;
     }
-    await createService({
-      client_name: data.client_name,
-      service_type: data.service_type,
-      value: Number(data.value.replace(/\./g, "").replace(",", ".")),
-      service_date: data.service_date,
-      payment_date: data.payment_date,
-      status,
-      notes: data.notes || undefined,
-    });
-    navigate("/services");
+
+    const normalizedTypedName = normalizeName(data.client_name);
+    
+    // 1. Check for Duplicate Service (same client + same type + today)
+    const existingSameService = services?.find(s => 
+      normalizeName(s.client_name) === normalizedTypedName && 
+      normalizeName(s.service_type) === normalizeName(data.service_type) &&
+      s.service_date === data.service_date
+    );
+
+    if (existingSameService && !showDuplicityDialog) {
+      setDuplicateService(existingSameService);
+      setPendingData(data);
+      setShowDuplicityDialog(true);
+      return;
+    }
+
+    // 2. Check for Similar Client
+    const existingClient = clients.find(c => normalizeName(c.name) === normalizedTypedName);
+    
+    if (existingClient) {
+      // Client exactly exists, just save
+      await performSave(data, existingClient.id, existingClient.name);
+      return;
+    }
+
+    // Check for fuzzy similar client (starts with or included)
+    const similar = clients.find(c => 
+      normalizeName(c.name).startsWith(normalizedTypedName) || 
+      normalizedTypedName.startsWith(normalizeName(c.name))
+    );
+
+    if (similar && !showSimilarityDialog) {
+      setSimilarClient(similar);
+      setPendingData(data);
+      setShowSimilarityDialog(true);
+      return;
+    }
+
+    // 3. No client found, create auto
+    try {
+      const newClient = await apiCreateClient({
+        name: data.client_name,
+        type: "pf",
+        created_from_service: true,
+        profile_completed: false,
+        registration_origin: "service"
+      });
+      
+      await performSave(data, newClient.id);
+    } catch (err) {
+      // If creation fails (maybe already exists but hook didn't catch), try saving anyway
+      await performSave(data);
+    }
   };
 
   const setToday = (field: "service_date" | "payment_date") => setValue(field, today);
@@ -163,9 +249,12 @@ export default function NewService() {
             <Card className="border-none shadow-lg rounded-2xl overflow-hidden">
               <CardContent className="p-6 space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="value" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    <DollarSign className="h-3 w-3" /> Valor Cobrado (R$)
-                  </Label>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Label htmlFor="value" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      <DollarSign className="h-3 w-3" /> Valor Cobrado (R$)
+                    </Label>
+                    <ContextHelp content="Informe o valor brutto do serviço. No plano Pro+ você poderá descontar custos automaticamente." />
+                  </div>
                   <Input
                     id="value"
                     placeholder="0,00"
@@ -178,28 +267,31 @@ export default function NewService() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label htmlFor="service_date" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      <Calendar className="h-3 w-3" /> Data do Serviço
-                    </Label>
-                    <div className="flex gap-2">
-                      <Input id="service_date" type="date" className="h-12 rounded-xl bg-muted/30 border-none" {...register("service_date")} />
-                      <Button type="button" variant="outline" size="sm" className="h-12 rounded-xl px-4 text-xs font-bold" onClick={() => setToday("service_date")}>
+                    <div className="flex items-center justify-between px-1">
+                      <div className="flex items-center gap-1">
+                        <Label htmlFor="service_date" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                          <Calendar className="h-3 w-3" /> Data do Serviço
+                        </Label>
+                        <ContextHelp content="Data em que o trabalho foi executado." />
+                      </div>
+                      <button type="button" className="text-[9px] font-black uppercase text-primary hover:underline" onClick={() => setToday("service_date")}>
                         Hoje
-                      </Button>
+                      </button>
                     </div>
+                    <Input id="service_date" type="date" className="h-12 rounded-xl bg-muted/30 border-none w-full" {...register("service_date")} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="payment_date" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      <Clock className="h-3 w-3" /> Expectativa de Pagamento
-                    </Label>
-                    <div className="flex gap-2">
-                      <Input id="payment_date" type="date" className="h-12 rounded-xl bg-muted/30 border-none" {...register("payment_date")} />
-                      <Button type="button" variant="outline" size="sm" className="h-12 rounded-xl px-4 text-xs font-bold" onClick={() => setToday("payment_date")}>
+                    <div className="flex items-center justify-between px-1">
+                      <Label htmlFor="payment_date" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                        <Clock className="h-3 w-3" /> Data de Pgto.
+                      </Label>
+                      <button type="button" className="text-[9px] font-black uppercase text-primary hover:underline" onClick={() => setToday("payment_date")}>
                         Hoje
-                      </Button>
+                      </button>
                     </div>
+                    <Input id="payment_date" type="date" className="h-12 rounded-xl bg-muted/30 border-none w-full" {...register("payment_date")} />
                   </div>
                 </div>
               </CardContent>
@@ -238,6 +330,97 @@ export default function NewService() {
           </div>
         </form>
       </div>
+
+      {/* Dialog for Similar Client */}
+      <AlertDialog open={showSimilarityDialog} onOpenChange={setShowSimilarityDialog}>
+        <AlertDialogContent className="rounded-2xl max-w-[90vw] md:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-black">Cliente já encontrado</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm font-medium">
+              Encontramos um cliente com nome semelhante já cadastrado:
+              <span className="block mt-2 p-3 bg-muted rounded-xl font-bold text-foreground">
+                {similarClient?.name}
+              </span>
+              Deseja utilizar este cadastro existente ou criar um novo para "{pendingData?.client_name}"?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+            <AlertDialogAction 
+              onClick={() => {
+                if (pendingData && similarClient) {
+                  performSave(pendingData, similarClient.id, similarClient.name);
+                }
+              }}
+              className="rounded-xl h-12 font-bold"
+            >
+              Usar Existente
+            </AlertDialogAction>
+            <AlertDialogAction 
+              onClick={async () => {
+                if (pendingData) {
+                  const newClient = await apiCreateClient({
+                    name: pendingData.client_name,
+                    type: "pf",
+                    created_from_service: true,
+                    profile_completed: false,
+                    registration_origin: "service"
+                  });
+                  performSave(pendingData, newClient.id);
+                }
+              }}
+              className="rounded-xl h-12 font-bold bg-muted text-muted-foreground hover:bg-muted/80"
+            >
+              Criar Novo
+            </AlertDialogAction>
+            <AlertDialogCancel className="rounded-xl h-12 font-bold border-none">Cancelar</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Dialog for Duplicate Service */}
+      <AlertDialog open={showDuplicityDialog} onOpenChange={setShowDuplicityDialog}>
+        <AlertDialogContent className="rounded-2xl max-w-[90vw] md:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-black">Possível serviço duplicado</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm font-medium">
+              Detectamos que você já registrou um serviço de "{duplicateService?.service_type}" para "{duplicateService?.client_name}" hoje.
+              Deseja continuar criando mesmo assim?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+            <AlertDialogAction 
+              onClick={() => {
+                if (pendingData) {
+                  // Bypass similarity to avoid double dialog (or just keep going)
+                  const exists = clients.find(c => normalizeName(c.name) === normalizeName(pendingData.client_name));
+                  if (exists) {
+                    performSave(pendingData, exists.id, exists.name);
+                  } else {
+                    // Try auto creation after duplicity bypass
+                    apiCreateClient({
+                      name: pendingData.client_name,
+                      type: "pf",
+                      created_from_service: true,
+                      profile_completed: false,
+                      registration_origin: "service"
+                    }).then(nc => performSave(pendingData, nc.id));
+                  }
+                }
+              }}
+              className="rounded-xl h-12 font-bold"
+            >
+              Continuar Mesmo Assim
+            </AlertDialogAction>
+            <AlertDialogCancel 
+               onClick={() => navigate("/services")}
+               className="rounded-xl h-12 font-bold bg-primary/10 text-primary hover:bg-primary/20 border-none"
+            >
+              Ver Existente
+            </AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl h-12 font-bold border-none">Cancelar</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
