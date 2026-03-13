@@ -20,6 +20,8 @@ import {
   CheckCircle2,
   Calendar,
   ShieldCheck,
+  Menu,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -130,33 +132,68 @@ const faqs = [
 
 export default function Index() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-primary/30 selection:text-white">
       {/* 1. Header/Navbar */}
       <nav className="fixed top-0 z-[100] w-full border-b border-white/5 bg-black/60 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 md:px-6 py-3 md:py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 md:px-6 py-4">
           <div className="flex items-center gap-2">
-            <img src="/logo_w6.png" alt="WORKLY" className="h-6 md:h-8 brightness-0 invert object-contain" />
+            <img src="/logo_w6.png" alt="WORKLY" className="h-8 md:h-10 brightness-0 invert object-contain transition-all" />
           </div>
           
+          {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-white/60">
             <a href="#funcionalidades" className="hover:text-white transition-colors">Funcionalidades</a>
             <a href="#planos" className="hover:text-white transition-colors">Planos</a>
             <a href="#faq" className="hover:text-white transition-colors">Dúvidas</a>
           </div>
 
-          <div className="flex items-center gap-3 md:gap-6">
-            <Link to="/auth" className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white/60 hover:text-white transition-colors hidden sm:block">
+          {/* Desktop Auth */}
+          <div className="hidden sm:flex items-center gap-6">
+            <Link to="/auth" className="text-xs font-bold uppercase tracking-widest text-white/60 hover:text-white transition-colors">
               Entrar
             </Link>
             <Link to="/auth?mode=signup">
-              <Button className="rounded-full bg-primary hover:bg-primary/90 text-white font-black px-4 md:px-8 py-2 md:py-3 text-[10px] md:text-xs shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95">
+              <Button className="rounded-full bg-primary hover:bg-primary/90 text-white font-black px-8 py-3 text-xs shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95">
                 Criar Conta Grátis
               </Button>
             </Link>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button 
+            className="lg:hidden p-2 text-white/60 hover:text-white transition-colors"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
         </div>
+
+        {/* Mobile Menu Overlay */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden absolute top-full left-0 w-full bg-black/95 backdrop-blur-2xl border-b border-white/5 animate-in slide-in-from-top-4 duration-300">
+            <div className="flex flex-col p-6 gap-6">
+              <nav className="flex flex-col gap-4 text-sm font-bold uppercase tracking-widest text-white/60">
+                <a href="#funcionalidades" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors py-2 border-b border-white/5">Funcionalidades</a>
+                <a href="#planos" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors py-2 border-b border-white/5">Planos</a>
+                <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors py-2 border-b border-white/5">Dúvidas</a>
+              </nav>
+              
+              <div className="flex flex-col gap-4 pt-2">
+                <Link to="/auth" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center p-4 rounded-2xl bg-white/5 text-sm font-black uppercase tracking-widest text-white hover:bg-white/10 transition-colors">
+                  Entrar
+                </Link>
+                <Link to="/auth?mode=signup" onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-sm shadow-lg shadow-primary/20">
+                    Criar Conta Grátis
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* 2. Hero Section */}
