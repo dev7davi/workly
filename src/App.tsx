@@ -25,6 +25,7 @@ import Agenda from "./pages/Agenda";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import Help from "./pages/Help";
+import HelpArticle from "./pages/HelpArticle";
 import ImportNote from "./pages/ImportNote";
 import OS from "./pages/OS";
 import { AppLayout } from "./components/layout/AppLayout";
@@ -119,6 +120,7 @@ const App = () => (
               <Route path="/profile" element={<P><Profile /></P>} />
               <Route path="/plans" element={<P><Plans /></P>} />
               <Route path="/help" element={<P><Help /></P>} />
+              <Route path="/help/:slug" element={<P><HelpArticle /></P>} />
 
               <Route path="/admin" element={<P><Admin /></P>} />
               <Route path="/import" element={<P><ImportNote /></P>} />

@@ -21,13 +21,7 @@ begin
   -- Pega o e-mail logado no JWT
   v_email := auth.jwt()->>'email';
   
-  -- Se for um dos predefinidos (failsafe) OR estiver na tabela admin_users
-  -- Mantemos os predefinidos aqui temporariamente para garantir que não vai quebrar o acesso do Davi
-  if v_email in ('masterworkly@workly.com', 'service_master@workly.com', 'dev7.davi@gmail.com') then
-    return true;
-  end if;
-
-  -- Checa na nova tabela
+  -- Checa na tabela admin_users
   select exists(select 1 from admin_users where email = v_email) into v_is_admin;
   return v_is_admin;
 end;
@@ -36,7 +30,6 @@ $$ language plpgsql security definer;
 -- 4. Inserir Davi e Service Master na tabela admin_users
 insert into admin_users (email) values ('dev7.davi@gmail.com') on conflict do nothing;
 insert into admin_users (email) values ('service_master@workly.com') on conflict do nothing;
-insert into admin_users (email) values ('masterworkly@workly.com') on conflict do nothing;
 
 -- 5. Função aprimorada para listar usuários com mais detalhes pro Admin
 drop function if exists admin_list_users();

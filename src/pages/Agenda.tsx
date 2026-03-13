@@ -150,7 +150,7 @@ function EventModal({
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
             onClick={e => e.target === e.currentTarget && onClose()}
         >
             <div className="bg-card w-full max-w-lg rounded-[2rem] shadow-2xl border border-border overflow-hidden animate-in slide-in-from-bottom-4 duration-200 max-h-[90vh] flex flex-col">
@@ -283,7 +283,7 @@ function DayPanel({
 
     return (
         <div
-            className="fixed inset-0 z-40 flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
             onClick={e => e.target === e.currentTarget && onClose()}
         >
             <div className="bg-card w-full max-w-lg rounded-[2rem] shadow-2xl border border-border overflow-hidden animate-in slide-in-from-bottom-4 duration-200 max-h-[85vh] flex flex-col">

@@ -267,7 +267,7 @@ export default function NewService() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between px-1">
                       <div className="flex items-center gap-1">

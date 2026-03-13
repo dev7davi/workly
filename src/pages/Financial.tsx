@@ -203,10 +203,10 @@ export default function Financial() {
       {activeTab === "resumo" && (
         <div className="space-y-5">
           {/* KPIs */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
             {/* Recebido mês */}
-            <Link to="#" onClick={() => setActiveTab("recebidos")}>
-              <Card className="border-none shadow-xl rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white cursor-pointer hover:-translate-y-0.5 transition-all group overflow-hidden relative">
+            <Link to="#" onClick={() => setActiveTab("recebidos")} className="w-full">
+              <Card className="border-none shadow-xl rounded-[20px] bg-gradient-to-br from-emerald-500 to-teal-600 text-white cursor-pointer hover:-translate-y-0.5 transition-all group overflow-hidden relative">
                 <CardContent className="p-5">
                   <div className="flex justify-between items-start mb-3">
                     <div className="p-2 bg-white/20 rounded-xl">
@@ -233,8 +233,8 @@ export default function Financial() {
             </Link>
 
             {/* A receber */}
-            <button onClick={() => setActiveTab("areceber")}>
-              <Card className="border-none shadow-xl rounded-3xl bg-gradient-to-br from-amber-500 to-orange-600 text-white cursor-pointer hover:-translate-y-0.5 transition-all group overflow-hidden relative w-full">
+            <button onClick={() => setActiveTab("areceber")} className="w-full">
+              <Card className="border-none shadow-xl rounded-[20px] bg-gradient-to-br from-amber-500 to-orange-600 text-white cursor-pointer hover:-translate-y-0.5 transition-all group overflow-hidden relative w-full">
                 <CardContent className="p-5">
                   <div className="p-2 bg-white/20 rounded-xl w-fit mb-3">
                     <Clock className="h-4 w-4" />
@@ -249,8 +249,8 @@ export default function Financial() {
             </button>
 
             {/* Ticket médio */}
-            <Link to="/statistics">
-              <Card className="border-none shadow-md rounded-3xl bg-card cursor-pointer hover:shadow-lg transition-all">
+            <Link to="/statistics" className="w-full">
+              <Card className="border-none shadow-md rounded-[20px] bg-card cursor-pointer hover:shadow-lg transition-all">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="p-1.5 bg-indigo-500/10 rounded-xl">
@@ -264,8 +264,8 @@ export default function Financial() {
             </Link>
 
             {/* Total all time */}
-            <Link to="/statistics">
-              <Card className="border-none shadow-md rounded-3xl bg-card cursor-pointer hover:shadow-lg transition-all">
+            <Link to="/statistics" className="w-full">
+              <Card className="border-none shadow-md rounded-[20px] bg-card cursor-pointer hover:shadow-lg transition-all">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="p-1.5 bg-purple-500/10 rounded-xl">

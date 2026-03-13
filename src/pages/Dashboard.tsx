@@ -299,9 +299,8 @@ export default function Dashboard() {
   const todayTotal = data.todayPayments.reduce((a, s) => a + Number(s.value), 0);
 
   return (
-    <div className="flex flex-col gap-5 p-5 pb-28 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
-
-      {/* ── Header ── */}
+    <div className="flex flex-col gap-6 p-5 pb-28 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
+      {/* Header com Saudação */}
       <header className="flex items-center justify-between pt-2">
         <div>
           <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-0.5">
@@ -526,7 +525,7 @@ export default function Dashboard() {
       )}
 
       {/* ── KPIs financeiros ── */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <KpiCard
           icon={Clock}
           value={formatCurrency(data.totalPending)}
@@ -562,8 +561,8 @@ export default function Dashboard() {
       </div>
 
       {/* ── Ações rápidas ── */}
-      <div className="space-y-2">
-        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
+      <div className="space-y-4">
+        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 px-1">
           <Zap className="h-3.5 w-3.5 text-amber-500" /> Ações Rápidas
         </p>
         <div className="grid grid-cols-4 gap-2">
