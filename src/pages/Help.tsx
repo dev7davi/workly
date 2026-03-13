@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { 
-    Search, Book, Users, Briefcase, 
+    Search, Users, Briefcase, 
     CreditCard, ChevronRight, MessageCircle,
     ArrowLeft, Monitor, Smartphone, Zap
 } from "lucide-react";
@@ -16,7 +16,11 @@ const HELP_CATEGORIES = [
         icon: Users,
         color: "text-blue-500",
         bg: "bg-blue-500/10",
-        articles: ["Como cadastrar clientes", "Importação de catálogo", "Gestão de inadimplência"]
+        articles: [
+            { title: "Como cadastrar clientes", slug: "como-cadastrar-clientes" },
+            { title: "Importação de catálogo", slug: "importacao-de-catalogo" },
+            { title: "Gestão de inadimplência", slug: "gestao-de-inadimplencia" }
+        ]
     },
     {
         id: "services",
@@ -24,7 +28,11 @@ const HELP_CATEGORIES = [
         icon: Briefcase,
         color: "text-indigo-500",
         bg: "bg-indigo-500/10",
-        articles: ["Criando sua primeira O.S.", "Personalização de Comprovante", "Status de cada serviço"]
+        articles: [
+            { title: "Criando sua primeira O.S.", slug: "primeira-os" },
+            { title: "Personalização de Comprovante", slug: "personalizacao-comprovante" },
+            { title: "Status de cada serviço", slug: "status-servico" }
+        ]
     },
     {
         id: "finance",
@@ -32,7 +40,11 @@ const HELP_CATEGORIES = [
         icon: CreditCard,
         color: "text-emerald-500",
         bg: "bg-emerald-500/10",
-        articles: ["Entendendo o DRE", "Gestão de despesas", "Fluxo de caixa"]
+        articles: [
+            { title: "Entendendo o DRE", slug: "entendendo-dre" },
+            { title: "Gestão de despesas", slug: "gestao-de-despesas" },
+            { title: "Fluxo de caixa", slug: "fluxo-de-caixa" }
+        ]
     },
     {
         id: "plans",
@@ -40,7 +52,11 @@ const HELP_CATEGORIES = [
         icon: Zap,
         color: "text-amber-500",
         bg: "bg-amber-500/10",
-        articles: ["Diferença entre os planos", "Como cancelar", "Métodos de pagamento"]
+        articles: [
+            { title: "Diferença entre os planos", slug: "diferenca-entre-os-planos" },
+            { title: "Como cancelar", slug: "como-cancelar" },
+            { title: "Métodos de pagamento", slug: "metodos-de-pagamento" }
+        ]
     }
 ];
 
@@ -48,10 +64,13 @@ export default function Help() {
     const navigate = useNavigate();
     const [search, setSearch] = useState("");
 
-    const filteredCategories = HELP_CATEGORIES.filter(cat => 
-        cat.title.toLowerCase().includes(search.toLowerCase()) ||
-        cat.articles.some(art => art.toLowerCase().includes(search.toLowerCase()))
-    );
+    const filteredCategories = HELP_CATEGORIES.map(cat => ({
+        ...cat,
+        articles: cat.articles.filter(art => 
+            art.title.toLowerCase().includes(search.toLowerCase()) ||
+            cat.title.toLowerCase().includes(search.toLowerCase())
+        )
+    })).filter(cat => cat.articles.length > 0);
 
     return (
         <div className="flex flex-col gap-6 p-5 pb-24 max-w-4xl mx-auto w-full animate-in fade-in duration-300">
@@ -59,7 +78,7 @@ export default function Help() {
             <header className="flex flex-col gap-4">
                 <button 
                     onClick={() => navigate(-1)}
-                    className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                    className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors w-fit"
                 >
                     <ArrowLeft className="h-4 w-4" />
                     Voltar
@@ -109,9 +128,12 @@ export default function Help() {
                         <h3 className="text-lg font-black mb-4">{cat.title}</h3>
                         <ul className="space-y-3">
                             {cat.articles.map(art => (
-                                <li key={art}>
-                                    <button className="flex items-center justify-between w-full text-left text-sm font-medium text-muted-foreground hover:text-primary transition-colors group/item">
-                                        {art}
+                                <li key={art.slug}>
+                                    <button 
+                                        onClick={() => navigate(`/help/${art.slug}`)}
+                                        className="flex items-center justify-between w-full text-left text-sm font-medium text-muted-foreground hover:text-primary transition-colors group/item"
+                                    >
+                                        {art.title}
                                         <ChevronRight className="h-4 w-4 opacity-0 group-hover/item:opacity-100 transition-all translate-x-1" />
                                     </button>
                                 </li>
@@ -122,18 +144,18 @@ export default function Help() {
             </div>
 
             {/* Quick Tips */}
-            <div className="grid gap-4 sm:grid-cols-3 mt-4">
+            <div className="grid gap-4 grid-cols-3 mt-4">
                 <div className="flex flex-col items-center gap-2 p-4 text-center">
                     <Monitor className="h-6 w-6 text-muted-foreground" />
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Workly p/ Desktop</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Desktop</p>
                 </div>
                 <div className="flex flex-col items-center gap-2 p-4 text-center">
                     <Smartphone className="h-6 w-6 text-muted-foreground" />
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Workly p/ Mobile</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Mobile</p>
                 </div>
                 <div className="flex flex-col items-center gap-2 p-4 text-center">
                     <Zap className="h-6 w-6 text-muted-foreground" />
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Atalhos rápidos</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Atalhos</p>
                 </div>
             </div>
         </div>
