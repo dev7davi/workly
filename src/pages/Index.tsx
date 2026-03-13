@@ -135,23 +135,23 @@ export default function Index() {
     <div className="min-h-screen bg-[#050505] text-white selection:bg-primary/30 selection:text-white">
       {/* 1. Header/Navbar */}
       <nav className="fixed top-0 z-[100] w-full border-b border-white/5 bg-black/60 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 md:px-6 py-3 md:py-4">
           <div className="flex items-center gap-2">
-            <img src="/logo_w6.png" alt="WORKLY" className="h-8 brightness-0 invert" />
+            <img src="/logo_w6.png" alt="WORKLY" className="h-6 md:h-8 brightness-0 invert object-contain" />
           </div>
           
-          <div className="hidden md:flex items-center gap-8 text-sm font-bold uppercase tracking-widest text-white/60">
-            <a href="#funcionalidades" className="hover:text-primary transition-colors">Funcionalidades</a>
-            <a href="#planos" className="hover:text-primary transition-colors">Planos</a>
-            <a href="#faq" className="hover:text-primary transition-colors">Dúvidas</a>
+          <div className="hidden lg:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-white/60">
+            <a href="#funcionalidades" className="hover:text-white transition-colors">Funcionalidades</a>
+            <a href="#planos" className="hover:text-white transition-colors">Planos</a>
+            <a href="#faq" className="hover:text-white transition-colors">Dúvidas</a>
           </div>
 
-          <div className="flex items-center gap-4">
-            <Link to="/auth" className="text-sm font-bold uppercase tracking-widest text-white/60 hover:text-white transition-colors">
+          <div className="flex items-center gap-3 md:gap-6">
+            <Link to="/auth" className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white/60 hover:text-white transition-colors hidden sm:block">
               Entrar
             </Link>
             <Link to="/auth?mode=signup">
-              <Button className="rounded-full bg-primary hover:bg-primary/90 text-white font-black px-6 shadow-lg shadow-primary/20">
+              <Button className="rounded-full bg-primary hover:bg-primary/90 text-white font-black px-4 md:px-8 py-2 md:py-3 text-[10px] md:text-xs shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95">
                 Criar Conta Grátis
               </Button>
             </Link>
@@ -173,7 +173,7 @@ export default function Index() {
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] mb-8 max-w-5xl">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] mb-8 max-w-5xl">
             Sua Gestão{" "}
             <span className="bg-gradient-to-r from-primary via-blue-500 to-indigo-600 bg-clip-text text-transparent">
               Simplificada
