@@ -9,8 +9,10 @@ export type Plan = "free" | "start" | "pro" | "pro_plus";
 export interface PlanConfig {
     name: string;
     label: string;
-    price: string;
-    priceAnnual: string;
+    price: string;           // Descrição do preço (ex: "Grátis" ou "R$ 19,90/mês")
+    priceAnnual: string;     // Descrição do contexto anual (ex: "Autônomos em Crescimento")
+    priceMonthly: string;    // NOVO: Preço mensal formatado (ex: "R$ 19,90")
+    priceYearly: string;     // NOVO: Preço anual formatado (ex: "R$ 199,00")
     maxServices: number | null; // null = unlimited
     maxClients: number | null;
     features: string[];
@@ -23,6 +25,8 @@ export const PLANS: Record<Plan, PlanConfig> = {
         label: "Free",
         price: "Grátis",
         priceAnnual: "Iniciantes / Teste",
+        priceMonthly: "Grátis",
+        priceYearly: "—",
         maxServices: 20, // Por mês
         maxClients: 10,
         color: "#94a3b8",
@@ -40,6 +44,8 @@ export const PLANS: Record<Plan, PlanConfig> = {
         label: "Start",
         price: "R$ 19,90/mês",
         priceAnnual: "Autônomos em Crescimento",
+        priceMonthly: "R$ 19,90",
+        priceYearly: "R$ 199,00",
         maxServices: 200,
         maxClients: 100,
         color: "#6366f1",
@@ -56,6 +62,8 @@ export const PLANS: Record<Plan, PlanConfig> = {
         label: "Pro",
         price: "R$ 39,90/mês",
         priceAnnual: "Pequenos Negócios",
+        priceMonthly: "R$ 39,90",
+        priceYearly: "R$ 399,00",
         maxServices: null,
         maxClients: null,
         color: "#10b981",
@@ -71,6 +79,8 @@ export const PLANS: Record<Plan, PlanConfig> = {
         label: "Pro+",
         price: "R$ 69,90/mês",
         priceAnnual: "Gestão Avançada",
+        priceMonthly: "R$ 69,90",
+        priceYearly: "R$ 699,00",
         maxServices: null,
         maxClients: null,
         color: "#f59e0b",

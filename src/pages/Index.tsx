@@ -24,11 +24,18 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PricingToggle } from "@/components/PricingToggle";
 
 const STRIPE_LINKS = {
-  start: "https://buy.stripe.com/6oU8wOftDaqzdBpb2EaMU02",
-  pro: "https://buy.stripe.com/7sYbJ0dlv56f40P2w8aMU00",
-  pro_plus: "https://buy.stripe.com/14A00i3KV8ir9l9gmYaMU01",
+  // Mensal (Existentes)
+  start_monthly: "https://buy.stripe.com/6oU8wOftDaqzdBpb2EaMU02",
+  pro_monthly: "https://buy.stripe.com/7sYbJ0dlv56f40P2w8aMU00",
+  pro_plus_monthly: "https://buy.stripe.com/14A00i3KV8ir9l9gmYaMU01",
+  
+  // Anual (Placeholders - Devem ser substituídos quando gerados no Stripe)
+  start_yearly: "https://buy.stripe.com/[NOVO_LINK_START_ANUAL]",
+  pro_yearly: "https://buy.stripe.com/[NOVO_LINK_PRO_ANUAL]",
+  pro_plus_yearly: "https://buy.stripe.com/[NOVO_LINK_PRO_PLUS_ANUAL]",
 };
 
 const plans = [
@@ -39,6 +46,8 @@ const plans = [
     iconColor: "text-slate-400",
     iconBg: "bg-slate-400/10",
     price: "Grátis",
+    priceMonthly: "Grátis",
+    priceYearly: "—",
     priceSub: "Iniciantes / Teste",
     highlight: false,
     badge: null,
@@ -62,6 +71,8 @@ const plans = [
     iconColor: "text-indigo-500",
     iconBg: "bg-indigo-500/10",
     price: "R$19,90",
+    priceMonthly: "R$ 19,90",
+    priceYearly: "R$ 199,00",
     priceSub: "/mês · Autônomos em Crescimento",
     highlight: false,
     badge: null,
@@ -73,7 +84,7 @@ const plans = [
       "Dashboard DRE",
     ],
     cta: "Assinar Start",
-    ctaHref: STRIPE_LINKS.start,
+    ctaHref: STRIPE_LINKS.start_monthly,
     external: true,
     ctaStyle: "bg-indigo-600 text-white hover:bg-indigo-700",
   },
@@ -84,6 +95,8 @@ const plans = [
     iconColor: "text-primary",
     iconBg: "bg-primary/10",
     price: "R$ 39,90",
+    priceMonthly: "R$ 39,90",
+    priceYearly: "R$ 399,00",
     priceSub: "/mês · Pequenos Negócios",
     highlight: true,
     badge: "Mais Popular",
@@ -94,7 +107,7 @@ const plans = [
       "Relatórios Avançados",
     ],
     cta: "Assinar Pro",
-    ctaHref: STRIPE_LINKS.pro,
+    ctaHref: STRIPE_LINKS.pro_monthly,
     external: true,
     ctaStyle: "bg-gradient-to-r from-primary to-blue-600 text-white shadow-xl shadow-primary/20",
   },
@@ -105,6 +118,8 @@ const plans = [
     iconColor: "text-amber-500",
     iconBg: "bg-amber-500/10",
     price: "R$ 69,90",
+    priceMonthly: "R$ 69,90",
+    priceYearly: "R$ 699,00",
     priceSub: "/mês · Gestão Avançada",
     highlight: false,
     badge: "Completo",
@@ -115,7 +130,7 @@ const plans = [
       "Suporte VIP",
     ],
     cta: "Assinar Pro+",
-    ctaHref: STRIPE_LINKS.pro_plus,
+    ctaHref: STRIPE_LINKS.pro_plus_monthly,
     external: true,
     ctaStyle:
       "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-xl shadow-amber-500/20",
@@ -133,6 +148,13 @@ const faqs = [
 export default function Index() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(false);
+
+  const getLinkForPlan = (planKey: string, isAnnual: boolean): string => {
+    if (planKey === "free") return "/auth?mode=signup";
+    const linkKey = `${planKey}_${isAnnual ? "yearly" : "monthly"}`;
+    return STRIPE_LINKS[linkKey as keyof typeof STRIPE_LINKS] || "#";
+  };
 
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-primary/30 selection:text-white">
@@ -411,15 +433,21 @@ export default function Index() {
       {/* 7. Pricing Table */}
       <section id="planos" className="py-32 px-6 bg-white/5">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
+          <div className="text-center mb-12">
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-4">Investimento</p>
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-6">Planos Flexíveis para o seu Crescimento</h2>
-            <p className="text-white/60 text-lg font-medium">Cancele quando quiser. Sem letras miúdas.</p>
+            <p className="text-white/60 text-lg font-medium mb-12">Cancele quando quiser. Sem letras miúdas.</p>
+            
+            <PricingToggle isAnnual={isAnnual} onToggle={setIsAnnual} />
           </div>
 
           <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6 items-start">
             {plans.map((p) => {
               const Icon = p.icon;
+              const currentPrice = isAnnual && p.key !== "free" ? p.priceYearly : p.priceMonthly;
+              const currentLink = getLinkForPlan(p.key, isAnnual);
+              const isYearly = isAnnual && p.key !== "free";
+
               return (
                 <div key={p.key} className={cn(
                   "relative p-8 rounded-[2.5rem] border-2 transition-all duration-500",
@@ -439,9 +467,13 @@ export default function Index() {
                   
                   <h3 className="text-2xl font-black tracking-tight mb-1">{p.name}</h3>
                   <div className="flex items-baseline gap-1 mb-2">
-                    <span className="text-3xl font-black">{p.price}</span>
+                    <span className="text-3xl font-black">{currentPrice}</span>
+                    {isYearly && <span className="text-white/40 text-xs font-bold">/ano</span>}
+                    {!isYearly && p.key !== "free" && <span className="text-white/40 text-xs font-bold">/mês</span>}
                   </div>
-                  <p className="text-[10px] font-black tracking-widest uppercase text-white/40 mb-8">{p.priceSub}</p>
+                  <p className="text-[10px] font-black tracking-widest uppercase text-white/40 mb-8">
+                    {p.key === "free" ? p.priceSub : isYearly ? "Faturado anualmente" : p.priceSub}
+                  </p>
                   
                   <div className="space-y-4 mb-10">
                     {p.features.map(f => (
@@ -452,10 +484,10 @@ export default function Index() {
                     ))}
                   </div>
 
-                  <a href={p.ctaHref} target={p.external ? "_blank" : "_self"} rel="noreferrer">
+                  <a href={currentLink} target={p.key !== "free" ? "_blank" : "_self"} rel="noreferrer">
                     <Button className={cn(
-                      "w-full h-14 rounded-2xl font-black uppercase tracking-widest",
-                      p.highlight ? "bg-primary hover:bg-primary/90 text-white" : "bg-white/5 hover:bg-white/10 text-white"
+                      "w-full h-14 rounded-2xl font-black uppercase tracking-widest transition-all",
+                      p.highlight ? "bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 hover:scale-[1.02]" : "bg-white/5 hover:bg-white/10 text-white"
                     )}>
                       {p.cta}
                     </Button>

@@ -277,5 +277,33 @@ Gerenciar seus métodos de pagamento garante que sua assinatura permaneça ativa
 > [!TIP]
 > **Dica:** Mantenha sempre um método de pagamento válido e atualizado para evitar interrupções no serviço.
 `
+  },
+  {
+    slug: "mensal-vs-anual",
+    title: "Mensal vs. Anual: Qual é a melhor opção?",
+    category: "planos",
+    content: `
+Escolher entre o plano mensal e o anual depende do seu planejamento e do quanto você deseja economizar no longo prazo.
+
+## Vantagens do Plano Anual:
+
+*   **Economia Significativa:** Ao optar pelo plano anual, você recebe um desconto de **17%**. Isso equivale a pagar por 10 meses e ganhar 2 meses totalmente grátis.
+*   **Praticidade:** Você faz apenas um pagamento por ano, evitando preocupações mensais com boletos ou faturas no cartão.
+*   **Fator de Investimento:** Ideal para quem já validou o uso do Workly e quer garantir a ferramenta pelo menor preço possível.
+
+## Comparação de Economia:
+
+| Plano | Economia Anual |
+| :--- | :--- |
+| **Start** | Economize R$ 39,80/ano |
+| **Pro** | Economize R$ 79,80/ano |
+| **Pro+** | Economize R$ 139,80/ano |
+
+## Como Alternar entre os Planos?
+Na página de [Planos & Assinatura](/app/plans), você encontrará um interruptor (toggle) no topo. Basta alternar para "Anual" para ver os valores com desconto e realizar o upgrade.
+
+> [!TIP]
+> **Dica:** Se você está começando, o plano mensal é ótimo para testes. Assim que se sentir seguro, mude para o anual e garanta sua economia!
+`
   }
 ];

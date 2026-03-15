@@ -3,11 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Check, Star, Zap, Crown, ArrowRight, Sparkles } from "lucide-react";
 import { PLANS, Plan } from "@/hooks/usePlan";
 import { cn } from "@/lib/utils";
+import { PricingToggle } from "@/components/PricingToggle";
+import { useState } from "react";
 
 const STRIPE_LINKS = {
-    start: "https://buy.stripe.com/6oU8wOftDaqzdBpb2EaMU02",
-    pro: "https://buy.stripe.com/7sYbJ0dlv56f40P2w8aMU00",
-    pro_plus: "https://buy.stripe.com/14A00i3KV8ir9l9gmYaMU01",
+    // Mensal
+    start_monthly: "https://buy.stripe.com/6oU8wOftDaqzdBpb2EaMU02",
+    pro_monthly: "https://buy.stripe.com/7sYbJ0dlv56f40P2w8aMU00",
+    pro_plus_monthly: "https://buy.stripe.com/14A00i3KV8ir9l9gmYaMU01",
+
+    // Anual
+    start_yearly: "https://buy.stripe.com/[NOVO_LINK_START_ANUAL]",
+    pro_yearly: "https://buy.stripe.com/[NOVO_LINK_PRO_ANUAL]",
+    pro_plus_yearly: "https://buy.stripe.com/[NOVO_LINK_PRO_PLUS_ANUAL]",
 };
 
 const PLAN_ORDER: Plan[] = ["free", "start", "pro", "pro_plus"];
@@ -27,6 +35,14 @@ const PLAN_STYLES = {
 };
 
 export default function Plans() {
+    const [isAnnual, setIsAnnual] = useState(false);
+
+    const getLinkForPlan = (planKey: string, isAnnual: boolean): string => {
+        if (planKey === "free") return "/auth?mode=signup";
+        const linkKey = `${planKey}_${isAnnual ? "yearly" : "monthly"}`;
+        return STRIPE_LINKS[linkKey as keyof typeof STRIPE_LINKS] || "#";
+    };
+
     return (
         <div className="flex flex-col gap-8 p-6 pb-24 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
             {/* Header */}
@@ -36,6 +52,9 @@ export default function Plans() {
                 <p className="text-muted-foreground mt-2 font-medium">Sem surpresas, sem fidelidade. Cancele quando quiser.</p>
             </header>
 
+            {/* Toggle Mensal/Anual */}
+            <PricingToggle isAnnual={isAnnual} onToggle={setIsAnnual} />
+
             {/* Plans Grid */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {PLAN_ORDER.map(planKey => {
@@ -43,7 +62,9 @@ export default function Plans() {
                     const style = PLAN_STYLES[planKey];
                     const PlanIcon = PLAN_ICONS[planKey];
                     const isExternalLink = planKey !== "free";
-                    const href = planKey === "free" ? "/auth?mode=signup" : STRIPE_LINKS[planKey as keyof typeof STRIPE_LINKS];
+                    const href = getLinkForPlan(planKey, isAnnual);
+                    const currentPrice = isAnnual && planKey !== "free" ? plan.priceYearly : plan.priceMonthly;
+                    const isYearly = isAnnual && planKey !== "free";
 
                     return (
                         <div
@@ -71,8 +92,14 @@ export default function Plans() {
                                     <PlanIcon className={cn("h-6 w-6", style.icon)} />
                                 </div>
                                 <h3 className="text-xl font-black mb-1">{plan.label}</h3>
-                                <p className="text-2xl font-black">{plan.price}</p>
-                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{plan.priceAnnual}</p>
+                                <div className="flex items-baseline gap-1">
+                                    <p className="text-2xl font-black">{currentPrice}</p>
+                                    {isYearly && <span className="text-muted-foreground text-[10px] font-bold">/ano</span>}
+                                    {!isYearly && planKey !== "free" && <span className="text-muted-foreground text-[10px] font-bold">/mês</span>}
+                                </div>
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                    {planKey === "free" ? plan.priceAnnual : isYearly ? "Faturado anualmente" : plan.priceAnnual}
+                                </p>
                             </div>
 
                             <div className="px-6 pb-4 flex-1 space-y-2">
