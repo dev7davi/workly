@@ -9,6 +9,17 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
     Select,
     SelectContent,
     SelectItem,
@@ -308,15 +319,35 @@ export function ServiceCostsSection({ serviceId, serviceValue }: ServiceCostsSec
                                         >
                                             <Edit3 className="h-3.5 w-3.5" />
                                         </Button>
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 rounded-xl text-destructive hover:text-destructive"
-                                            onClick={() => deleteCost.mutate({ costId: cost.id, serviceId })}
-                                        >
-                                            <Trash2 className="h-3.5 w-3.5" />
-                                        </Button>
+                                         <AlertDialog>
+                                             <AlertDialogTrigger asChild>
+                                                 <Button
+                                                     type="button"
+                                                     variant="ghost"
+                                                     size="icon"
+                                                     className="h-8 w-8 rounded-xl text-destructive hover:text-destructive"
+                                                 >
+                                                     <Trash2 className="h-3.5 w-3.5" />
+                                                 </Button>
+                                             </AlertDialogTrigger>
+                                             <AlertDialogContent className="rounded-2xl">
+                                                 <AlertDialogHeader>
+                                                     <AlertDialogTitle className="font-black">Excluir custo?</AlertDialogTitle>
+                                                     <AlertDialogDescription>
+                                                         Este item será removido permanentemente do cálculo financeiro do serviço.
+                                                     </AlertDialogDescription>
+                                                 </AlertDialogHeader>
+                                                 <AlertDialogFooter>
+                                                     <AlertDialogCancel className="rounded-lg font-bold">Cancelar</AlertDialogCancel>
+                                                     <AlertDialogAction
+                                                         onClick={() => deleteCost.mutate({ costId: cost.id, serviceId })}
+                                                         className="rounded-lg font-bold bg-destructive"
+                                                     >
+                                                         Excluir
+                                                     </AlertDialogAction>
+                                                 </AlertDialogFooter>
+                                             </AlertDialogContent>
+                                         </AlertDialog>
                                     </div>
                                 </div>
                             )}

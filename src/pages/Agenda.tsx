@@ -9,6 +9,17 @@ import {
     List, Calendar, Grid3x3, AlertTriangle, CheckCircle2,
     Briefcase, Bell, ChevronDown
 } from "lucide-react";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -363,12 +374,32 @@ function DayPanel({
                                         >
                                             <Edit3 className="h-3 w-3" />
                                         </button>
-                                        <button
-                                            onClick={() => onDeleteEvent(item.id)}
-                                            className="h-7 w-7 rounded-lg bg-destructive/10 text-destructive flex items-center justify-center hover:bg-destructive/20"
-                                        >
-                                            <Trash2 className="h-3 w-3" />
-                                        </button>
+                                         <AlertDialog>
+                                             <AlertDialogTrigger asChild>
+                                                 <button
+                                                     className="h-7 w-7 rounded-lg bg-destructive/10 text-destructive flex items-center justify-center hover:bg-destructive/20"
+                                                 >
+                                                     <Trash2 className="h-3 w-3" />
+                                                 </button>
+                                             </AlertDialogTrigger>
+                                             <AlertDialogContent className="rounded-2xl">
+                                                 <AlertDialogHeader>
+                                                     <AlertDialogTitle className="font-black">Excluir evento?</AlertDialogTitle>
+                                                     <AlertDialogDescription>
+                                                         Deseja realmente excluir este evento? Esta ação não pode ser desfeita.
+                                                     </AlertDialogDescription>
+                                                 </AlertDialogHeader>
+                                                 <AlertDialogFooter>
+                                                     <AlertDialogCancel className="rounded-lg font-bold">Cancelar</AlertDialogCancel>
+                                                     <AlertDialogAction
+                                                         onClick={() => onDeleteEvent(item.id)}
+                                                         className="rounded-lg font-bold bg-destructive text-white"
+                                                     >
+                                                         Excluir
+                                                     </AlertDialogAction>
+                                                 </AlertDialogFooter>
+                                             </AlertDialogContent>
+                                         </AlertDialog>
                                     </div>
                                 )}
                                 {item.type === "payment" && (

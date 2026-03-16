@@ -115,14 +115,32 @@ export function useClients() {
 
     const deleteClient = useMutation({
         mutationFn: async (id: string) => {
-            const { error } = await supabase.from("clients").delete().eq("id", id);
-            if (error) throw error;
+            try {
+                if (!id) throw new Error("ID do cliente inválido");
+
+                const { error, count } = await supabase
+                    .from("clients")
+                    .delete()
+                    .eq("id", id);
+
+                if (error) {
+                    console.error("[DELETE_CLIENT_ERROR]", error);
+                    throw new Error(`Erro ao excluir: ${error.message}`);
+                }
+            } catch (err) {
+                const errorMessage = err instanceof Error ? err.message : "Erro desconhecido";
+                console.error("[DELETE_CLIENT]", errorMessage);
+                throw err;
+            }
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["clients"] });
-            toast.success("Cliente removido.");
+            toast.success("Cliente removido com sucesso!");
         },
-        onError: (err: any) => toast.error("Erro ao remover cliente.", { description: err?.message }),
+        onError: (err: any) => {
+            const errorMessage = err instanceof Error ? err.message : "Erro desconhecido";
+            toast.error("Erro ao remover cliente.", { description: errorMessage });
+        },
     });
 
     return {

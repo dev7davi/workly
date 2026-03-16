@@ -1,9 +1,20 @@
 import { useState, useEffect, useRef } from "react";
-import { Image, Mic, Paperclip, X, Loader2, Play, Expand } from "lucide-react";
+import { Image, Mic, Paperclip, X, Loader2, Play, Expand, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useServiceMedia, MediaFile } from "@/hooks/useServiceMedia";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
     Dialog,
     DialogContent,
@@ -77,9 +88,30 @@ export function ServiceMediaSection({ serviceId }: ServiceMediaSectionProps) {
                                 <DialogContent className="p-1 items-center justify-center bg-black/90 max-w-sm rounded-[2rem] border-none overflow-hidden h-[80vh] flex flex-col">
                                     <div className="flex w-full items-center justify-between p-4 z-10 absolute top-0 text-white">
                                         <p className="font-bold text-xs opacity-70 truncate max-w-[200px]">{img.name}</p>
-                                        <button onClick={() => deleteImage(img.path, "images")} className="h-8 w-8 bg-destructive/80 text-white rounded-full flex items-center justify-center active:scale-95 transition-all">
-                                            <X className="h-4 w-4" />
-                                        </button>
+                                         <AlertDialog>
+                                             <AlertDialogTrigger asChild>
+                                                 <button className="h-8 w-8 bg-destructive/80 text-white rounded-full flex items-center justify-center active:scale-95 transition-all">
+                                                     <Trash2 className="h-4 w-4" />
+                                                 </button>
+                                             </AlertDialogTrigger>
+                                             <AlertDialogContent className="rounded-2xl">
+                                                 <AlertDialogHeader>
+                                                     <AlertDialogTitle className="font-black">Excluir foto?</AlertDialogTitle>
+                                                     <AlertDialogDescription>
+                                                         Esta imagem será permanentemente removida.
+                                                     </AlertDialogDescription>
+                                                 </AlertDialogHeader>
+                                                 <AlertDialogFooter>
+                                                     <AlertDialogCancel className="rounded-lg font-bold">Cancelar</AlertDialogCancel>
+                                                     <AlertDialogAction
+                                                         onClick={() => deleteImage(img.path, "images")}
+                                                         className="rounded-lg font-bold bg-destructive text-white"
+                                                     >
+                                                         Excluir
+                                                     </AlertDialogAction>
+                                                 </AlertDialogFooter>
+                                             </AlertDialogContent>
+                                         </AlertDialog>
                                     </div>
                                     <img src={img.url} alt={img.name} className="w-full h-full object-contain" />
                                 </DialogContent>
@@ -119,9 +151,30 @@ export function ServiceMediaSection({ serviceId }: ServiceMediaSectionProps) {
                                     <p className="text-xs font-bold truncate">{audio.name}</p>
                                     <audio src={audio.url} controls className="w-full h-8 mt-1 rounded scale-90 origin-left" />
                                 </div>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive rounded-xl" onClick={() => deleteAudio(audio.path, "audios")}>
-                                    <X className="h-4 w-4" />
-                                </Button>
+                                 <AlertDialog>
+                                     <AlertDialogTrigger asChild>
+                                         <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive rounded-xl">
+                                             <Trash2 className="h-4 w-4" />
+                                         </Button>
+                                     </AlertDialogTrigger>
+                                     <AlertDialogContent className="rounded-2xl">
+                                         <AlertDialogHeader>
+                                             <AlertDialogTitle className="font-black">Excluir áudio?</AlertDialogTitle>
+                                             <AlertDialogDescription>
+                                                 O registro de áudio será permanentemente removido.
+                                             </AlertDialogDescription>
+                                         </AlertDialogHeader>
+                                         <AlertDialogFooter>
+                                             <AlertDialogCancel className="rounded-lg font-bold">Cancelar</AlertDialogCancel>
+                                             <AlertDialogAction
+                                                 onClick={() => deleteAudio(audio.path, "audios")}
+                                                 className="rounded-lg font-bold bg-destructive text-white"
+                                             >
+                                                 Excluir
+                                             </AlertDialogAction>
+                                         </AlertDialogFooter>
+                                     </AlertDialogContent>
+                                 </AlertDialog>
                             </div>
                         ))}
 

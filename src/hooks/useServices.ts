@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdmin } from "@/contexts/AdminContext";
+import { toast } from "sonner";
 
 export type ServiceStatus = "pending" | "paid" | "cancelled";
 
@@ -86,8 +87,26 @@ export function useServices() {
   }
 
   async function deleteService(id: string) {
-    await supabase.from("services").delete().eq("id", id);
-    fetchServices();
+    try {
+      if (!id) throw new Error("ID do serviço inválido");
+
+      const { error, count } = await supabase
+        .from("services")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        console.error("[DELETE_SERVICE_ERROR]", error);
+        throw new Error(`Erro ao excluir: ${error.message}`);
+      }
+
+      toast.success("Serviço excluído com sucesso!");
+      fetchServices();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Erro desconhecido";
+      console.error("[DELETE_SERVICE]", errorMessage);
+      toast.error(`Falha ao excluir: ${errorMessage}`);
+    }
   }
 
   async function duplicateService(service: Service) {

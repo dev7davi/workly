@@ -5,6 +5,17 @@ import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface AudioAttachment {
   id: string;
@@ -231,14 +242,34 @@ export function AudioRecorder({ serviceId }: AudioRecorderProps) {
                   </p>
                 </div>
 
-                <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => handleDelete(item.id, item.filename)}
-                    className="rounded-xl h-10 w-10 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="rounded-xl h-10 w-10 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="rounded-2xl">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle className="font-black">Excluir áudio?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Esta gravação será removida permanentemente.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel className="rounded-lg font-bold">Cancelar</AlertDialogCancel>
+                            <AlertDialogAction 
+                                onClick={() => handleDelete(item.id, item.filename)}
+                                className="rounded-lg font-bold bg-destructive"
+                            >
+                                Excluir
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
               </div>
             ))}
           </div>

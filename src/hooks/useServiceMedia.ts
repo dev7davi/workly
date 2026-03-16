@@ -88,13 +88,31 @@ export function useServiceMedia(serviceId: string, initialType: MediaType = "ima
 
     const deleteMedia = async (path: string, type: MediaType) => {
         try {
-            const { error } = await supabase.storage.from("workly_media").remove([path]);
-            if (error) throw error;
-            toast({ title: "Arquivo removido", description: "O anexo foi excluído." });
+            if (!path) throw new Error("Caminho do arquivo inválido");
+
+            const { error } = await supabase.storage
+                .from("workly_media")
+                .remove([path]);
+
+            if (error) {
+                console.error("[DELETE_MEDIA_ERROR]", error);
+                throw new Error(`Erro ao excluir: ${error.message}`);
+            }
+
+            toast({
+                title: "Arquivo removido",
+                description: "O anexo foi excluído com sucesso."
+            });
+
             setMediaList(prev => prev.filter(f => f.path !== path));
         } catch (err: any) {
-            console.error("Error deleting:", err);
-            toast({ title: "Falha ao remover arquivo", variant: "destructive" });
+            const errorMessage = err instanceof Error ? err.message : "Erro desconhecido";
+            console.error("[DELETE_MEDIA]", errorMessage);
+            toast({
+                title: "Falha ao remover arquivo",
+                description: errorMessage,
+                variant: "destructive"
+            });
         }
     };
 
