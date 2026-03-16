@@ -12,6 +12,7 @@ export interface ServiceForExport {
   value: number;
   status: string;
   description?: string;
+  createdAt?: string;  // ✅ ADICIONADO: Para DTSTAMP consistente
 }
 
 /**
@@ -36,10 +37,17 @@ function formatICSDate(date: Date): string {
 
 /**
  * Gera um único evento VEVENT para o arquivo iCalendar
+ * ✅ CORRIGIDO: DTSTAMP agora é baseado em created_at, não em Date.now()
  */
 function generateSingleEvent(service: ServiceForExport): string {
   const eventId = `service-${service.id}@workly.com.br`;
-  const now = formatICSDate(new Date());
+  
+  // ✅ CORRIGIDO: Usar created_at do serviço, não Date.now()
+  // Isso garante que o DTSTAMP seja consistente entre exportações
+  const createdAt = service.createdAt 
+    ? new Date(service.createdAt)
+    : new Date();
+  const dtstamp = formatICSDate(createdAt);
 
   const startDate = new Date(service.date);
   if (service.time) {
@@ -56,12 +64,13 @@ function generateSingleEvent(service: ServiceForExport): string {
   return [
     "BEGIN:VEVENT",
     `UID:${eventId}`,
-    `DTSTAMP:${now}`,
+    `DTSTAMP:${dtstamp}`,  // ✅ CORRIGIDO: Agora consistente
     `DTSTART:${formatICSDate(startDate)}`,
     `DTEND:${formatICSDate(endDate)}`,
     `SUMMARY:Workly: ${escapeICSText(service.serviceName)} - ${escapeICSText(service.clientName)}`,
     `DESCRIPTION:${escapeICSText(description)}`,
     `LOCATION:${escapeICSText(service.address || 'A definir')}`,
+    `LAST-MODIFIED:${dtstamp}`,  // ✅ ADICIONADO: Para rastrear alterações
     "STATUS:CONFIRMED",
     "SEQUENCE:0",
     "END:VEVENT"

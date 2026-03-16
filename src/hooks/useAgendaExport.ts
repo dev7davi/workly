@@ -29,9 +29,7 @@ export function useAgendaExport() {
       const startStr = options.startDate.toISOString().split('T')[0];
       const endStr = options.endDate.toISOString().split('T')[0];
 
-      // ✅ CORRIGIDO: Nomes reais das colunas no Supabase
-      // service_name -> service_type
-      // client_name na tabela clients -> name
+      // ✅ CORRIGIDO: Nomes reais das colunas no Supabase e inclusão de created_at para DTSTAMP
       let query = supabase
         .from('services')
         .select(`
@@ -43,7 +41,8 @@ export function useAgendaExport() {
           service_date,
           value,
           status,
-          notes
+          notes,
+          created_at
         `)
         .gte('service_date', startStr)
         .lte('service_date', endStr)
@@ -63,7 +62,7 @@ export function useAgendaExport() {
         throw new Error('Nenhum serviço encontrado no período selecionado');
       }
 
-      // ✅ CORRIGIDO: Mapeamento com nomes corretos e validação
+      // ✅ CORRIGIDO: Incluindo createdAt para DTSTAMP consistente
       return data.map(s => {
         const clientName = (typeof s.clients === 'object' && (s.clients as any)?.name) 
           ? (s.clients as any).name 
@@ -74,11 +73,12 @@ export function useAgendaExport() {
           serviceName: s.service_type || 'Serviço sem nome',
           clientName: clientName,
           date: s.service_date || new Date().toISOString().split('T')[0],
-          time: '09:00', // Campo service_time não existe na tabela services
+          time: '09:00',
           value: parseFloat(s.value as any) || 0,
           status: s.status || 'Pendente',
           description: s.notes || '',
-          address: undefined
+          address: undefined,
+          createdAt: s.created_at
         };
       });
     } catch (err) {
