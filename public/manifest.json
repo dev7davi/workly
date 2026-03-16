@@ -1,0 +1,41 @@
+{
+  "name": "Workly - Gestão de Serviços",
+  "short_name": "Workly",
+  "description": "Plataforma completa para gestão de serviços, clientes e financeiro",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#111111",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/logo_w6.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo_w6.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Novo Serviço",
+      "short_name": "Serviço",
+      "description": "Criar uma nova ordem de serviço",
+      "url": "/services/new",
+      "icons": [{ "src": "/logo_w6.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Agenda",
+      "short_name": "Agenda",
+      "description": "Ver compromissos",
+      "url": "/agenda",
+      "icons": [{ "src": "/logo_w6.png", "sizes": "192x192" }]
+    }
+  ]
+}

@@ -2,12 +2,18 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowLeft, Loader2, Check, Trash2, FileText, User, Briefcase, DollarSign, Calendar, Clock } from "lucide-react";
+import { ArrowLeft, Loader2, Check, Trash2, FileText, User, Briefcase, DollarSign, Calendar, Clock, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -15,6 +21,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ServiceHistory } from "@/components/services/ServiceHistory";
+import { AudioRecorder } from "@/components/services/AudioRecorder";
+import { History, Mic } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -163,169 +172,225 @@ export default function EditService() {
           </Button>
         </div>
       </header>
+      
+      <Tabs defaultValue="details" className="w-full space-y-6">
+        <TabsList className="w-full h-12 rounded-2xl bg-muted/50 p-1 flex">
+          <TabsTrigger value="details" className="flex-1 rounded-xl font-bold text-xs uppercase px-6">Geral</TabsTrigger>
+          <TabsTrigger value="costs" className="flex-1 rounded-xl font-bold text-xs uppercase px-6">Custos</TabsTrigger>
+          <TabsTrigger value="history" className="flex-1 rounded-xl font-bold text-xs uppercase px-6 gap-2">
+            <History className="h-3.5 w-3.5" />
+            Histórico
+          </TabsTrigger>
+        </TabsList>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Status selector bar */}
-        <div className="grid grid-cols-3 gap-2 p-1 bg-muted/40 rounded-2xl">
-          {(["pending", "paid", "cancelled"] as ServiceStatus[]).map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setValue("status", s)}
-              className={cn(
-                "py-2.5 px-3 rounded-xl text-[10px] font-black uppercase border-2 transition-all",
-                currentStatus === s
-                  ? STATUS_CONFIG[s].color
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {STATUS_CONFIG[s].label}
-            </button>
-          ))}
-        </div>
+        <TabsContent value="details" className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="flex items-center justify-between bg-primary/5 p-4 rounded-2xl border border-primary/10">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                <Activity className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase text-primary/60 tracking-wider">Versão Atual</p>
+                <p className="text-sm font-black uppercase">v{service.versao_atual || 1}</p>
+              </div>
+            </div>
+            {service.data_criacao && (
+              <div className="text-right">
+                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider">Criado em</p>
+                <p className="text-sm font-bold">{new Date(service.data_criacao).toLocaleDateString('pt-BR')}</p>
+              </div>
+            )}
+          </div>
 
-        {/* Client + Service info */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Status selector bar */}
+            <div className="grid grid-cols-3 gap-2 p-1 bg-muted/40 rounded-2xl">
+              {(["pending", "paid", "cancelled"] as ServiceStatus[]).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setValue("status", s)}
+                  className={cn(
+                    "py-2.5 px-3 rounded-xl text-[10px] font-black uppercase border-2 transition-all",
+                    currentStatus === s
+                      ? STATUS_CONFIG[s].color
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {STATUS_CONFIG[s].label}
+                </button>
+              ))}
+            </div>
+
+            {/* Client + Service info */}
+            <Card className="border-none shadow-lg rounded-3xl overflow-hidden bg-card/50">
+              <CardContent className="p-6 space-y-5">
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                  <User className="h-3 w-3" /> Dados do Atendimento
+                </p>
+
+                <ClientNameField
+                  value={watch("client_name") || ""}
+                  onChange={(name) => setValue("client_name", name, { shouldValidate: true })}
+                  error={errors.client_name?.message}
+                />
+
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground">Tipo de Serviço *</Label>
+                  <Input
+                    className="h-12 rounded-xl bg-muted/30 border-none"
+                    placeholder="Ex: Pintura, Instalação..."
+                    {...register("service_type")}
+                  />
+                  {errors.service_type && <p className="text-xs text-destructive">{errors.service_type.message}</p>}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase text-muted-foreground flex items-center gap-1">
+                      <DollarSign className="h-3 w-3" /> Valor Cobrado (R$) *
+                    </Label>
+                    <Input
+                      className="h-12 rounded-xl bg-muted/30 border-none text-lg font-black text-primary"
+                      inputMode="decimal"
+                      placeholder="0,00"
+                      {...register("value")}
+                    />
+                    {errors.value && <p className="text-xs text-destructive">{errors.value.message}</p>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase text-muted-foreground">Status *</Label>
+                    <Select value={currentStatus} onValueChange={(v) => setValue("status", v as ServiceStatus)}>
+                      <SelectTrigger className="h-12 rounded-xl bg-muted/30 border-none">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">⏳ Pendente</SelectItem>
+                        <SelectItem value="paid">✅ Pago</SelectItem>
+                        <SelectItem value="cancelled">❌ Cancelado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase text-muted-foreground flex items-center gap-1">
+                      <Calendar className="h-3 w-3" /> Data do Serviço
+                    </Label>
+                    <Input
+                      type="date"
+                      className="h-12 rounded-xl bg-muted/30 border-none w-full"
+                      {...register("service_date")}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase text-muted-foreground flex items-center gap-1">
+                      <Clock className="h-3 w-3" /> Data de Pgto.
+                    </Label>
+                    <Input
+                      type="date"
+                      className="h-12 rounded-xl bg-muted/30 border-none w-full"
+                      {...register("payment_date")}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground">Observações</Label>
+                  <Textarea
+                    className="rounded-xl bg-muted/30 border-none min-h-[80px]"
+                    placeholder="Detalhes do serviço..."
+                    {...register("notes")}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {id && <ServiceMediaSection serviceId={id} />}
+
+
+            {id && (
+              <div className="space-y-4 pt-4 border-t border-muted/50">
+                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-2">
+                  <Mic className="h-3 w-3" /> Anexos de Voz
+                </p>
+                <AudioRecorder serviceId={id} />
+              </div>
+            )}
+
+            {/* Action Buttons inside form */}
+            <div className="flex gap-3">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-14 px-5 rounded-2xl border-destructive/30 text-destructive hover:bg-destructive/5"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="rounded-3xl">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="font-black">Excluir serviço?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Todos os custos vinculados também serão removidos. Esta ação não pode ser desfeita.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="rounded-xl font-bold">Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} className="rounded-xl font-bold bg-destructive">
+                      Excluir
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
+              <Button
+                type="submit"
+                className="flex-1 h-14 rounded-2xl font-black bg-gradient-to-r from-primary to-blue-600 shadow-xl shadow-primary/20"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <>
+                    <Check className="mr-2 h-5 w-5" />
+                    Salvar Alterações
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </TabsContent>
+
+      <TabsContent value="costs" className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
         <Card className="border-none shadow-lg rounded-3xl overflow-hidden bg-card/50">
-          <CardContent className="p-6 space-y-5">
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-              <User className="h-3 w-3" /> Dados do Atendimento
-            </p>
-
-            <ClientNameField
-              value={watch("client_name") || ""}
-              onChange={(name) => setValue("client_name", name, { shouldValidate: true })}
-              error={errors.client_name?.message}
+          <CardContent className="p-6">
+            <ServiceCostsSection
+              serviceId={service.id}
+              serviceValue={Number(watch("value")?.replace(",", ".") || service.value)}
             />
-
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase text-muted-foreground">Tipo de Serviço *</Label>
-              <Input
-                className="h-12 rounded-xl bg-muted/30 border-none"
-                placeholder="Ex: Pintura, Instalação..."
-                {...register("service_type")}
-              />
-              {errors.service_type && <p className="text-xs text-destructive">{errors.service_type.message}</p>}
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-muted-foreground flex items-center gap-1">
-                  <DollarSign className="h-3 w-3" /> Valor Cobrado (R$) *
-                </Label>
-                <Input
-                  className="h-12 rounded-xl bg-muted/30 border-none text-lg font-black text-primary"
-                  inputMode="decimal"
-                  placeholder="0,00"
-                  {...register("value")}
-                />
-                {errors.value && <p className="text-xs text-destructive">{errors.value.message}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-muted-foreground">Status *</Label>
-                <Select value={currentStatus} onValueChange={(v) => setValue("status", v as ServiceStatus)}>
-                  <SelectTrigger className="h-12 rounded-xl bg-muted/30 border-none">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">⏳ Pendente</SelectItem>
-                    <SelectItem value="paid">✅ Pago</SelectItem>
-                    <SelectItem value="cancelled">❌ Cancelado</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-muted-foreground flex items-center gap-1">
-                  <Calendar className="h-3 w-3" /> Data do Serviço
-                </Label>
-                <Input
-                  type="date"
-                  className="h-12 rounded-xl bg-muted/30 border-none w-full"
-                  {...register("service_date")}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-muted-foreground flex items-center gap-1">
-                  <Clock className="h-3 w-3" /> Data de Pgto.
-                </Label>
-                <Input
-                  type="date"
-                  className="h-12 rounded-xl bg-muted/30 border-none w-full"
-                  {...register("payment_date")}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase text-muted-foreground">Observações</Label>
-              <Textarea
-                className="rounded-xl bg-muted/30 border-none min-h-[80px]"
-                placeholder="Detalhes do serviço..."
-                {...register("notes")}
-              />
-            </div>
           </CardContent>
         </Card>
+      </TabsContent>
 
-        {id && <ServiceMediaSection serviceId={id} />}
-
-        {/* Action Buttons inside form */}
-        <div className="flex gap-3">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                className="h-14 px-5 rounded-2xl border-destructive/30 text-destructive hover:bg-destructive/5"
-              >
-                <Trash2 className="h-5 w-5" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="rounded-3xl">
-              <AlertDialogHeader>
-                <AlertDialogTitle className="font-black">Excluir serviço?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Todos os custos vinculados também serão removidos. Esta ação não pode ser desfeita.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel className="rounded-xl font-bold">Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} className="rounded-xl font-bold bg-destructive">
-                  Excluir
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-
-          <Button
-            type="submit"
-            className="flex-1 h-14 rounded-2xl font-black bg-gradient-to-r from-primary to-blue-600 shadow-xl shadow-primary/20"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <>
-                <Check className="mr-2 h-5 w-5" />
-                Salvar Alterações
-              </>
-            )}
-          </Button>
+      <TabsContent value="history" className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="space-y-4">
+          <div className="px-1">
+            <h3 className="text-lg font-black uppercase tracking-tight flex items-center gap-2">
+              <History className="h-5 w-5 text-primary" />
+              Audit Trail
+            </h3>
+            <p className="text-xs font-medium text-muted-foreground">Rastreabilidade completa de todas as alterações realizadas neste serviço.</p>
+          </div>
+          <ServiceHistory serviceId={service.id} />
         </div>
-      </form>
+      </TabsContent>
+    </Tabs>
 
-      {/* Costs Section — outside the form to avoid submit conflicts */}
-      <Card className="border-none shadow-lg rounded-3xl overflow-hidden bg-card/50">
-        <CardContent className="p-6">
-          <ServiceCostsSection
-            serviceId={service.id}
-            serviceValue={Number(watch("value")?.replace(",", ".") || service.value)}
-          />
-        </CardContent>
-      </Card>
     </div>
   );
 }

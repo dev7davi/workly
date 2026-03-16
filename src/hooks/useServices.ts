@@ -15,6 +15,26 @@ export interface Service {
   payment_date: string;
   status: ServiceStatus;
   notes?: string;
+  versao_atual?: number;
+  data_criacao?: string;
+  criado_por?: string;
+}
+
+export interface ServiceAuditLog {
+  id: string;
+  service_id: string;
+  usuario_id: string;
+  acao: string;
+  timestamp: string;
+  campos_afetados: any[];
+  snapshot_anterior: any;
+  snapshot_posterior: any;
+  motivo?: string;
+  versao: number;
+  profiles?: {
+    name: string;
+    email: string;
+  };
 }
 
 export function useServices() {
@@ -87,6 +107,42 @@ export function useServices() {
     fetchServices();
   }
 
+  async function fetchServiceHistory(id: string): Promise<ServiceAuditLog[]> {
+    const { data, error } = await supabase
+      .from("services_audit")
+      .select(`
+        *,
+        profiles:usuario_id (
+          name,
+          email
+        )
+      `)
+      .eq("service_id", id)
+      .order("timestamp", { ascending: false });
+
+    if (error) {
+      console.error("Erro ao buscar histórico:", error);
+      return [];
+    }
+
+    return data || [];
+  }
+
+  async function restoreVersion(serviceId: string, versionData: any) {
+    const { id, user_id, versao_atual, data_criacao, criado_por, updated_at, ...cleanData } = versionData;
+    
+    const { error } = await supabase
+      .from("services")
+      .update(cleanData)
+      .eq("id", serviceId);
+
+    if (error) {
+      throw error;
+    }
+    
+    fetchServices();
+  }
+
   useEffect(() => {
     fetchServices();
   }, [viewingUserId]); // Refetch if admin changes viewing user
@@ -98,5 +154,7 @@ export function useServices() {
     updateService,
     deleteService,
     duplicateService,
+    fetchServiceHistory,
+    restoreVersion,
   };
 }

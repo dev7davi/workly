@@ -21,6 +21,7 @@ import { useCalendarEvents, CalendarEvent, EVENT_TYPE_LABELS, EVENT_TYPE_COLORS,
 import { useAppointments } from "@/hooks/useAppointments";
 import { useServices } from "@/hooks/useServices";
 import { useClients } from "@/hooks/useClients";
+import { AgendaExportButtons } from "@/components/services/AgendaExportButtons";
 import {
     format, startOfMonth, endOfMonth, eachDayOfInterval,
     isSameMonth, isToday, parseISO, addMonths, subMonths,
@@ -782,6 +783,9 @@ export default function Agenda() {
         ["lista", List, "Lista"],
     ];
 
+    // Determine currentMonth for AgendaExportButtons
+    const currentMonth = format(viewDate, "yyyy-MM");
+
     return (
         <>
             {/* Modals */}
@@ -806,7 +810,7 @@ export default function Agenda() {
 
             <div className="flex flex-col gap-5 p-5 pb-28 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
                 {/* Header */}
-                <header className="flex items-center justify-between pt-2">
+                <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
                     <div>
                         <h1 className="text-2xl font-black tracking-tight">Agenda</h1>
                         <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
@@ -814,12 +818,15 @@ export default function Agenda() {
                             {todayItems.length > 0 && ` · ${todayItems.length} hoje`}
                         </p>
                     </div>
-                    <Button
-                        onClick={() => handleAddEvent(TODAY_STR)}
-                        className="h-11 px-5 rounded-2xl font-black bg-primary shadow-lg shadow-primary/20"
-                    >
-                        <Plus className="h-4 w-4 mr-1.5" /> Novo
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <AgendaExportButtons currentDate={viewDate} />
+                        <Button
+                            onClick={() => handleAddEvent(TODAY_STR)}
+                            className="h-11 px-5 rounded-2xl font-black bg-primary shadow-lg shadow-primary/20"
+                        >
+                            <Plus className="h-4 w-4 mr-1.5" /> Novo
+                        </Button>
+                    </div>
                 </header>
 
                 {/* Today summary pills */}
