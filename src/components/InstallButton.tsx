@@ -3,9 +3,11 @@ import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { Download, Share, PlusSquare, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function InstallButton() {
   const { install, isInstallable } = usePWAInstall();
+  const { user } = useAuth();
   const [showBanner, setShowBanner] = useState(true);
 
   // Detecta se é iOS (iPhone/iPad/iPod)
@@ -14,8 +16,8 @@ export function InstallButton() {
   const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (document as any).standalone;
 
   useEffect(() => {
-    console.log("PWA Banner Status:", { showBanner, isStandalone, isIOS, isInstallable });
-  }, [showBanner, isStandalone, isIOS, isInstallable]);
+    console.log("PWA Banner Status:", { showBanner, isStandalone, isIOS, isInstallable, loggedIn: !!user });
+  }, [showBanner, isStandalone, isIOS, isInstallable, user]);
 
   // Persistir fechamento do banner na sessão
   useEffect(() => {
@@ -32,10 +34,19 @@ export function InstallButton() {
     return null;
   }
 
+  // Define a posição baseada se o usuário está logado ou na landing page
+  // bottom-4 para landing page (sem menu inferior)
+  // bottom-28 (112px) para dashboard (fica logo acima do menu inferior de 96px)
+  const positionClasses = user 
+    ? "bottom-28 md:bottom-28" 
+    : "bottom-4 md:bottom-6";
+
+  const containerBase = `fixed ${positionClasses} left-4 right-4 z-[100] animate-in fade-in slide-in-from-bottom-5 duration-500`;
+
   // Banner para iOS
   if (isIOS) {
     return (
-      <div className="fixed top-4 left-4 right-4 z-[100] animate-in fade-in slide-in-from-top-5 duration-500">
+      <div className={containerBase}>
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 rounded-2xl shadow-xl max-w-md mx-auto relative overflow-hidden">
           <button 
             onClick={dismiss}
@@ -75,7 +86,7 @@ export function InstallButton() {
   if (!isInstallable) return null;
 
   return (
-    <div className="fixed top-4 left-4 right-4 z-[100] animate-in fade-in slide-in-from-top-5 duration-500">
+    <div className={containerBase}>
       <div className="bg-primary p-4 rounded-2xl shadow-xl max-w-md mx-auto flex items-center justify-between gap-4 border border-primary/20">
         <div className="flex items-center gap-3 text-white">
           <div className="bg-white/20 p-2 rounded-xl">
