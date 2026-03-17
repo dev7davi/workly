@@ -52,7 +52,7 @@ export default function NewService() {
   const navigate = useNavigate();
   const { createService, services } = useServices();
   const { clients, createClient: apiCreateClient } = useClients();
-  const { canAddService, isAtServiceLimit, plan, limits, serviceCount } = usePlan();
+  const { canAddService, isAtServiceLimit, plan, limits, usage } = usePlan();
   const [status, setStatus] = useState<ServiceStatus>("pending");
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
@@ -178,7 +178,7 @@ export default function NewService() {
               <div>
                 <p className="text-xs font-black uppercase text-amber-600">Plano Free</p>
                 <p className="text-xs font-medium text-muted-foreground">
-                  {serviceCount}/{limits.maxServices} serviços utilizados
+                  {plan === "free" ? usage.servicesMonth : usage.servicesTotal}/{limits.maxServices} serviços utilizados
                 </p>
               </div>
             </div>
