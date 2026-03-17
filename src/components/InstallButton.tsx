@@ -13,6 +13,10 @@ export function InstallButton() {
   // Verifica se o aplicativo já está rodando em modo standalone
   const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (document as any).standalone;
 
+  useEffect(() => {
+    console.log("PWA Banner Status:", { showBanner, isStandalone, isIOS, isInstallable });
+  }, [showBanner, isStandalone, isIOS, isInstallable]);
+
   // Persistir fechamento do banner na sessão
   useEffect(() => {
     const dismissed = sessionStorage.getItem('pwa-banner-dismissed');

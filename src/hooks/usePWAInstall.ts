@@ -5,7 +5,10 @@ export function usePWAInstall() {
   const [isInstallable, setIsInstallable] = useState(false)
 
   useEffect(() => {
+    console.log("PWA: Hook usePWAInstall inicializado");
+    
     const handler = (e: any) => {
+      console.log("PWA: Evento beforeinstallprompt disparado!");
       // Previne que o navegador mostre o prompt padrão
       e.preventDefault()
       // Armazena o evento para ser disparado depois
@@ -18,7 +21,10 @@ export function usePWAInstall() {
     window.addEventListener("beforeinstallprompt", handler)
 
     // Verifica se o PWA já está instalado (modo standalone)
-    if (window.matchMedia("(display-mode: standalone)").matches || (document as any).standalone) {
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (document as any).standalone;
+    console.log("PWA: Status standalone:", isStandalone);
+    
+    if (isStandalone) {
       setIsInstallable(false);
     }
 
