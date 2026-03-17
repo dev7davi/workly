@@ -64,8 +64,8 @@ export function useAgendaExport() {
 
       // ✅ CORRIGIDO: Incluindo createdAt para DTSTAMP consistente
       return data.map(s => {
-        const clientName = (typeof s.clients === 'object' && (s.clients as any)?.name) 
-          ? (s.clients as any).name 
+        const clientName = (typeof s.clients === 'object' && (s.clients as any)?.name)
+          ? (s.clients as any).name
           : (s.client_name || 'Cliente Desconhecido');
 
         return {
@@ -106,12 +106,12 @@ export function useAgendaExport() {
       const ics = generateBulkICS(services);
       const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
       const url = URL.createObjectURL(blob);
-      
+
       const link = document.createElement('a');
       link.href = url;
       link.download = `Workly_Agenda_${startStr}_a_${endStr}.ics`;
       link.click();
-      
+
       setTimeout(() => URL.revokeObjectURL(url), 100);
 
       toast.success(`Exportado ${services.length} serviço${services.length !== 1 ? 's' : ''} com sucesso!`);
@@ -140,15 +140,15 @@ export function useAgendaExport() {
       const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
       const url = URL.createObjectURL(blob);
 
-      window.open(`https://calendar.google.com/calendar/u/0/r/settings/export`, '_blank' );
-      
+      window.open(`https://calendar.google.com/calendar/u/0/r/settings/export`, '_blank');
+
       toast.info('Baixando arquivo para que você possa importar no Google Agenda...');
-      
+
       const link = document.createElement('a');
       link.href = url;
       link.download = `Importar_No_Google_${new Date().getTime()}.ics`;
       link.click();
-      
+
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';

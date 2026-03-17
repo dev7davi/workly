@@ -7,6 +7,7 @@ export interface ServiceForExport {
   clientName: string;
   clientEmail?: string;
   date: string;
+  paymentDate?: string;
   time?: string;
   address?: string;
   value: number;
@@ -83,7 +84,30 @@ function generateSingleEvent(service: ServiceForExport): string {
 export function generateBulkICS(services: ServiceForExport[]): string {
   if (services.length === 0) return "";
 
-  const events = services.map(generateSingleEvent).join("\r\n");
+  // Cria uma lista flat de eventos (Serviço e/ou Pagamento)
+  const allEvents: ServiceForExport[] = [];
+  
+  services.forEach(s => {
+    // 1. Adiciona o evento de execução do serviço
+    allEvents.push({
+      ...s,
+      id: `${s.id}-svc`,
+      serviceName: `Serviço: ${s.serviceName}`,
+    });
+    
+    // 2. Adiciona o evento de pagamento (se houver e for diferente)
+    if (s.paymentDate) {
+      allEvents.push({
+        ...s,
+        id: `${s.id}-pay`,
+        date: s.paymentDate,
+        serviceName: `Pagamento: ${s.serviceName}`,
+        description: `⚠️ PAGAMENTO PREVISTO\n\n${s.description || ''}`,
+      });
+    }
+  });
+
+  const events = allEvents.map(generateSingleEvent).join("\r\n");
 
   return [
     "BEGIN:VCALENDAR",

@@ -4,11 +4,11 @@
 export function generateICSFile(service: any): string {
   const eventId = `service-${service.id}@workly.com.br`;
   const now = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-  
+
   const startDate = new Date(service.service_date);
   const [hours, minutes] = (service.service_time || '09:00').split(':');
   startDate.setHours(parseInt(hours), parseInt(minutes), 0);
-  
+
   const endDate = new Date(startDate);
   endDate.setHours(endDate.getHours() + 1);
 
