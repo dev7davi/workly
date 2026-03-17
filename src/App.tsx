@@ -82,11 +82,11 @@ const P = ({ children }: { children: React.ReactNode }) => (
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <InstallButton />
       <BrowserRouter>
         <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <InstallButton />
           <AdminProvider>
             <Routes>
               {/* Rotas públicas */}
