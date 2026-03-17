@@ -30,10 +30,23 @@ function escapeICSText(text: string): string {
 }
 
 /**
- * Formata data para o padrão iCalendar (YYYYMMDDTHHMMSSZ)
+ * Formata data para o padrão iCalendar (YYYYMMDDTHHMMSS) sem fuso horário explícito (floating time)
+ * ou com TZID se for um evento com hora específica.
  */
-function formatICSDate(date: Date): string {
-  return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+function formatICSDateTime(date: Date, includeTime: boolean = true): string {
+  const year = date.getFullYear().toString();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+
+  if (!includeTime) {
+    return `${year}${month}${day}`;
+  }
+
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const seconds = date.getSeconds().toString().padStart(2, '0');
+
+  return `${year}${month}${day}T${hours}${minutes}${seconds}`;
 }
 
 /**
@@ -41,7 +54,7 @@ function formatICSDate(date: Date): string {
  */
 function generateEventForDate(
   service: ServiceForExport,
-  eventDate: string,
+  eventDateStr: string,
   eventType: 'Serviço' | 'Pagamento'
 ): string {
   const eventId = `service-${service.id}-${eventType.toLowerCase()}@workly.com.br`;
@@ -49,22 +62,39 @@ function generateEventForDate(
   const createdAt = service.createdAt 
     ? new Date(service.createdAt)
     : new Date();
-  const dtstamp = formatICSDate(createdAt);
+  const dtstamp = formatICSDateTime(createdAt, true) + 'Z'; // DTSTAMP deve ser sempre UTC
 
-  const startDate = new Date(eventDate);
-  
-  // Para eventos de pagamento, não é necessário um horário específico, pode ser o dia todo ou um horário padrão
-  // Para eventos de serviço, usar o horário se disponível, senão padrão
+  // Parse a data como local para evitar o deslocamento inicial
+  const localDate = new Date(eventDateStr + 'T00:00:00'); 
+  let startDate = new Date(localDate);
+  let includeTime = true;
+
   if (eventType === 'Serviço' && service.time) {
     const [hours, minutes] = service.time.split(':');
     startDate.setHours(parseInt(hours), parseInt(minutes), 0);
   } else if (eventType === 'Pagamento') {
     startDate.setHours(9, 0, 0); // Horário padrão para lembrete de pagamento
   } else {
-    startDate.setHours(9, 0, 0); // Horário padrão para serviço sem horário definido
+    // Se não há horário específico, tratar como evento de dia inteiro
+    includeTime = false;
   }
 
-  const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 1h duration
+  // Para eventos de dia inteiro, DTSTART e DTEND devem ser apenas a data (sem T e Z)
+  const dtstartValue = includeTime 
+    ? `DTSTART;TZID=America/Sao_Paulo:${formatICSDateTime(startDate, true)}`
+    : `DTSTART;VALUE=DATE:${formatICSDateTime(startDate, false)}`;
+
+  // Para eventos de dia inteiro, o DTEND é o dia seguinte
+  let endDate = new Date(startDate.getTime());
+  if (includeTime) {
+    endDate.setHours(startDate.getHours() + 1); // 1h de duração para eventos com hora
+  } else {
+    endDate.setDate(startDate.getDate() + 1); // Fim do dia para eventos de dia inteiro
+  }
+
+  const dtendValue = includeTime
+    ? `DTEND;TZID=America/Sao_Paulo:${formatICSDateTime(endDate, true)}`
+    : `DTEND;VALUE=DATE:${formatICSDateTime(endDate, false)}`;
 
   const summaryPrefix = eventType === 'Pagamento' ? 'Workly: Pagamento de ' : 'Workly: ';
   const description = `Cliente: ${service.clientName}\nServiço: ${service.serviceName}\nValor: R$ ${service.value.toFixed(2)}\nStatus: ${service.status}${service.description ? `\nObservações: ${service.description}` : ''}`;
@@ -73,8 +103,8 @@ function generateEventForDate(
     "BEGIN:VEVENT",
     `UID:${eventId}`,
     `DTSTAMP:${dtstamp}`,
-    `DTSTART:${formatICSDate(startDate)}`,
-    `DTEND:${formatICSDate(endDate)}`,
+    dtstartValue,
+    dtendValue,
     `SUMMARY:${escapeICSText(summaryPrefix + service.serviceName + ' - ' + service.clientName)}`,
     `DESCRIPTION:${escapeICSText(description)}`,
     `LOCATION:${escapeICSText(service.address || 'A definir')}`,
