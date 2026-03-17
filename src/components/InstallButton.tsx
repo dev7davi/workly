@@ -9,6 +9,7 @@ export function InstallButton() {
   const { install, isInstallable } = usePWAInstall();
   const { user } = useAuth();
   const [showBanner, setShowBanner] = useState(true);
+  const [isInstalling, setIsInstalling] = useState(false);
 
   // Detecta se é iOS (iPhone/iPad/iPod)
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -28,6 +29,15 @@ export function InstallButton() {
   const dismiss = () => {
     sessionStorage.setItem('pwa-banner-dismissed', 'true');
     setShowBanner(false);
+  };
+
+  const handleInstall = async () => {
+    setIsInstalling(true);
+    try {
+      await install();
+    } finally {
+      setIsInstalling(false);
+    }
   };
 
   if (!showBanner || isStandalone) {
@@ -90,20 +100,27 @@ export function InstallButton() {
       <div className="bg-primary p-4 rounded-2xl shadow-xl max-w-md mx-auto flex items-center justify-between gap-4 border border-primary/20">
         <div className="flex items-center gap-3 text-white">
           <div className="bg-white/20 p-2 rounded-xl">
-            <Download className="w-5 h-5" />
+            {isInstalling ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent animate-spin rounded-full" />
+            ) : (
+              <Download className="w-5 h-5" />
+            )}
           </div>
           <div>
             <p className="text-xs font-bold leading-tight">Workly no seu Celular</p>
-            <p className="text-[10px] opacity-90 leading-tight">Instale para acesso instantâneo</p>
+            <p className="text-[10px] opacity-90 leading-tight">
+              {isInstalling ? "Processando instalação..." : "Instale para acesso instantâneo"}
+            </p>
           </div>
         </div>
         
         <div className="flex items-center gap-2">
           <button
-            onClick={install}
-            className="bg-white text-primary px-4 py-2 rounded-xl text-xs font-bold shadow-sm hover:bg-zinc-100 transition-colors whitespace-nowrap"
+            onClick={handleInstall}
+            disabled={isInstalling}
+            className="bg-white text-primary px-4 py-2 rounded-xl text-xs font-bold shadow-sm hover:bg-zinc-100 transition-colors disabled:opacity-50 whitespace-nowrap"
           >
-            📲 Instalar
+            {isInstalling ? "Instalando..." : "📲 Instalar"}
           </button>
           <button 
             onClick={dismiss}
