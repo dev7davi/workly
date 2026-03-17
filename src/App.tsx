@@ -29,6 +29,7 @@ import HelpArticle from "./pages/HelpArticle";
 import ImportNote from "./pages/ImportNote";
 import OS from "./pages/OS";
 import { AppLayout } from "./components/layout/AppLayout";
+import { InstallButton } from "./components/InstallButton";
 
 const queryClient = new QueryClient();
 
@@ -83,6 +84,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <InstallButton />
       <BrowserRouter>
         <AuthProvider>
           <AdminProvider>
