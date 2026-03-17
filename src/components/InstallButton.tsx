@@ -35,7 +35,7 @@ export function InstallButton() {
   // Banner para iOS
   if (isIOS) {
     return (
-      <div className="fixed bottom-4 left-4 right-4 z-[100] animate-in fade-in slide-in-from-bottom-5 duration-500">
+      <div className="fixed top-4 left-4 right-4 z-[100] animate-in fade-in slide-in-from-top-5 duration-500">
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 rounded-2xl shadow-xl max-w-md mx-auto relative overflow-hidden">
           <button 
             onClick={dismiss}
@@ -75,7 +75,7 @@ export function InstallButton() {
   if (!isInstallable) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-[100] animate-in fade-in slide-in-from-bottom-5 duration-500">
+    <div className="fixed top-4 left-4 right-4 z-[100] animate-in fade-in slide-in-from-top-5 duration-500">
       <div className="bg-primary p-4 rounded-2xl shadow-xl max-w-md mx-auto flex items-center justify-between gap-4 border border-primary/20">
         <div className="flex items-center gap-3 text-white">
           <div className="bg-white/20 p-2 rounded-xl">
