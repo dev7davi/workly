@@ -6,8 +6,8 @@ export interface ServiceForExport {
   serviceName: string;
   clientName: string;
   clientEmail?: string;
-  date: string;
-  paymentDate?: string;
+  serviceDate: string; // Renomeado de 'date' para 'serviceDate'
+  paymentDate?: string; // NOVO: Data de pagamento
   time?: string;
   address?: string;
   value: number;
@@ -37,41 +37,48 @@ function formatICSDate(date: Date): string {
 }
 
 /**
- * Gera um único evento VEVENT para o arquivo iCalendar
- * ✅ CORRIGIDO: DTSTAMP agora é baseado em created_at, não em Date.now()
+ * Gera um único evento VEVENT para o arquivo iCalendar, com tipo e data específicos
  */
-function generateSingleEvent(service: ServiceForExport): string {
-  const eventId = `service-${service.id}@workly.com.br`;
+function generateEventForDate(
+  service: ServiceForExport,
+  eventDate: string,
+  eventType: 'Serviço' | 'Pagamento'
+): string {
+  const eventId = `service-${service.id}-${eventType.toLowerCase()}@workly.com.br`;
   
-  // ✅ CORRIGIDO: Usar created_at do serviço, não Date.now()
-  // Isso garante que o DTSTAMP seja consistente entre exportações
   const createdAt = service.createdAt 
     ? new Date(service.createdAt)
     : new Date();
   const dtstamp = formatICSDate(createdAt);
 
-  const startDate = new Date(service.date);
-  if (service.time) {
+  const startDate = new Date(eventDate);
+  
+  // Para eventos de pagamento, não é necessário um horário específico, pode ser o dia todo ou um horário padrão
+  // Para eventos de serviço, usar o horário se disponível, senão padrão
+  if (eventType === 'Serviço' && service.time) {
     const [hours, minutes] = service.time.split(':');
     startDate.setHours(parseInt(hours), parseInt(minutes), 0);
+  } else if (eventType === 'Pagamento') {
+    startDate.setHours(9, 0, 0); // Horário padrão para lembrete de pagamento
   } else {
-    startDate.setHours(9, 0, 0); // Default 09:00
+    startDate.setHours(9, 0, 0); // Horário padrão para serviço sem horário definido
   }
 
   const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 1h duration
 
-  const description = `Cliente: ${service.clientName}\\nServiço: ${service.serviceName}\\nValor: R$ ${service.value.toFixed(2)}\\nStatus: ${service.status}${service.description ? `\\nObservações: ${service.description}` : ''}`;
+  const summaryPrefix = eventType === 'Pagamento' ? 'Workly: Pagamento de ' : 'Workly: ';
+  const description = `Cliente: ${service.clientName}\nServiço: ${service.serviceName}\nValor: R$ ${service.value.toFixed(2)}\nStatus: ${service.status}${service.description ? `\nObservações: ${service.description}` : ''}`;
 
   return [
     "BEGIN:VEVENT",
     `UID:${eventId}`,
-    `DTSTAMP:${dtstamp}`,  // ✅ CORRIGIDO: Agora consistente
+    `DTSTAMP:${dtstamp}`,
     `DTSTART:${formatICSDate(startDate)}`,
     `DTEND:${formatICSDate(endDate)}`,
-    `SUMMARY:Workly: ${escapeICSText(service.serviceName)} - ${escapeICSText(service.clientName)}`,
+    `SUMMARY:${escapeICSText(summaryPrefix + service.serviceName + ' - ' + service.clientName)}`,
     `DESCRIPTION:${escapeICSText(description)}`,
     `LOCATION:${escapeICSText(service.address || 'A definir')}`,
-    `LAST-MODIFIED:${dtstamp}`,  // ✅ ADICIONADO: Para rastrear alterações
+    `LAST-MODIFIED:${dtstamp}`,
     "STATUS:CONFIRMED",
     "SEQUENCE:0",
     "END:VEVENT"
@@ -79,35 +86,24 @@ function generateSingleEvent(service: ServiceForExport): string {
 }
 
 /**
- * Gera o conteúdo de um arquivo .ics com múltiplos serviços
+ * Gera o conteúdo de um arquivo .ics com múltiplos serviços, criando eventos para serviço e pagamento.
  */
 export function generateBulkICS(services: ServiceForExport[]): string {
   if (services.length === 0) return "";
 
-  // Cria uma lista flat de eventos (Serviço e/ou Pagamento)
-  const allEvents: ServiceForExport[] = [];
-  
-  services.forEach(s => {
-    // 1. Adiciona o evento de execução do serviço
-    allEvents.push({
-      ...s,
-      id: `${s.id}-svc`,
-      serviceName: `Serviço: ${s.serviceName}`,
-    });
-    
-    // 2. Adiciona o evento de pagamento (se houver e for diferente)
-    if (s.paymentDate) {
-      allEvents.push({
-        ...s,
-        id: `${s.id}-pay`,
-        date: s.paymentDate,
-        serviceName: `Pagamento: ${s.serviceName}`,
-        description: `⚠️ PAGAMENTO PREVISTO\n\n${s.description || ''}`,
-      });
+  let allEvents: string[] = [];
+
+  services.forEach(service => {
+    // Evento para a data do serviço
+    allEvents.push(generateEventForDate(service, service.serviceDate, 'Serviço'));
+
+    // Evento para a data de pagamento, se existir e for diferente da data do serviço
+    if (service.paymentDate && service.paymentDate !== service.serviceDate) {
+      allEvents.push(generateEventForDate(service, service.paymentDate, 'Pagamento'));
     }
   });
 
-  const events = allEvents.map(generateSingleEvent).join("\r\n");
+  const events = allEvents.join("\r\n");
 
   return [
     "BEGIN:VCALENDAR",

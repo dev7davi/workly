@@ -29,7 +29,7 @@ export function useAgendaExport() {
       const startStr = options.startDate.toISOString().split('T')[0];
       const endStr = options.endDate.toISOString().split('T')[0];
 
-      // ✅ CORRIGIDO: Nomes reais das colunas no Supabase e inclusão de created_at para DTSTAMP
+      // Buscamos serviços onde a data do serviço OU a data de pagamento esteja no intervalo
       let query = supabase
         .from('services')
         .select(`
@@ -39,13 +39,14 @@ export function useAgendaExport() {
           client_name,
           clients(name),
           service_date,
+          payment_date,
           value,
           status,
           notes,
           created_at
         `)
-        .gte('service_date', startStr)
-        .lte('service_date', endStr)
+        .or(`service_date.gte.${startStr},payment_date.gte.${startStr}`)
+        .or(`service_date.lte.${endStr},payment_date.lte.${endStr}`)
         .order('service_date', { ascending: true });
 
       if (options.filterByStatus && options.filterByStatus.length > 0) {
@@ -62,7 +63,7 @@ export function useAgendaExport() {
         throw new Error('Nenhum serviço encontrado no período selecionado');
       }
 
-      // ✅ CORRIGIDO: Incluindo createdAt para DTSTAMP consistente
+      // ✅ Mapeamento atualizado para suportar datas duplas e nova nomenclatura
       return data.map(s => {
         const clientName = (typeof s.clients === 'object' && (s.clients as any)?.name)
           ? (s.clients as any).name
@@ -72,7 +73,8 @@ export function useAgendaExport() {
           id: s.id || 'unknown',
           serviceName: s.service_type || 'Serviço sem nome',
           clientName: clientName,
-          date: s.service_date || new Date().toISOString().split('T')[0],
+          serviceDate: s.service_date || new Date().toISOString().split('T')[0],
+          paymentDate: s.payment_date || undefined,
           time: '09:00',
           value: parseFloat(s.value as any) || 0,
           status: s.status || 'Pendente',
