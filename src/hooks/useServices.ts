@@ -109,22 +109,6 @@ export function useServices() {
     }
   }
 
-  async function duplicateService(service: Service) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    const { id, user_id, ...rest } = service;
-
-    const targetUserId = (isMaster && viewingUserId) ? viewingUserId : user.id;
-
-    await supabase.from("services").insert({
-      ...rest,
-      user_id: targetUserId,
-      status: "pending" as ServiceStatus,
-      service_date: new Date().toISOString().slice(0, 10),
-      payment_date: new Date().toISOString().slice(0, 10),
-    });
-    fetchServices();
-  }
 
   async function fetchServiceHistory(id: string): Promise<ServiceAuditLog[]> {
     const { data, error } = await supabase
@@ -172,7 +156,6 @@ export function useServices() {
     createService,
     updateService,
     deleteService,
-    duplicateService,
     fetchServiceHistory,
     restoreVersion,
   };

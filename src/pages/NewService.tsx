@@ -61,9 +61,6 @@ export default function NewService() {
   const [similarClient, setSimilarClient] = useState<{ id: string, name: string } | null>(null);
   const [pendingData, setPendingData] = useState<ServiceForm | null>(null);
   
-  // States for Duplicity Check
-  const [showDuplicityDialog, setShowDuplicityDialog] = useState(false);
-  const [duplicateService, setDuplicateService] = useState<any>(null);
 
   useEffect(() => {
     if (isAtServiceLimit) setShowUpgradeModal(true);
@@ -113,19 +110,6 @@ export default function NewService() {
 
     const normalizedTypedName = normalizeName(data.client_name);
     
-    // 1. Check for Duplicate Service (same client + same type + today)
-    const existingSameService = services?.find(s => 
-      normalizeName(s.client_name) === normalizedTypedName && 
-      normalizeName(s.service_type) === normalizeName(data.service_type) &&
-      s.service_date === data.service_date
-    );
-
-    if (existingSameService && !showDuplicityDialog) {
-      setDuplicateService(existingSameService);
-      setPendingData(data);
-      setShowDuplicityDialog(true);
-      return;
-    }
 
     // 2. Check for Similar Client
     const existingClient = clients.find(c => normalizeName(c.name) === normalizedTypedName);
@@ -377,50 +361,6 @@ export default function NewService() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Dialog for Duplicate Service */}
-      <AlertDialog open={showDuplicityDialog} onOpenChange={setShowDuplicityDialog}>
-        <AlertDialogContent className="rounded-2xl max-w-[90vw] md:max-w-md">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl font-black">Possível serviço duplicado</AlertDialogTitle>
-            <AlertDialogDescription className="text-sm font-medium">
-              Detectamos que você já registrou um serviço de "{duplicateService?.service_type}" para "{duplicateService?.client_name}" hoje.
-              Deseja continuar criando mesmo assim?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
-            <AlertDialogAction 
-              onClick={() => {
-                if (pendingData) {
-                  // Bypass similarity to avoid double dialog (or just keep going)
-                  const exists = clients.find(c => normalizeName(c.name) === normalizeName(pendingData.client_name));
-                  if (exists) {
-                    performSave(pendingData, exists.id, exists.name);
-                  } else {
-                    // Try auto creation after duplicity bypass
-                    apiCreateClient({
-                      name: pendingData.client_name,
-                      type: "pf",
-                      created_from_service: true,
-                      profile_completed: false,
-                      registration_origin: "service"
-                    }).then(nc => performSave(pendingData, nc.id));
-                  }
-                }
-              }}
-              className="rounded-xl h-12 font-bold"
-            >
-              Continuar Mesmo Assim
-            </AlertDialogAction>
-            <AlertDialogCancel 
-               onClick={() => navigate("/services")}
-               className="rounded-xl h-12 font-bold bg-primary/10 text-primary hover:bg-primary/20 border-none"
-            >
-              Ver Existente
-            </AlertDialogCancel>
-            <AlertDialogCancel className="rounded-xl h-12 font-bold border-none">Cancelar</AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, CheckCircle2, AlertCircle, ChevronRight, Copy } from "lucide-react";
+import { Clock, CheckCircle2, AlertCircle, ChevronRight } from "lucide-react";
 import { Service } from "@/hooks/useServices";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 interface ServiceCardProps {
   service: Service;
   compact?: boolean;
-  onDuplicate?: (service: Service) => void;
 }
 
 const statusConfig = {
@@ -18,7 +17,7 @@ const statusConfig = {
   cancelled: { label: "Cancelado", icon: AlertCircle, color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400" },
 };
 
-export function ServiceCard({ service, compact = false, onDuplicate }: ServiceCardProps) {
+export function ServiceCard({ service, compact = false }: ServiceCardProps) {
   const navigate = useNavigate();
   const status = statusConfig[service.status];
   const StatusIcon = status.icon;
@@ -32,10 +31,6 @@ export function ServiceCard({ service, compact = false, onDuplicate }: ServiceCa
     navigate(`/clients/${encodeURIComponent(service.client_name)}`);
   };
 
-  const handleDuplicate = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDuplicate?.(service);
-  };
 
   return (
     <Card
@@ -92,16 +87,6 @@ export function ServiceCard({ service, compact = false, onDuplicate }: ServiceCa
             </p>
           </div>
 
-          {/* Duplicate button — shown on hover, only when not compact */}
-          {!compact && onDuplicate && (
-            <button
-              onClick={handleDuplicate}
-              title="Duplicar serviço"
-              className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-xl hover:bg-primary/10 text-muted-foreground hover:text-primary"
-            >
-              <Copy className="h-4 w-4" />
-            </button>
-          )}
 
           <ChevronRight className="h-5 w-5 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-1 transition-all" />
         </div>
