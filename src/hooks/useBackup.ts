@@ -69,7 +69,7 @@ export function useBackup() {
             // 3. Generate and download
             const content = await zip.generateAsync({ type: "blob" });
             const dateStr = new Date().toISOString().replace(/[:.]/g, "-");
-            saveAs(content, `backup_workly_${user.id}_${dateStr}.zip`);
+            saveAs(content, `backup_worklly_${user.id}_${dateStr}.zip`);
 
             toast({ title: "Backup concluído", description: "Seu arquivo foi gerado com sucesso." });
         } catch (err) {

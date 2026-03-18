@@ -111,7 +111,7 @@ export function useAgendaExport() {
 
       const link = document.createElement('a');
       link.href = url;
-      link.download = `Workly_Agenda_${startStr}_a_${endStr}.ics`;
+      link.download = `Worklly_Agenda_${startStr}_a_${endStr}.ics`;
       link.click();
 
       setTimeout(() => URL.revokeObjectURL(url), 100);

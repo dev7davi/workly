@@ -2,13 +2,14 @@ import { useState } from "react";
 import { HelpCircle, MessageCircle, BookOpen, X, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { APP_NAME } from "@/lib/constants";
 
 export function FloatingSupport() {
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
 
-    const WHATSAPP_NUMBER = "5511999999999"; // TODO: Substituir pelo real
-    const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Preciso de suporte no Workly.`;
+    const WHATSAPP_NUMBER = "5517992030665"; 
+    const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Preciso de suporte no ${APP_NAME}.`;
 
     const handleHelp = () => {
         setIsOpen(false);

@@ -4,6 +4,7 @@ import { Download, Share, PlusSquare, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { APP_NAME } from "@/lib/constants";
 
 export function InstallButton() {
   const { install, isInstallable } = usePWAInstall();
@@ -70,7 +71,7 @@ export function InstallButton() {
               <Download className="w-6 h-6 text-primary" />
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-zinc-900 dark:text-zinc-100 text-sm">Instalar o Workly</h3>
+              <h3 className="font-bold text-zinc-900 dark:text-zinc-100 text-sm">Instalar o {APP_NAME}</h3>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                 Acesse como um aplicativo nativo para uma experiência mais rápida.
               </p>
@@ -107,7 +108,7 @@ export function InstallButton() {
             )}
           </div>
           <div>
-            <p className="text-xs font-bold leading-tight">Workly no seu Celular</p>
+            <p className="text-xs font-bold leading-tight">{APP_NAME} no seu Celular</p>
             <p className="text-[10px] opacity-90 leading-tight">
               {isInstalling ? "Processando instalação..." : "Instale para acesso instantâneo"}
             </p>

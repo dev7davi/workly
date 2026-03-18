@@ -11,6 +11,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { usePlan } from "@/hooks/usePlan";
 import { UpgradeModal } from "@/components/UpgradeModal";
+import { APP_NAME } from "@/lib/constants";
 
 export default function OS() {
     const { id } = useParams<{ id: string }>();
@@ -113,7 +114,7 @@ export default function OS() {
 
         const cleanPhone = profile?.phone?.replace(/\D/g, "") || "";
         const message = encodeURIComponent(
-            `Olá ${service.client_name}!\n\nSua Ordem de Serviço #${service.id.substring(0, 8).toUpperCase()} foi gerada.\n\n*Detalhes:*\n- Serviço: ${service.service_type}\n- Valor: ${formatCurrency(service.value)}\n- Data: ${new Date(service.service_date).toLocaleDateString("pt-BR")}\n\nAtenciosamente,\n${profile?.company_name || profile?.name || "Workly"}`
+            `Olá ${service.client_name}!\n\nSua Ordem de Serviço #${service.id.substring(0, 8).toUpperCase()} foi gerada.\n\n*Detalhes:*\n- Serviço: ${service.service_type}\n- Valor: ${formatCurrency(service.value)}\n- Data: ${new Date(service.service_date).toLocaleDateString("pt-BR")}\n\nAtenciosamente,\n${profile?.company_name || profile?.name || "Equipe " + APP_NAME}`
         );
 
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -187,7 +188,7 @@ export default function OS() {
                                 <p className="text-[10px] font-black tracking-[0.4em] uppercase">Ordem de Serviço</p>
                             </div>
                             <h1 className="text-5xl font-black tracking-tight text-slate-900">
-                                {(canUseWhiteLabel && profile?.company_name) ? profile.company_name : (profile?.name || "Workly")}
+                                {(canUseWhiteLabel && profile?.company_name) ? profile.company_name : (profile?.name || APP_NAME)}
                             </h1>
                             <div className="flex gap-6 text-[11px] font-bold text-slate-500 uppercase tracking-widest">
                                 <span>{profile?.document || "Doc não inf."}</span>
@@ -201,8 +202,8 @@ export default function OS() {
                                 <img src={profile.company_logo_url} className="h-20 w-40 object-contain" alt="Logo" />
                             ) : (
                                 <div className="flex flex-col items-end">
-                                    <img src="/logo_w6.png" className="h-10 object-contain grayscale" alt="Workly" />
-                                    <p className="text-[9px] font-black text-slate-400 mt-2 tracking-widest">WORKLY ORGANIZER</p>
+                                    <img src="/logo_w6.png" className="h-10 object-contain grayscale" alt={APP_NAME} />
+                                    <p className="text-[9px] font-black text-slate-400 mt-2 tracking-widest">{APP_NAME.toUpperCase()} ORGANIZER</p>
                                 </div>
                             )}
                             <div className="mt-4">
@@ -265,7 +266,7 @@ export default function OS() {
                                 <div className="mt-10 flex justify-between items-end border-t border-white/10 pt-6">
                                     <div className="space-y-1">
                                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Técnico Responsável</p>
-                                        <p className="text-sm font-bold">{profile?.name || "Equipe Workly"}</p>
+                                        <p className="text-sm font-bold">{profile?.name || "Equipe " + APP_NAME}</p>
                                     </div>
                                     <div className="h-10 w-10 bg-primary rounded-xl flex items-center justify-center">
                                         <Printer className="h-5 w-5 text-white" />
@@ -279,7 +280,7 @@ export default function OS() {
 
                     {/* Footer Info */}
                     <div className="flex justify-between items-center border-t border-slate-100 pt-8 opacity-40">
-                        <p className="text-[10px] font-black tracking-widest uppercase">Gerado automaticamente por Workly Organizer • {new Date().toLocaleTimeString('pt-BR')}</p>
+                        <p className="text-[10px] font-black tracking-widest uppercase">Gerado automaticamente por {APP_NAME} Organizer • {new Date().toLocaleTimeString('pt-BR')}</p>
                         <p className="text-[10px] font-bold">Página 01 / 01</p>
                     </div>
                 </div>

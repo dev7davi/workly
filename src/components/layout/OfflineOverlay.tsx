@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { WifiOff } from "lucide-react";
+import { APP_NAME } from "@/lib/constants";
 
 export function OfflineOverlay() {
     const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -26,7 +27,7 @@ export function OfflineOverlay() {
             </div>
             <h1 className="text-2xl font-black tracking-tight mb-2">Sem conexão com a internet</h1>
             <p className="text-muted-foreground font-medium max-w-sm">
-                Verifique sua conexão para continuar utilizando o Workly. Ele requer internet ativa para operar.
+                Verifique sua conexão para continuar utilizando o {APP_NAME}. Ele requer internet ativa para operar.
             </p>
         </div>
     );

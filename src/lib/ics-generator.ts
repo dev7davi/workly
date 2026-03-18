@@ -47,7 +47,7 @@ export function generateICSFile(service: any): string {
       ? `DTEND;TZID=America/Sao_Paulo:${formatICSDateTime(endDate, true)}`
       : `DTEND;VALUE=DATE:${formatICSDateTime(endDate, false)}`;
 
-    const summaryPrefix = eventType === 'Pagamento' ? 'Workly: Pagamento de ' : 'Workly: ';
+    const summaryPrefix = eventType === 'Pagamento' ? 'Worklly: Pagamento de ' : 'Worklly: ';
     const desc = `Cliente: ${service.client_name}\nServiço: ${service.service_type}\nValor: R$ ${(service.value || 0).toFixed(2)}\nStatus: ${service.status}${service.notes ? `\nObservações: ${service.notes}` : ''}`;
 
     return [
@@ -71,10 +71,10 @@ export function generateICSFile(service: any): string {
 
   return `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//Workly//Workly//EN
+PRODID:-//Worklly//Worklly//PT
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
-X-WR-CALNAME:Workly - Agenda
+X-WR-CALNAME:Worklly - Agenda
 X-WR-TIMEZONE:America/Sao_Paulo
 ${serviceEvent}${paymentEvent}
 END:VCALENDAR`;

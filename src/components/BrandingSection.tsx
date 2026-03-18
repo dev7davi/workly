@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { usePlan } from "@/hooks/usePlan";
+import { APP_NAME } from "@/lib/constants";
 
 interface BrandingSectionProps {
   profile: Profile | null;
@@ -139,7 +140,7 @@ export function BrandingSection({ profile }: BrandingSectionProps) {
               <Input
                 value={companyName}
                 onChange={e => setCompanyName(e.target.value)}
-                placeholder="Ex: Workly Soluções"
+                placeholder={`Ex: ${APP_NAME} Soluções`}
                 disabled={!isPro}
                 className="h-12 rounded-xl bg-muted/30 border-none transition-all focus-visible:ring-primary"
               />

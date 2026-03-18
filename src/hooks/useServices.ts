@@ -19,6 +19,7 @@ export interface Service {
   versao_atual?: number;
   data_criacao?: string;
   criado_por?: string;
+  receipt_generated?: boolean;
 }
 
 export interface ServiceAuditLog {

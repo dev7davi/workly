@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useServices } from "./useServices";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "./useProfile";
+import { APP_NAME } from "@/lib/constants";
 
 export type Plan = "free" | "start" | "pro" | "pro_plus";
 
@@ -36,7 +37,7 @@ export const PLANS: Record<Plan, PlanConfig> = {
             "Comprovante Simples",
             "Agenda básica",
             "Resumo financeiro",
-            "PDF com logo Workly",
+            `PDF com logo ${APP_NAME}`,
         ],
     },
     start: {
@@ -52,7 +53,7 @@ export const PLANS: Record<Plan, PlanConfig> = {
         features: [
             "Até 100 clientes",
             "Até 200 serviços",
-            "O.S. PDF c/ Logo Workly",
+            `O.S. PDF c/ Logo ${APP_NAME}`,
             "Catálogo de Serviços",
             "Dashboard DRE",
         ],

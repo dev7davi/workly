@@ -11,6 +11,7 @@ import { Briefcase, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { APP_NAME } from "@/lib/constants";
 
 const loginSchema = z.object({
   email: z.string().min(3, "Digite um e-mail válido ou usuário"),
@@ -150,7 +151,7 @@ export default function Auth() {
       const { error: loginError } = await signIn(data.email, data.password);
       if (!loginError) {
         toast({
-          title: "Bem-vindo ao WORKLY! 🎉",
+          title: `Bem-vindo ao ${APP_NAME}! 🎉`,
           description: "Sua conta foi criada com sucesso.",
         });
         navigate("/dashboard");

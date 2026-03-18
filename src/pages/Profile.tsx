@@ -18,6 +18,7 @@ import { formatDateLong } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { BrandingSection } from "@/components/BrandingSection";
 import { usePlan } from "@/hooks/usePlan";
+import { APP_NAME } from "@/lib/constants";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -363,7 +364,7 @@ export default function Profile() {
         </Button>
 
         <p className="text-[10px] text-center font-bold text-muted-foreground/40 uppercase tracking-[0.3em]">
-          WORKLY VERSION 1.0.0
+          {APP_NAME} VERSION 1.0.0
         </p>
       </div>
     </div>

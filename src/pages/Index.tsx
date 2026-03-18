@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PricingToggle } from "@/components/PricingToggle";
+import { APP_NAME } from "@/lib/constants";
 
 const STRIPE_LINKS = {
   // Mensal (Existentes)
@@ -57,7 +58,7 @@ const plans = [
       "Comprovante Simples",
       "Agenda básica",
       "Resumo financeiro",
-      "PDF com logo Workly",
+      `PDF com logo ${APP_NAME}`,
     ],
     cta: "Começar Grátis",
     ctaHref: "/auth?mode=signup",
@@ -79,7 +80,7 @@ const plans = [
     features: [
       "Até 100 clientes",
       "Até 200 serviços",
-      "O.S. PDF c/ Logo Workly",
+      `O.S. PDF c/ Logo ${APP_NAME}`,
       "Catálogo de Serviços",
       "Dashboard DRE",
     ],
@@ -138,7 +139,7 @@ const plans = [
 ];
 
 const faqs = [
-  { q: "Tem aplicativo para baixar?", a: "O Workly é 100% online, acessível de qualquer dispositivo, sem necessidade de instalação." },
+  { q: "Tem aplicativo para baixar?", a: `O ${APP_NAME} é 100% online, acessível de qualquer dispositivo, sem necessidade de instalação.` },
   { q: "Meus dados ficam salvos?", a: "Sim, seus dados são armazenados com segurança na nuvem, acessíveis a qualquer hora e lugar." },
   { q: "Posso gerar recibo e comprovante?", a: "Sim! Comprovante simples no plano Free. Com o Pro você pode personalizar com sua logo nas Ordens de Serviço." },
   { q: "Posso cancelar quando quiser?", a: "Sim, sem fidelidade. Cancele quando quiser pela plataforma de pagamento, sem burocracia." },
@@ -162,7 +163,7 @@ export default function Index() {
       <nav className="fixed top-0 z-[100] w-full border-b border-white/5 bg-black/60 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 md:px-6 py-4">
           <div className="flex items-center gap-2">
-            <img src="/logo_w6.png" alt="WORKLY" className="h-8 md:h-10 brightness-0 invert object-contain transition-all" />
+            <img src="/logo_w6.png" alt={APP_NAME.toUpperCase()} className="h-8 md:h-10 brightness-0 invert object-contain transition-all" />
           </div>
           
           {/* Desktop Navigation */}
@@ -241,7 +242,7 @@ export default function Index() {
           </h1>
 
           <p className="text-lg md:text-xl text-white/60 max-w-2xl font-medium leading-relaxed mb-12">
-            Diga adeus às planilhas e caderninhos. O Workly centraliza seus agendamentos, ordens de serviço, controle de custos e cobranças. Otimize seu tempo e saiba seu lucro real.
+            Diga adeus às planilhas e caderninhos. O {APP_NAME} centraliza seus agendamentos, ordens de serviço, controle de custos e cobranças. Otimize seu tempo e saiba seu lucro real.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-6 mb-20 w-full justify-center">
@@ -257,7 +258,7 @@ export default function Index() {
           </div>
 
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mb-12">
-            Junte-se a +10.000 profissionais que já transformaram seus negócios com o Workly.
+            Junte-se a +10.000 profissionais que já transformaram seus negócios com o {APP_NAME}.
           </p>
 
           {/* Product Mockup */}
@@ -543,7 +544,7 @@ export default function Index() {
             Recupere o controle da sua rotina e multiplique seus resultados.
           </h2>
           <p className="text-lg md:text-xl text-white/80 font-medium max-w-2xl mx-auto mb-12 relative z-10">
-            Se você recuperar UMA cobrança esquecida, o Workly já valeu. No plano gratuito, ele é totalmente sem custo.
+            Se você recuperar UMA cobrança esquecida, o {APP_NAME} já valeu. No plano gratuito, ele é totalmente sem custo.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 relative z-10">
@@ -573,7 +574,7 @@ export default function Index() {
               <p>WhatsApp: +55 17 99203.0665</p>
             </div>
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">
-              © 2026 WORKLY — Feito para o autônomo brasileiro.
+              © 2026 {APP_NAME.toUpperCase()} — Feito para o autônomo brasileiro.
             </p>
           </div>
           

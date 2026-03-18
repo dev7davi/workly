@@ -96,7 +96,7 @@ function generateEventForDate(
     ? `DTEND;TZID=America/Sao_Paulo:${formatICSDateTime(endDate, true)}`
     : `DTEND;VALUE=DATE:${formatICSDateTime(endDate, false)}`;
 
-  const summaryPrefix = eventType === 'Pagamento' ? 'Workly: Pagamento de ' : 'Workly: ';
+  const summaryPrefix = eventType === 'Pagamento' ? 'Worklly: Pagamento de ' : 'Worklly: ';
   const description = `Cliente: ${service.clientName}\nServiço: ${service.serviceName}\nValor: R$ ${service.value.toFixed(2)}\nStatus: ${service.status}${service.description ? `\nObservações: ${service.description}` : ''}`;
 
   return [
@@ -138,10 +138,10 @@ export function generateBulkICS(services: ServiceForExport[]): string {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Workly//Workly Organizer//PT",
+    "PRODID:-//Worklly//Worklly Organizer//PT",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    "X-WR-CALNAME:Workly - Agenda",
+    "X-WR-CALNAME:Worklly - Agenda",
     "X-WR-TIMEZONE:America/Sao_Paulo",
     events,
     "END:VCALENDAR"

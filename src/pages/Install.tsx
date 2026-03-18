@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Briefcase, Download, Smartphone, Check, ArrowLeft, Share, PlusSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { APP_NAME } from "@/lib/constants";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -48,7 +49,7 @@ export default function Install() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
-        <span className="text-xl font-black tracking-tighter uppercase">WORKLY</span>
+        <span className="text-xl font-black tracking-tighter uppercase">{APP_NAME}</span>
       </header>
 
       <main className="flex flex-1 flex-col items-center justify-center gap-10 max-w-md mx-auto">
@@ -60,7 +61,7 @@ export default function Install() {
         </div>
 
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-black tracking-tight">Instalar WORKLY</h1>
+          <h1 className="text-3xl font-black tracking-tight">Instalar {APP_NAME.toUpperCase()}</h1>
           <p className="text-muted-foreground font-medium">Use como um aplicativo real, direto da sua tela inicial e sem ocupar espaço.</p>
         </div>
 

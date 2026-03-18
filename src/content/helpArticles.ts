@@ -15,7 +15,7 @@ O cadastro de clientes é o primeiro passo para organizar sua base e iniciar o r
 
 ## Passo a Passo:
 
-1.  **Acesse o Módulo Clientes:** No menu lateral do Workly, clique em "Clientes".
+1.  **Acesse o Módulo Clientes:** No menu lateral do Worklly, clique em "Clientes".
 2.  **Inicie um Novo Cadastro:** Na tela de Clientes, localize e clique no botão "Novo Cliente" (geralmente um botão com um ícone de "+" ou "Adicionar").
 3.  **Preencha os Dados Essenciais:**
     *   **Nome Completo/Razão Social:** Insira o nome do cliente ou o nome da empresa.
@@ -45,9 +45,9 @@ A importação de catálogo permite adicionar múltiplos clientes ou serviços d
     *   Abra o modelo baixado em um editor de planilhas (Excel, Google Sheets, LibreOffice Calc).
     *   Preencha cada coluna com as informações correspondentes aos seus clientes ou serviços. **Atenção:** Siga rigorosamente o formato das colunas do modelo para evitar erros.
     *   Certifique-se de que não há linhas em branco ou dados inconsistentes.
-4.  **Salve a Planilha:** Salve o arquivo no formato .csv (valores separados por vírgula) ou no formato de planilha original, conforme a instrução do Workly.
-5.  **Faça o Upload do Arquivo:** Volte para a tela de importação no Workly e clique em "Escolher Arquivo" ou "Upload". Selecione a planilha que você preencheu.
-6.  **Revise e Confirme:** O Workly pode apresentar uma prévia dos dados a serem importados. Revise cuidadosamente e confirme a importação.
+4.  **Salve a Planilha:** Salve o arquivo no formato .csv (valores separados por vírgula) ou no formato de planilha original, conforme a instrução do Worklly.
+5.  **Faça o Upload do Arquivo:** Volte para a tela de importação no Worklly e clique em "Escolher Arquivo" ou "Upload". Selecione a planilha que você preencheu.
+6.  **Revise e Confirme:** O Worklly pode apresentar uma prévia dos dados a serem importados. Revise cuidadosamente e confirme a importação.
 
 > [!TIP]
 > **Dica:** Para grandes volumes de dados, faça testes com um pequeno número de registros primeiro para garantir que o formato está correto.
@@ -58,7 +58,7 @@ A importação de catálogo permite adicionar múltiplos clientes ou serviços d
     title: "Gestão de Inadimplência",
     category: "clientes",
     content: `
-Gerenciar a inadimplência é fundamental para a saúde financeira do seu negócio. O Workly oferece ferramentas para identificar e acompanhar clientes com pagamentos em atraso.
+Gerenciar a inadimplência é fundamental para a saúde financeira do seu negócio. O Worklly oferece ferramentas para identificar e acompanhar clientes com pagamentos em atraso.
 
 ## Passo a Passo:
 
@@ -70,7 +70,7 @@ Gerenciar a inadimplência é fundamental para a saúde financeira do seu negóc
     *   Dias em atraso.
     *   Histórico de contato.
 4.  **Tome Ações:**
-    *   **Envie Lembretes:** Utilize a funcionalidade de envio de lembretes automáticos ou manuais (por e-mail, WhatsApp) diretamente pelo Workly.
+    *   **Envie Lembretes:** Utilize a funcionalidade de envio de lembretes automáticos ou manuais (por e-mail, WhatsApp) diretamente pelo Worklly.
     *   **Registre Contatos:** Anote todas as interações com o cliente (ligações, e-mails) na ficha do cliente para manter um histórico.
     *   **Negocie:** Se possível, ofereça opções de parcelamento ou renegociação.
 5.  **Atualize o Status:** Após o pagamento ou acordo, atualize o status da dívida no sistema para manter os registros precisos.
@@ -179,7 +179,7 @@ O DRE (Demonstrativo de Resultado do Exercício) é um relatório contábil que 
     title: "Gestão de Despesas",
     category: "financeiro",
     content: `
-Controlar as despesas é vital para a lucratividade. O Workly permite registrar e categorizar todos os seus gastos.
+Controlar as despesas é vital para a lucratividade. O Worklly permite registrar e categorizar todos os seus gastos.
 
 ## Passo a Passo:
 
@@ -228,7 +228,7 @@ Entender as características de cada plano é fundamental para escolher a opçã
 
 ## Passo a Passo:
 
-1.  **Acesse a Página de Planos:** No Workly, procure por uma seção como "Planos", "Minha Assinatura" ou "Upgrade".
+1.  **Acesse a Página de Planos:** No Worklly, procure por uma seção como "Planos", "Minha Assinatura" ou "Upgrade".
 2.  **Compare os Planos:** A página geralmente apresenta uma tabela comparativa com os diferentes planos disponíveis (ex: Básico, Pro, Premium).
 3.  **Analise os Recursos:** Para cada plano, observe:
     *   **Preço:** Custo mensal ou anual.
@@ -251,7 +251,7 @@ O processo de cancelamento de uma assinatura deve ser claro e transparente.
 
 1.  **Acesse as Configurações de Assinatura:** No menu principal, vá para "Configurações", "Minha Conta" ou "Assinatura".
 2.  **Localize a Opção de Cancelamento:** Procure por um botão ou link como "Gerenciar Assinatura", "Cancelar Plano" ou "Alterar Plano".
-3.  **Siga as Instruções:** O Workly pode pedir um motivo para o cancelamento ou oferecer alternativas (pausar assinatura, downgrade de plano).
+3.  **Siga as Instruções:** O Worklly pode pedir um motivo para o cancelamento ou oferecer alternativas (pausar assinatura, downgrade de plano).
 4.  **Confirme o Cancelamento:** Leia atentamente as informações sobre o cancelamento (ex: data de efetivação, reembolso) e confirme a ação.
 5.  **Verifique a Confirmação:** Você deverá receber um e-mail de confirmação do cancelamento.
 
@@ -289,7 +289,7 @@ Escolher entre o plano mensal e o anual depende do seu planejamento e do quanto 
 
 *   **Economia Significativa:** Ao optar pelo plano anual, você recebe um desconto de **17%**. Isso equivale a pagar por 10 meses e ganhar 2 meses totalmente grátis.
 *   **Praticidade:** Você faz apenas um pagamento por ano, evitando preocupações mensais com boletos ou faturas no cartão.
-*   **Fator de Investimento:** Ideal para quem já validou o uso do Workly e quer garantir a ferramenta pelo menor preço possível.
+*   **Fator de Investimento:** Ideal para quem já validou o uso do Worklly e quer garantir a ferramenta pelo menor preço possível.
 
 ## Comparação de Economia:
 

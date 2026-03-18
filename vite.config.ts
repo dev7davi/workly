@@ -24,8 +24,8 @@ export default defineConfig(({ mode }) => ({
         maximumFileSizeToCacheInBytes: 5000000 // Aumentado para 5MB para suportar o bundle principal
       },
       manifest: {
-        name: "Workly",
-        short_name: "Workly",
+        name: "Worklly",
+        short_name: "Worklly",
         description: "Seu trabalho, organizado.",
         start_url: "/",
         display: "standalone",

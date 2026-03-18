@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useRef } from "react";
 import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
+import { APP_NAME } from "@/lib/constants";
 
 const statusConfig: Record<ServiceStatus, { label: string; color: string; icon: any }> = {
   paid: { label: "Pago", color: "bg-success text-success-foreground", icon: CheckCircle },
@@ -79,7 +80,7 @@ export default function Receipt() {
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(24);
-    doc.text("WORKLY", 105, 20, { align: "center" });
+    doc.text(APP_NAME.toUpperCase(), 105, 20, { align: "center" });
     doc.setFontSize(12);
     doc.text("Comprovante de Prestação de Serviço", 105, 30, { align: "center" });
 
@@ -178,7 +179,7 @@ export default function Receipt() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm border border-white/10">
             <Briefcase className="h-8 w-8 text-white" />
           </div>
-          <h2 className="text-2xl font-black tracking-tighter">WORKLY</h2>
+          <h2 className="text-2xl font-black tracking-tighter">{APP_NAME.toUpperCase()}</h2>
           <p className="text-sm font-medium opacity-80 uppercase tracking-widest">
             Documento de Prestação
           </p>
@@ -242,7 +243,7 @@ export default function Receipt() {
               </span>
             </div>
             <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-[0.2em] opacity-50">
-              Autenticado pelo Workly
+              Autenticado pelo {APP_NAME}
             </p>
           </div>
         </CardContent>

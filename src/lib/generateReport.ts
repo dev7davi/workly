@@ -2,6 +2,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Service } from "@/hooks/useServices";
 import { formatCurrency, formatDateLong } from "@/lib/format";
+import { APP_NAME } from "@/lib/constants";
 
 interface ReportData {
   services: Service[];
@@ -22,7 +23,7 @@ export function generateMonthlyReport({ services, userName, month, year }: Repor
   // Header
   doc.setFontSize(20);
   doc.setTextColor(16, 185, 129); // Primary green
-  doc.text("WORKLY", 105, 20, { align: "center" });
+  doc.text(APP_NAME.toUpperCase(), 105, 20, { align: "center" });
   
   doc.setFontSize(10);
   doc.setTextColor(100);
@@ -97,7 +98,7 @@ export function generateMonthlyReport({ services, userName, month, year }: Repor
     doc.setFontSize(8);
     doc.setTextColor(150);
     doc.text(
-      `Página ${i} de ${pageCount} - Gerado pelo WORKLY`,
+      `Página ${i} de ${pageCount} - Gerado pelo ${APP_NAME.toUpperCase()}`,
       105,
       doc.internal.pageSize.height - 10,
       { align: "center" }
@@ -105,6 +106,6 @@ export function generateMonthlyReport({ services, userName, month, year }: Repor
   }
 
   // Download
-  const fileName = `WORKLY_Relatorio_${month}_${year}.pdf`;
+  const fileName = `${APP_NAME.toUpperCase()}_Relatorio_${month}_${year}.pdf`;
   doc.save(fileName);
 }

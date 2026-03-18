@@ -31,6 +31,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { APP_NAME } from "@/lib/constants";
 
 interface AdminUser {
     id: string;
@@ -126,7 +127,7 @@ const Admin = () => {
                     <CardContent>
                         <div className="text-2xl font-bold">{users.length}</div>
                         <p className="text-xs text-muted-foreground mt-1">
-                            Base de clientes Workly
+                            Base de clientes {APP_NAME}
                         </p>
                     </CardContent>
                 </Card>

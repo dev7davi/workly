@@ -30,6 +30,7 @@ import ImportNote from "./pages/ImportNote";
 import OS from "./pages/OS";
 import { AppLayout } from "./components/layout/AppLayout";
 import { InstallButton } from "./components/InstallButton";
+import { ForcedDarkMode } from "./components/ForcedDarkMode";
 
 const queryClient = new QueryClient();
 
@@ -91,7 +92,7 @@ const App = () => (
             <Routes>
               {/* Rotas públicas */}
               <Route path="/" element={<PublicRoute><Index /></PublicRoute>} />
-              <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
+              <Route path="/auth" element={<PublicRoute><ForcedDarkMode><Auth /></ForcedDarkMode></PublicRoute>} />
 
               {/* Rotas protegidas */}
               <Route path="/dashboard" element={<P><Dashboard /></P>} />
@@ -120,7 +121,7 @@ const App = () => (
               <Route path="/costs" element={<P><Costs /></P>} />
               <Route path="/statistics" element={<P><Statistics /></P>} />
               <Route path="/profile" element={<P><Profile /></P>} />
-              <Route path="/plans" element={<P><Plans /></P>} />
+              <Route path="/plans" element={<P><ForcedDarkMode><Plans /></ForcedDarkMode></P>} />
               <Route path="/help" element={<P><Help /></P>} />
               <Route path="/help/:slug" element={<P><HelpArticle /></P>} />
 
