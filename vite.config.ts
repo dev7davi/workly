@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      manifestFilename: 'manifest.json',
+      manifestFilename: 'manifest-v2.json',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
         maximumFileSizeToCacheInBytes: 5000000 // Aumentado para 5MB para suportar o bundle principal
@@ -33,13 +33,13 @@ export default defineConfig(({ mode }) => ({
         theme_color: "#06c904",
         icons: [
           {
-            src: "/icon-192.png",
+            src: "/icon-192-v2.png",
             sizes: "192x192",
             type: "image/png",
             purpose: "any maskable"
           },
           {
-            src: "/icon-512.png",
+            src: "/icon-512-v2.png",
             sizes: "512x512",
             type: "image/png",
             purpose: "any maskable"
