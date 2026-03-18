@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => ({
         start_url: "/",
         display: "standalone",
         background_color: "#ffffff",
-        theme_color: "#06c904",
+        theme_color: "#0ea5e9",
         icons: [
           {
             src: "/icon-192-v2.png",
@@ -51,14 +51,14 @@ export default defineConfig(({ mode }) => ({
             short_name: "Serviço",
             description: "Criar uma nova ordem de serviço",
             url: "/services/new",
-            icons: [{ "src": "/icon-192.png", "sizes": "192x192" }]
+            icons: [{ "src": "/icon-192-v2.png", "sizes": "192x192" }]
           },
           {
             name: "Agenda",
             short_name: "Agenda",
             description: "Ver compromissos",
             url: "/agenda",
-            icons: [{ "src": "/icon-192.png", "sizes": "192x192" }]
+            icons: [{ "src": "/icon-192-v2.png", "sizes": "192x192" }]
           }
         ]
       }
