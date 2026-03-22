@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "./use-toast";
 
-type MediaType = "images" | "audios";
+type MediaType = "images" | "audios" | "documents";
 
 export interface MediaFile {
     name: string;

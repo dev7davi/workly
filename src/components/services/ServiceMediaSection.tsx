@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Image, Mic, Paperclip, X, Loader2, Play, Expand, Trash2 } from "lucide-react";
+import { Image, Mic, Paperclip, X, Loader2, Play, Expand, Trash2, FileText, File, FileType, FileWarning } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -28,14 +28,17 @@ interface ServiceMediaSectionProps {
 export function ServiceMediaSection({ serviceId }: ServiceMediaSectionProps) {
     const { fetchMedia: fetchImages, mediaList: images, uploadMedia: uploadImage, deleteMedia: deleteImage, isUploading: isUploadingImage } = useServiceMedia(serviceId, "images");
     const { fetchMedia: fetchAudios, mediaList: audios, uploadMedia: uploadAudio, deleteMedia: deleteAudio, isUploading: isUploadingAudio } = useServiceMedia(serviceId, "audios");
+    const { fetchMedia: fetchDocuments, mediaList: documents, uploadMedia: uploadDocument, deleteMedia: deleteDocument, isUploading: isUploadingDocument } = useServiceMedia(serviceId, "documents");
 
     const imageInputRef = useRef<HTMLInputElement>(null);
     const audioInputRef = useRef<HTMLInputElement>(null);
+    const documentInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         fetchImages("images");
         fetchAudios("audios");
-    }, [fetchImages, fetchAudios]);
+        fetchDocuments("documents");
+    }, [fetchImages, fetchAudios, fetchDocuments]);
 
     const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -59,6 +62,34 @@ export function ServiceMediaSection({ serviceId }: ServiceMediaSectionProps) {
         }
         await uploadAudio(file, "audios", 10, ['mp3', 'wav', 'ogg', 'm4a', 'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp4']);
         if (audioInputRef.current) audioInputRef.current.value = "";
+    };
+
+    const handleDocumentChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (documents.length >= 5) {
+            alert("Máximo de 5 documentos atingido.");
+            return;
+        }
+        await uploadDocument(file, "documents", 5, [
+            'pdf', 'txt', 'doc', 'docx',
+            'application/pdf', 'text/plain',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ]);
+        if (documentInputRef.current) documentInputRef.current.value = "";
+    };
+
+    const getDocumentIcon = (fileName: string) => {
+        const ext = fileName.split(".").pop()?.toLowerCase();
+        switch (ext) {
+            case "pdf": return <FileText className="h-6 w-6 text-red-500" />;
+            case "txt": return <File className="h-6 w-6 text-gray-500" />;
+            case "doc":
+            case "docx": return <FileType className="h-6 w-6 text-blue-500" />;
+            default: return <FileWarning className="h-6 w-6 text-yellow-500" />;
+        }
     };
 
     return (
@@ -184,6 +215,76 @@ export function ServiceMediaSection({ serviceId }: ServiceMediaSectionProps) {
                                 <Button type="button" variant="outline" className="w-full h-12 rounded-xl text-xs font-black uppercase tracking-widest gap-2" onClick={() => audioInputRef.current?.click()} disabled={isUploadingAudio}>
                                     {isUploadingAudio ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mic className="h-4 w-4" />}
                                     Gravar ou Enviar Áudio
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* ── DOCUMENTOS ── */}
+                <div className="space-y-3 pt-4 border-t border-border">
+                    <div className="flex items-center justify-between">
+                        <Label className="font-bold text-sm">Documentos (PDF, TXT, Word)</Label>
+                        <span className="text-[10px] uppercase text-muted-foreground">{documents.length}/5 MÁX</span>
+                    </div>
+
+                    <div className="space-y-2">
+                        {documents.map((doc) => (
+                            <div key={doc.path} className="flex items-center gap-3 p-3 bg-background rounded-2xl border border-border shadow-sm">
+                                <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                                    {getDocumentIcon(doc.name)}
+                                </div>
+                                <div className="flex-1 min-w-0 pr-2">
+                                    <a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-xs font-bold truncate block hover:underline text-foreground">
+                                        {doc.name}
+                                    </a>
+                                </div>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive rounded-xl">
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent className="rounded-2xl">
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle className="font-black">Excluir documento?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                O documento será permanentemente removido.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel className="rounded-lg font-bold">Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction
+                                                onClick={() => deleteDocument(doc.path, "documents")}
+                                                className="rounded-lg font-bold bg-destructive text-white"
+                                            >
+                                                Excluir
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </div>
+                        ))}
+
+                        {documents.length < 5 && (
+                            <div className="pt-1">
+                                <input
+                                    ref={documentInputRef}
+                                    type="file"
+                                    accept=".pdf,.txt,.doc,.docx,application/pdf,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                    className="hidden"
+                                    onChange={handleDocumentChange}
+                                    disabled={isUploadingDocument}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="w-full h-12 rounded-xl text-xs font-black uppercase tracking-widest gap-2"
+                                    onClick={() => documentInputRef.current?.click()}
+                                    disabled={isUploadingDocument}
+                                >
+                                    {isUploadingDocument ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                                    Anexar Documento
                                 </Button>
                             </div>
                         )}
