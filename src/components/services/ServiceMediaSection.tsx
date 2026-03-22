@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Image, Mic, Paperclip, X, Loader2, Play, Expand, Trash2, FileText, File, FileType, FileWarning } from "lucide-react";
+import { Image, Mic, Paperclip, X, Loader2, Play, Expand, Trash2, FileText, File, FileType, FileWarning, Upload } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,8 @@ export function ServiceMediaSection({ serviceId }: ServiceMediaSectionProps) {
     const { fetchMedia: fetchDocuments, mediaList: documents, uploadMedia: uploadDocument, deleteMedia: deleteDocument, isUploading: isUploadingDocument } = useServiceMedia(serviceId, "documents");
 
     const imageInputRef = useRef<HTMLInputElement>(null);
-    const audioInputRef = useRef<HTMLInputElement>(null);
+    const audioInputRef = useRef<HTMLInputElement>(null);   // Enviar arquivo existente
+    const audioCaptureRef = useRef<HTMLInputElement>(null); // Gravar via microfone (iOS-safe)
     const documentInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -60,8 +61,13 @@ export function ServiceMediaSection({ serviceId }: ServiceMediaSectionProps) {
             alert("Máximo de 3 áudios atingido.");
             return;
         }
-        await uploadAudio(file, "audios", 10, ['mp3', 'wav', 'ogg', 'm4a', 'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp4']);
+        await uploadAudio(file, "audios", 10, [
+            'mp3', 'wav', 'ogg', 'm4a', 'aac',
+            'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp4', 'audio/aac', 'audio/x-m4a'
+        ]);
+        // Reset both inputs
         if (audioInputRef.current) audioInputRef.current.value = "";
+        if (audioCaptureRef.current) audioCaptureRef.current.value = "";
     };
 
     const handleDocumentChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -210,11 +216,19 @@ export function ServiceMediaSection({ serviceId }: ServiceMediaSectionProps) {
                         ))}
 
                         {audios.length < 3 && (
-                            <div className="pt-1">
-                                <input ref={audioInputRef} type="file" accept="audio/*" capture="microphone" className="hidden" onChange={handleAudioChange} disabled={isUploadingAudio} />
-                                <Button type="button" variant="outline" className="w-full h-12 rounded-xl text-xs font-black uppercase tracking-widest gap-2" onClick={() => audioInputRef.current?.click()} disabled={isUploadingAudio}>
+                            <div className="pt-1 grid grid-cols-2 gap-2">
+                                {/* Botão A: Gravar Áudio (capture=microphone para iOS) */}
+                                <input ref={audioCaptureRef} type="file" accept="audio/*" capture="microphone" className="hidden" onChange={handleAudioChange} disabled={isUploadingAudio} />
+                                <Button type="button" variant="outline" className="w-full h-12 rounded-xl text-xs font-black uppercase tracking-widest gap-2" onClick={() => audioCaptureRef.current?.click()} disabled={isUploadingAudio}>
                                     {isUploadingAudio ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mic className="h-4 w-4" />}
-                                    Gravar ou Enviar Áudio
+                                    Gravar Áudio
+                                </Button>
+
+                                {/* Botão B: Enviar Arquivo existente (sem capture) */}
+                                <input ref={audioInputRef} type="file" accept=".mp3,.wav,.m4a,.ogg,.aac,audio/mpeg,audio/wav,audio/mp4,audio/ogg,audio/aac" className="hidden" onChange={handleAudioChange} disabled={isUploadingAudio} />
+                                <Button type="button" variant="outline" className="w-full h-12 rounded-xl text-xs font-black uppercase tracking-widest gap-2" onClick={() => audioInputRef.current?.click()} disabled={isUploadingAudio}>
+                                    {isUploadingAudio ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                                    Enviar Arquivo
                                 </Button>
                             </div>
                         )}

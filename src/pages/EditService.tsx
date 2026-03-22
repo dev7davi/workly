@@ -22,8 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ServiceHistory } from "@/components/services/ServiceHistory";
-import { AudioRecorder } from "@/components/services/AudioRecorder";
-import { History, Mic } from "lucide-react";
+import { History } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -309,16 +308,6 @@ export default function EditService() {
             </Card>
 
             {id && <ServiceMediaSection serviceId={id} />}
-
-
-            {id && (
-              <div className="space-y-4 pt-4 border-t border-muted/50">
-                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-2">
-                  <Mic className="h-3 w-3" /> Anexos de Voz
-                </p>
-                <AudioRecorder serviceId={id} />
-              </div>
-            )}
 
             {/* Action Buttons inside form */}
             <div className="flex gap-3">
